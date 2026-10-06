@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useClosedDatesStore } from '@/store/closedDatesStore'
 import { ErrorText } from '@/components/ErrorText'
@@ -16,6 +16,12 @@ export function Horarios() {
   const [error, setError] = useState<string | null>(null)
 
   const dirty = open !== openHour || close !== closeHour
+
+  // Entrar a esta pantalla cuenta como haber revisado los horarios en la
+  // lista de primeros pasos (los que vienen por defecto pueden estar bien).
+  useEffect(() => {
+    useSettingsStore.getState().markOnboardingStep('hours')
+  }, [])
 
   const closedDates = useClosedDatesStore((s) => s.closedDates)
   const addClosedDate = useClosedDatesStore((s) => s.addClosedDate)

@@ -48,6 +48,7 @@ export const useCourtsStore = create<CourtsState>()((set, get) => ({
       .single()
     if (error) return error.message
     set({ courts: [...get().courts, fromRow(data)] })
+    useSettingsStore.getState().markOnboardingStep('courts')
     return null
   },
   updateCourt: async (id, patch) => {
@@ -58,6 +59,7 @@ export const useCourtsStore = create<CourtsState>()((set, get) => ({
     const { error } = await supabase.from('courts').update(row).eq('id', id)
     if (error) return error.message
     set({ courts: get().courts.map((c) => (c.id === id ? { ...c, ...patch } : c)) })
+    useSettingsStore.getState().markOnboardingStep('courts')
     return null
   },
   deleteCourt: async (id) => {

@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { deleteImage } from '@/lib/storage'
-import type { Settings, Sport } from '@/types'
+import type { OnboardingState, Settings, Sport } from '@/types'
 
 interface SettingsRow {
   id: string
@@ -16,6 +16,7 @@ interface SettingsRow {
   about: string
   address: string
   instagram_url: string | null
+  onboarding?: OnboardingState | null
 }
 
 function fromRow(row: SettingsRow): Settings {
@@ -32,6 +33,8 @@ function fromRow(row: SettingsRow): Settings {
     about: row.about,
     address: row.address,
     instagramUrl: row.instagram_url ?? undefined,
+    // Sin la columna (migracion 013 sin correr) no se muestra la lista.
+    onboarding: row.onboarding ?? { dismissed: true },
   }
 }
 
@@ -56,12 +59,14 @@ interface SettingsState {
   about: string
   address: string
   instagramUrl?: string
+  onboarding: OnboardingState
   loading: boolean
   venueChecked: boolean
   fetchSettingsForOwner: (ownerId: string) => Promise<void>
   fetchSettingsBySlug: (slug: string) => Promise<boolean>
   createVenue: (input: CreateVenueInput) => Promise<string | null>
   updateSettings: (patch: Partial<Settings>) => Promise<string | null>
+  markOnboardingStep: (step: keyof OnboardingState) => Promise<void>
   reset: () => void
 }
 
@@ -78,6 +83,7 @@ const defaultState = {
   about: '',
   address: '',
   instagramUrl: undefined as string | undefined,
+  onboarding: { dismissed: true } as OnboardingState,
   loading: false,
   venueChecked: false,
 }
@@ -146,6 +152,13 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
       deleteImage(previousLogoUrl).catch(() => {})
     }
     return null
+  },
+  markOnboardingStep: async (step) => {
+    const { id, onboarding } = get()
+    if (!id || onboarding[step]) return
+    const next = { ...onboarding, [step]: true }
+    set({ onboarding: next })
+    await supabase.from('settings').update({ onboarding: next }).eq('id', id)
   },
   reset: () => set({ ...defaultState }),
 }))

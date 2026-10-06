@@ -1,4 +1,4 @@
--- PlayXP: alta autonoma en un solo flujo.
+-- PlayXP: alta autonoma en un solo flujo, con datos de ejemplo.
 -- Correr despues de 001-012, una sola vez, en el SQL Editor de Supabase.
 -- No borra ni modifica datos existentes: solo agrega columnas, una tabla y
 -- una funcion, y cambia como se crea un complejo nuevo.
@@ -31,11 +31,17 @@ drop policy if exists "owner update venue_owners" on venue_owners;
 create policy "owner update venue_owners" on venue_owners for update
   using (venue_id = get_my_venue_id()) with check (venue_id = get_my_venue_id());
 
--- === 3. Alta de un complejo. ===
+-- === 3. Lista de primeros pasos del Dashboard. ===
+-- Guarda que pasos ya hizo el dueño y si oculto la lista. Los complejos que
+-- ya existen arrancan con la lista oculta.
+alter table settings add column if not exists onboarding jsonb not null default '{}'::jsonb;
+update settings set onboarding = '{"dismissed": true}'::jsonb where onboarding = '{}'::jsonb;
+
+-- === 4. Alta de un complejo. ===
 -- Antes el panel insertaba la fila de settings directo desde el navegador.
 -- Ahora la unica forma de crear un complejo es esta funcion, que valida los
--- datos y crea todo junto (complejo, contacto del dueño y canchas): o se
--- crea todo o no se crea nada.
+-- datos y crea todo junto (complejo, contacto del dueño, canchas y productos
+-- de cantina de ejemplo): o se crea todo o no se crea nada.
 create or replace function create_venue(
   p_venue_name text,
   p_slug text,
@@ -63,6 +69,9 @@ declare
   v_label text;
   v_price numeric;
   v_i int;
+  v_bebidas uuid;
+  v_comidas uuid;
+  v_cafeteria uuid;
 begin
   if v_user is null then
     raise exception 'Tenés que iniciar sesión para crear tu complejo.';
@@ -154,6 +163,21 @@ begin
       );
     end loop;
   end loop;
+
+  -- Cantina de ejemplo, para que Productos y Venta rapida no arranquen vacios.
+  insert into categories (venue_id, name) values (v_venue.id, 'Bebidas') returning id into v_bebidas;
+  insert into categories (venue_id, name) values (v_venue.id, 'Comidas') returning id into v_comidas;
+  insert into categories (venue_id, name) values (v_venue.id, 'Cafetería') returning id into v_cafeteria;
+
+  insert into products (venue_id, name, description, category_id, price) values
+    (v_venue.id, 'Agua mineral 500 ml', '', v_bebidas, 1500),
+    (v_venue.id, 'Gaseosa 500 ml', '', v_bebidas, 2200),
+    (v_venue.id, 'Bebida isotónica', '', v_bebidas, 2800),
+    (v_venue.id, 'Cerveza lata', '', v_bebidas, 3000),
+    (v_venue.id, 'Barrita de cereal', '', v_comidas, 1200),
+    (v_venue.id, 'Papas fritas', '', v_comidas, 2500),
+    (v_venue.id, 'Sándwich de jamón y queso', '', v_comidas, 4500),
+    (v_venue.id, 'Café', '', v_cafeteria, 1800);
 
   return v_venue;
 end;

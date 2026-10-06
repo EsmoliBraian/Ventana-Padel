@@ -14,6 +14,7 @@ import { StatusBadge } from '@/components/StatusBadge'
 import { NuevaReservaModal } from './NuevaReservaModal'
 import { VentaRapidaCard, type VentaRapidaCardHandle } from './VentaRapidaCard'
 import { FiadoCard } from './FiadoCard'
+import { OnboardingChecklist } from './OnboardingChecklist'
 
 export function Dashboard() {
   const settings = useSettingsStore()
@@ -84,6 +85,8 @@ export function Dashboard() {
           + Nueva reserva
         </button>
       </div>
+
+      <OnboardingChecklist />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard

@@ -47,6 +47,7 @@ export function Configuracion() {
   async function handleCopyLink() {
     if (!bookingLink) return
     await navigator.clipboard.writeText(bookingLink)
+    useSettingsStore.getState().markOnboardingStep('link')
     setLinkCopied(true)
     setTimeout(() => setLinkCopied(false), 2000)
   }

@@ -7,6 +7,14 @@ export interface Court {
   sport: Sport
 }
 
+// Pasos de la lista de primeros pasos del Dashboard que el dueño ya hizo.
+export interface OnboardingState {
+  courts?: boolean
+  hours?: boolean
+  link?: boolean
+  dismissed?: boolean
+}
+
 export interface Settings {
   id: string
   ownerId: string
@@ -20,6 +28,7 @@ export interface Settings {
   about: string
   address: string
   instagramUrl?: string
+  onboarding: OnboardingState
 }
 
 export interface ClosedDate {
