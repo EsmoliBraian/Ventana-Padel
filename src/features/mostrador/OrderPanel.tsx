@@ -55,6 +55,8 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
   const [discountType, setDiscountType] = useState<SaleDiscount['type']>('porcentaje')
   const [discountValue, setDiscountValue] = useState('')
   const [confirmingVoid, setConfirmingVoid] = useState(false)
+  // Productos sin confirmar con el campo de comentario desplegado.
+  const [commentOpen, setCommentOpen] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -273,6 +275,20 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
                     />
                     <button
                       type="button"
+                      onClick={() =>
+                        setCommentOpen((prev) =>
+                          prev.includes(item.key) ? prev.filter((k) => k !== item.key) : [...prev, item.key],
+                        )
+                      }
+                      aria-label={`Comentario de ${productName(item.productId)}`}
+                      aria-expanded={commentOpen.includes(item.key)}
+                      title={item.comment || 'Agregar comentario'}
+                      className={`px-1 ${item.comment ? 'text-mo-accent' : 'text-mo-muted hover:text-mo-text'}`}
+                    >
+                      <i className={`${item.comment ? 'fa-solid' : 'fa-regular'} fa-comment`} />
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => onPendingChange(pending.filter((p) => p.key !== item.key))}
                       aria-label={`Quitar ${productName(item.productId)}`}
                       className="px-1 text-mo-muted hover:text-mo-danger"
@@ -280,13 +296,21 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
                       ×
                     </button>
                   </div>
-                  <input
-                    value={item.comment}
-                    onChange={(e) => updatePending(item.key, { comment: e.target.value })}
-                    placeholder="Comentario (opcional)"
-                    aria-label={`Comentario de ${productName(item.productId)}`}
-                    className="w-full rounded-lg border border-mo-border bg-mo-surface px-2 py-1 text-xs text-mo-text"
-                  />
+                  {commentOpen.includes(item.key) && (
+                    <input
+                      autoFocus
+                      value={item.comment}
+                      onChange={(e) => updatePending(item.key, { comment: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') setCommentOpen((prev) => prev.filter((k) => k !== item.key))
+                      }}
+                      placeholder="Comentario para este producto"
+                      className="w-full rounded-lg border border-mo-border bg-mo-surface px-2 py-1 text-xs text-mo-text"
+                    />
+                  )}
+                  {!commentOpen.includes(item.key) && item.comment && (
+                    <p className="truncate pl-1 text-xs text-mo-muted">{item.comment}</p>
+                  )}
                 </li>
               ))}
             </ul>
@@ -501,7 +525,7 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
                 type="button"
                 onClick={() => setShowClose(true)}
                 disabled={pending.length > 0}
-                className="rounded-lg bg-mo-text px-5 py-2 text-sm font-semibold text-mo-bg hover:opacity-90 disabled:opacity-40"
+                className="rounded-lg border border-transparent bg-mo-text px-5 py-2 text-sm font-semibold text-mo-bg hover:opacity-90 disabled:opacity-40"
               >
                 Cerrar pedido
               </button>
