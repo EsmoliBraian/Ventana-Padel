@@ -30,21 +30,21 @@ function formatDateTime(iso?: string): string {
 
 function PlanBadge({ venue }: { venue: AdminVenue }) {
   if (venue.isDemo) {
-    return <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-xs font-medium text-brand-300">Demo</span>
+    return <span className="whitespace-nowrap rounded-full bg-brand-500/20 px-2 py-0.5 text-xs font-medium text-brand-300">Demo</span>
   }
   const plan = getPlanInfo(venue)
   if (plan.state === 'active') {
-    return <span className="rounded-full bg-primary-500 px-2 py-0.5 text-xs font-medium text-gray-950">Activo</span>
+    return <span className="whitespace-nowrap rounded-full bg-primary-500 px-2 py-0.5 text-xs font-medium text-gray-950">Activo</span>
   }
   if (plan.state === 'trial') {
     return (
-      <span className="rounded-full border border-info-border/40 bg-info-bg px-2 py-0.5 text-xs font-medium text-info">
+      <span className="whitespace-nowrap rounded-full border border-info-border/40 bg-info-bg px-2 py-0.5 text-xs font-medium text-info">
         En prueba
       </span>
     )
   }
   return (
-    <span className="rounded-full border border-danger-border/40 bg-danger-bg px-2 py-0.5 text-xs font-medium text-danger">
+    <span className="whitespace-nowrap rounded-full border border-danger-border/40 bg-danger-bg px-2 py-0.5 text-xs font-medium text-danger">
       Vencido
     </span>
   )
