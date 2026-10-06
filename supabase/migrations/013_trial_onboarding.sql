@@ -1,7 +1,19 @@
--- PlayXP: alta autonoma en un solo flujo, con datos de ejemplo.
--- Correr despues de 001-012, una sola vez, en el SQL Editor de Supabase.
--- No borra ni modifica datos existentes: solo agrega columnas, una tabla y
--- una funcion, y cambia como se crea un complejo nuevo.
+-- PlayXP: alta autonoma con datos de ejemplo y prueba gratuita de 30 dias.
+-- Correr despues de 001-012, una sola vez y entero, en el SQL Editor de
+-- Supabase. Se puede volver a correr sin romper nada.
+--
+-- Que hace:
+--   1. Agrega el deporte a cada cancha.
+--   2. Crea venue_owners (contacto del dueño, privado).
+--   3. Agrega a settings la lista de primeros pasos.
+--   4. Agrega a settings el plan: plan_status, trial_ends_at, created_at.
+--   5. Crea create_venue(), la unica forma de dar de alta un complejo.
+--   6. Impide que el dueño cambie su propio plan.
+--   7. Reescribe las politicas RLS: con la prueba vencida no se puede
+--      escribir nada ni crear reservas, pero se sigue pudiendo leer.
+--
+-- Que NO hace: no borra ni modifica datos. Los complejos que ya existen
+-- quedan con plan_status = 'active' y siguen funcionando igual.
 
 -- === 1. El deporte es un dato de cada cancha. ===
 -- Las canchas que ya existen quedan como padel.
@@ -37,11 +49,26 @@ create policy "owner update venue_owners" on venue_owners for update
 alter table settings add column if not exists onboarding jsonb not null default '{}'::jsonb;
 update settings set onboarding = '{"dismissed": true}'::jsonb where onboarding = '{}'::jsonb;
 
--- === 4. Alta de un complejo. ===
+-- === 4. Plan del complejo. ===
+-- trial: en prueba hasta trial_ends_at. active: cliente que paga, sin
+-- vencimiento. expired: dado de baja a mano. Una prueba cuya fecha ya paso
+-- se trata como vencida aunque plan_status siga en 'trial' (ver
+-- venue_is_writable mas abajo), asi no hace falta ningun proceso que la
+-- actualice. Los complejos que ya existen quedan como 'active'.
+alter table settings add column if not exists created_at timestamptz not null default now();
+alter table settings add column if not exists plan_status text not null default 'active';
+alter table settings add column if not exists trial_ends_at timestamptz;
+alter table settings drop constraint if exists settings_plan_status_check;
+alter table settings add constraint settings_plan_status_check
+  check (plan_status in ('trial', 'active', 'expired'));
+
+-- === 5. Alta de un complejo. ===
 -- Antes el panel insertaba la fila de settings directo desde el navegador.
 -- Ahora la unica forma de crear un complejo es esta funcion, que valida los
 -- datos y crea todo junto (complejo, contacto del dueño, canchas y productos
--- de cantina de ejemplo): o se crea todo o no se crea nada.
+-- de cantina de ejemplo): o se crea todo o no se crea nada. El complejo
+-- nace en prueba por 30 dias; como el navegador ya no puede insertar en
+-- settings, nadie puede darse de alta directamente como 'active'.
 create or replace function create_venue(
   p_venue_name text,
   p_slug text,
@@ -124,8 +151,16 @@ begin
   end if;
 
   begin
-    insert into settings (owner_id, slug, venue_name, whatsapp_phone, open_hour, close_hour, slot_duration_minutes)
-    values (v_user, v_slug, v_name, v_phone, 8, 23, 60)
+    insert into settings (
+      owner_id, slug, venue_name, whatsapp_phone,
+      open_hour, close_hour, slot_duration_minutes,
+      plan_status, trial_ends_at
+    )
+    values (
+      v_user, v_slug, v_name, v_phone,
+      8, 23, 60,
+      'trial', now() + interval '30 days'
+    )
     returning * into v_venue;
   exception when unique_violation then
     raise exception 'Ese link ya está en uso, elegí otro.';
@@ -188,3 +223,155 @@ grant execute on function create_venue(text, text, text, text, jsonb) to authent
 
 -- El alta ya no inserta en settings desde el navegador.
 drop policy if exists "owner insert settings" on settings;
+
+-- === 6. El dueño no puede cambiar su propio plan. ===
+-- RLS decide que filas puede tocar cada uno, pero no que columnas. Este
+-- trigger rechaza cualquier cambio de plan, vencimiento, dueño o fecha de
+-- alta hecho desde la app (rol anon o authenticated). Desde el SQL Editor o
+-- con la service role no hay sesion de usuario, asi que ahi si se puede:
+-- es la forma de activar o extender un complejo a mano.
+create or replace function protect_settings_plan()
+returns trigger
+language plpgsql
+as $$
+begin
+  if coalesce(auth.role(), '') in ('anon', 'authenticated') then
+    if new.plan_status is distinct from old.plan_status
+      or new.trial_ends_at is distinct from old.trial_ends_at
+      or new.owner_id is distinct from old.owner_id
+      or new.created_at is distinct from old.created_at
+    then
+      raise exception 'El plan del complejo no se puede cambiar desde el panel.';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists protect_settings_plan on settings;
+create trigger protect_settings_plan
+  before update on settings
+  for each row execute function protect_settings_plan();
+
+-- === 7. Politicas RLS con el plan incluido. ===
+-- Un complejo admite escrituras si esta activo o si su prueba no vencio.
+create or replace function venue_is_writable(p_venue_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1 from settings
+    where id = p_venue_id
+      and (
+        plan_status = 'active'
+        or (plan_status = 'trial' and trial_ends_at > now())
+      )
+  );
+$$;
+
+grant execute on function venue_is_writable(uuid) to anon, authenticated;
+
+-- Se borran TODAS las politicas de estas tablas y se vuelven a crear, en vez
+-- de reemplazarlas por nombre: en Postgres las politicas se suman (alcanza
+-- con que una permita), asi que si quedara alguna vieja con otro nombre el
+-- bloqueo no serviria. Lectura: igual que antes. Escritura: igual que antes
+-- mas la condicion de que el complejo admita escrituras.
+do $$
+declare
+  r record;
+begin
+  for r in
+    select policyname, tablename from pg_policies
+    where schemaname = 'public'
+      and tablename in (
+        'settings', 'courts', 'reservations', 'products', 'categories',
+        'sales', 'sale_items', 'sale_payments', 'tournaments', 'hero_slides',
+        'closed_dates', 'fixed_slots',
+        'ranking_categories', 'ranking_points', 'ranking_entries'
+      )
+  loop
+    execute format('drop policy %I on public.%I', r.policyname, r.tablename);
+  end loop;
+end;
+$$;
+
+-- settings: lectura publica (el sitio resuelve el complejo por slug). No hay
+-- politica de insert: los complejos se crean solo con create_venue().
+create policy "public read settings" on settings for select using (true);
+create policy "owner update settings" on settings for update
+  using (owner_id = auth.uid() and venue_is_writable(id))
+  with check (owner_id = auth.uid());
+create policy "owner delete settings" on settings for delete
+  using (owner_id = auth.uid());
+
+-- reservations: la reserva publica (sin sesion) tambien se pausa.
+create policy "public read reservations" on reservations for select using (true);
+create policy "public create reservations" on reservations for insert
+  with check (venue_is_writable(venue_id));
+create policy "owner update reservations" on reservations for update
+  using (venue_id = get_my_venue_id() and venue_is_writable(venue_id))
+  with check (venue_id = get_my_venue_id() and venue_is_writable(venue_id));
+create policy "owner delete reservations" on reservations for delete
+  using (venue_id = get_my_venue_id() and venue_is_writable(venue_id));
+
+-- Tablas de lectura publica y escritura del dueño.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'courts', 'products', 'categories', 'tournaments', 'hero_slides',
+    'closed_dates', 'fixed_slots',
+    'ranking_categories', 'ranking_points', 'ranking_entries'
+  ]
+  loop
+    execute format('create policy %I on public.%I for select using (true)', 'public read ' || t, t);
+    execute format(
+      'create policy %I on public.%I for all '
+      || 'using (venue_id = get_my_venue_id() and venue_is_writable(venue_id)) '
+      || 'with check (venue_id = get_my_venue_id() and venue_is_writable(venue_id))',
+      'owner write ' || t, t
+    );
+  end loop;
+end;
+$$;
+
+-- Tablas de ventas: nunca publicas. El dueño las sigue leyendo con la prueba
+-- vencida (solo lectura), pero no puede escribir.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['sales', 'sale_items', 'sale_payments']
+  loop
+    execute format(
+      'create policy %I on public.%I for select using (venue_id = get_my_venue_id())',
+      'owner read ' || t, t
+    );
+    execute format(
+      'create policy %I on public.%I for all '
+      || 'using (venue_id = get_my_venue_id() and venue_is_writable(venue_id)) '
+      || 'with check (venue_id = get_my_venue_id() and venue_is_writable(venue_id))',
+      'owner write ' || t, t
+    );
+  end loop;
+end;
+$$;
+
+-- Imagenes (logo, novedades, torneos): subir o borrar tambien requiere un
+-- complejo que admita escrituras. La lectura publica no cambia.
+drop policy if exists "admin write slide images" on storage.objects;
+create policy "admin write slide images" on storage.objects for all
+  using (
+    bucket_id = 'slides'
+    and auth.role() = 'authenticated'
+    and venue_is_writable(get_my_venue_id())
+  )
+  with check (
+    bucket_id = 'slides'
+    and auth.role() = 'authenticated'
+    and venue_is_writable(get_my_venue_id())
+  );

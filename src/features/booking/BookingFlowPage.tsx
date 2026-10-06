@@ -7,6 +7,8 @@ import { useFixedSlotsStore } from '@/store/fixedSlotsStore'
 import { getCourtTimeSlots } from '@/lib/availability'
 import { formatCurrency, formatLongDate, fromDateKey, nextDays, toDateKey, weekdayShort } from '@/lib/format'
 import { buildReservationMessage, buildWhatsAppLink } from '@/lib/whatsapp'
+import { getPlanInfo } from '@/lib/plan'
+import { ErrorText } from '@/components/ErrorText'
 import type { Court } from '@/types'
 
 type Step = 'slot' | 'summary' | 'confirm'
@@ -29,6 +31,8 @@ export function BookingFlowPage() {
   const [selectedCourtId, setSelectedCourtId] = useState(() => courts[0]?.id ?? '')
   const [step, setStep] = useState<Step>('slot')
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const selectedCourt = courts.find((c) => c.id === selectedCourtId) ?? courts[0]
 
@@ -58,7 +62,8 @@ export function BookingFlowPage() {
 
   async function handleConfirmReservation() {
     if (!selectedSlot) return
-    await addReservation({
+    setSubmitting(true)
+    const reservationError = await addReservation({
       courtId: selectedSlot.court.id,
       date: selectedDate,
       time: selectedSlot.time,
@@ -67,6 +72,12 @@ export function BookingFlowPage() {
       createdVia: 'user',
       priceTotal: total,
     })
+    setSubmitting(false)
+    if (reservationError) {
+      setError('No pudimos guardar tu reserva. Probá de nuevo en un momento.')
+      return
+    }
+    setError(null)
     setStep('confirm')
   }
 
@@ -78,6 +89,35 @@ export function BookingFlowPage() {
       courtName: selectedSlot.court.name,
     })
     window.open(buildWhatsAppLink(settings.whatsappPhone, message), '_blank')
+  }
+
+  // Con la prueba vencida el complejo no toma reservas online (la base
+  // tambien las rechaza). Se avisa antes de mostrar horarios.
+  if (getPlanInfo(settings).state === 'expired') {
+    const contactLink = settings.whatsappPhone
+      ? buildWhatsAppLink(settings.whatsappPhone, `Hola! Quiero reservar en ${settings.venueName}.`)
+      : null
+    return (
+      <div className="mx-auto flex max-w-xl flex-col px-5 py-14 sm:py-20">
+        <h1 className="mb-3 text-2xl font-semibold text-gray-50 sm:text-3xl">
+          Reservas online en pausa
+        </h1>
+        <p className="text-sm text-gray-400">
+          {settings.venueName} no está tomando reservas online por el momento.
+          {contactLink ? ' Para reservar, escribile al complejo por WhatsApp.' : ''}
+        </p>
+        {contactLink && (
+          <a
+            href={contactLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 rounded-lg bg-success py-3 text-center font-medium text-gray-950 hover:bg-success/90"
+          >
+            Escribir por WhatsApp
+          </a>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -187,10 +227,14 @@ export function BookingFlowPage() {
           <button
             type="button"
             onClick={handleConfirmReservation}
-            className="rounded-lg bg-primary-500 py-3 font-medium text-gray-950 hover:bg-primary-400"
+            disabled={submitting}
+            className="rounded-lg bg-primary-500 py-3 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-60"
           >
-            RESERVAR Y CONFIRMAR
+            {submitting ? 'RESERVANDO...' : 'RESERVAR Y CONFIRMAR'}
           </button>
+          <div className="mt-2">
+            <ErrorText error={error} />
+          </div>
         </>
       )}
 

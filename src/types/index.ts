@@ -15,6 +15,8 @@ export interface OnboardingState {
   dismissed?: boolean
 }
 
+export type PlanStatus = 'trial' | 'active' | 'expired'
+
 export interface Settings {
   id: string
   ownerId: string
@@ -29,6 +31,8 @@ export interface Settings {
   address: string
   instagramUrl?: string
   onboarding: OnboardingState
+  planStatus: PlanStatus
+  trialEndsAt?: string // fecha y hora ISO; solo en prueba
 }
 
 export interface ClosedDate {

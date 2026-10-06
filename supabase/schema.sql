@@ -273,4 +273,8 @@ create policy "admin write slide images" on storage.objects for all
 alter publication supabase_realtime add table public.reservations;
 
 -- No seed data: venues (settings rows) are created by signing up through
--- the app (/admin/signup -> /admin/setup), not inserted here.
+-- the app (/admin/signup).
+--
+-- This file is the schema as of migration 012. On a brand new project, run
+-- supabase/migrations/013_trial_onboarding.sql right after it: it adds the
+-- free trial, the create_venue() signup function and the final RLS policies.

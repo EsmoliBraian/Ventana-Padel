@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { deleteImage } from '@/lib/storage'
-import type { OnboardingState, Settings, Sport } from '@/types'
+import { setCurrentPlan } from '@/lib/plan'
+import type { OnboardingState, PlanStatus, Settings, Sport } from '@/types'
 
 interface SettingsRow {
   id: string
@@ -17,6 +18,8 @@ interface SettingsRow {
   address: string
   instagram_url: string | null
   onboarding?: OnboardingState | null
+  plan_status?: PlanStatus
+  trial_ends_at?: string | null
 }
 
 function fromRow(row: SettingsRow): Settings {
@@ -35,6 +38,8 @@ function fromRow(row: SettingsRow): Settings {
     instagramUrl: row.instagram_url ?? undefined,
     // Sin la columna (migracion 013 sin correr) no se muestra la lista.
     onboarding: row.onboarding ?? { dismissed: true },
+    planStatus: row.plan_status ?? 'active',
+    trialEndsAt: row.trial_ends_at ?? undefined,
   }
 }
 
@@ -60,6 +65,8 @@ interface SettingsState {
   address: string
   instagramUrl?: string
   onboarding: OnboardingState
+  planStatus: PlanStatus
+  trialEndsAt?: string
   loading: boolean
   venueChecked: boolean
   fetchSettingsForOwner: (ownerId: string) => Promise<void>
@@ -84,6 +91,8 @@ const defaultState = {
   address: '',
   instagramUrl: undefined as string | undefined,
   onboarding: { dismissed: true } as OnboardingState,
+  planStatus: 'active' as PlanStatus,
+  trialEndsAt: undefined as string | undefined,
   loading: false,
   venueChecked: false,
 }
@@ -162,3 +171,9 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   },
   reset: () => set({ ...defaultState }),
 }))
+
+// El cliente de Supabase necesita saber el plan del complejo cargado para
+// frenar las escrituras cuando la prueba vencio.
+useSettingsStore.subscribe((state) => {
+  setCurrentPlan({ planStatus: state.planStatus, trialEndsAt: state.trialEndsAt })
+})
