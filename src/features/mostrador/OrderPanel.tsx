@@ -481,21 +481,22 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
         </div>
 
         {open && (
-          <div className="flex flex-wrap items-center justify-between gap-2 p-4">
-            <button
-              type="button"
-              onClick={() => {
-                setDiscountReason(sale.discount?.reason ?? '')
-                setDiscountType(sale.discount?.type ?? 'porcentaje')
-                setDiscountValue(sale.discount ? String(sale.discount.value) : '')
-                setError(null)
-                setShowDiscount(true)
-              }}
-              className="rounded-lg border border-mo-border px-4 py-2 text-sm text-mo-text hover:bg-mo-header/60"
-            >
-              % Aplicar descuento
-            </button>
-            <div className="text-right">
+          <div className="p-4">
+            {/* Los dos botones siempre en la misma fila; el aviso va debajo. */}
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDiscountReason(sale.discount?.reason ?? '')
+                  setDiscountType(sale.discount?.type ?? 'porcentaje')
+                  setDiscountValue(sale.discount ? String(sale.discount.value) : '')
+                  setError(null)
+                  setShowDiscount(true)
+                }}
+                className="rounded-lg border border-mo-border px-4 py-2 text-sm text-mo-text hover:bg-mo-header/60"
+              >
+                % Aplicar descuento
+              </button>
               <button
                 type="button"
                 onClick={() => setShowClose(true)}
@@ -504,10 +505,12 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
               >
                 Cerrar pedido
               </button>
-              {pending.length > 0 && (
-                <p className="mt-1 text-xs text-mo-muted">Confirmá o cancelá los productos resaltados primero.</p>
-              )}
             </div>
+            {pending.length > 0 && (
+              <p className="mt-2 text-right text-xs text-mo-muted">
+                Confirmá o cancelá los productos resaltados para poder cerrar.
+              </p>
+            )}
           </div>
         )}
       </div>
