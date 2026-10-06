@@ -17,6 +17,9 @@ const AdminLoginPage = lazy(() =>
 const AdminSignupPage = lazy(() =>
   import('@/features/admin/AdminSignupPage').then((m) => ({ default: m.AdminSignupPage })),
 )
+const SuperadminPage = lazy(() =>
+  import('@/features/superadmin/SuperadminPage').then((m) => ({ default: m.SuperadminPage })),
+)
 const AdminLayout = lazy(() =>
   import('@/features/admin/AdminLayout').then((m) => ({ default: m.AdminLayout })),
 )
@@ -68,6 +71,7 @@ function App() {
         <Routes>
           <Route path="/" element={<RootPage />} />
 
+          <Route path="/superadmin" element={<SuperadminPage />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/signup" element={<AdminSignupPage />} />
           <Route path="/admin/setup" element={<AdminSignupPage />} />

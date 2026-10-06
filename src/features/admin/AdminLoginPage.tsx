@@ -1,17 +1,21 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAdminAuthStore } from '@/store/adminAuthStore'
 
 export function AdminLoginPage() {
   const isAuthenticated = useAdminAuthStore((s) => s.isAuthenticated)
   const login = useAdminAuthStore((s) => s.login)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  // Destino despues de ingresar (?next=/superadmin). Solo rutas internas.
+  const next = searchParams.get('next')
+  const destination = next && next.startsWith('/') && !next.startsWith('//') ? next : '/admin'
   const [email, setEmail] = useState('')
   const [pass, setPass] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  if (isAuthenticated) return <Navigate to="/admin" replace />
+  if (isAuthenticated) return <Navigate to={destination} replace />
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -21,7 +25,7 @@ export function AdminLoginPage() {
     if (loginError) {
       setError(loginError)
     } else {
-      navigate('/admin')
+      navigate(destination)
     }
   }
 
