@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useVenuePath } from '@/lib/venuePath'
 import type { HeroSlide } from '@/types'
 
 function ArrowIcon() {
@@ -10,9 +11,10 @@ function ArrowIcon() {
 }
 
 export function BlogPostCard({ post }: { post: HeroSlide }) {
+  const path = useVenuePath()
   return (
     <Link
-      to={`/blog/${post.id}`}
+      to={path(`/blog/${post.id}`)}
       className="group flex flex-col overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-card transition-colors hover:border-primary-500/50"
     >
       <div className="aspect-[16/10] w-full shrink-0 overflow-hidden bg-gray-925">

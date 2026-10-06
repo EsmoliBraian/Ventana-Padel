@@ -10,6 +10,7 @@ import { TournamentCard } from '@/components/TournamentCard'
 import { BlogPostCard } from '@/components/BlogPostCard'
 import { PadelHeroBackground } from '@/components/site/PadelHeroBackground'
 import { buildWhatsAppLink } from '@/lib/whatsapp'
+import { useVenuePath } from '@/lib/venuePath'
 
 const MEDAL_COLORS = ['#FFD700', '#C7CBD1', '#CD7F32']
 
@@ -79,6 +80,7 @@ export function LandingPage() {
   const slides = useSlidesStore((s) => s.slides).filter((s) => s.published)
   const rankingCategories = useRankingCategoriesStore((s) => s.categories)
   const rankingEntries = useRankingStore((s) => s.entries)
+  const path = useVenuePath()
 
   const sortedSlides = useMemo(() => [...slides].sort((a, b) => a.order - b.order), [slides])
   const latestPosts = sortedSlides.slice(0, 3)
@@ -114,13 +116,13 @@ export function LandingPage() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              to="/reservar"
+              to={path('/reservar')}
               className="rounded-full bg-primary-500 px-6 py-3 text-sm font-semibold text-gray-950 shadow-glow-primary hover:bg-primary-400"
             >
               Reservar cancha
             </Link>
             <Link
-              to="/ranking"
+              to={path('/ranking')}
               className="rounded-full border border-gray-700 bg-gray-950/40 px-6 py-3 text-sm font-medium text-gray-100 hover:bg-gray-900"
             >
               Ver ranking
@@ -170,14 +172,14 @@ export function LandingPage() {
       {latestPosts.length > 0 && (
         <section className="border-t border-gray-800/60 bg-gray-925/40">
           <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
-            <SectionHeading eyebrow="Blog" title="Lo ultimo del club" cta={{ to: '/blog', label: 'Ver todos' }} />
+            <SectionHeading eyebrow="Blog" title="Lo ultimo del club" cta={{ to: path('/blog'), label: 'Ver todos' }} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {latestPosts.map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
             </div>
             <Link
-              to="/blog"
+              to={path('/blog')}
               className="mt-6 flex items-center gap-1 text-sm font-medium text-primary-500 hover:underline sm:hidden"
             >
               Ver todos los posts <ArrowIcon />
@@ -192,7 +194,7 @@ export function LandingPage() {
           <SectionHeading
             eyebrow="Torneos"
             title="Proximos torneos"
-            cta={{ to: '/torneos', label: 'Ver todos' }}
+            cta={{ to: path('/torneos'), label: 'Ver todos' }}
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {upcomingTournaments.map((t) => (
@@ -200,7 +202,7 @@ export function LandingPage() {
             ))}
           </div>
           <Link
-            to="/torneos"
+            to={path('/torneos')}
             className="mt-6 flex items-center gap-1 text-sm font-medium text-primary-500 hover:underline sm:hidden"
           >
             Ver todos los torneos <ArrowIcon />
@@ -222,7 +224,7 @@ export function LandingPage() {
                 return (
                   <Link
                     key={category.id}
-                    to={`/ranking?cat=${category.id}`}
+                    to={path(`/ranking?cat=${category.id}`)}
                     className="group flex flex-col rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-card transition-colors hover:border-primary-500/50"
                   >
                     <p className="text-base font-semibold text-gray-50">{category.name}</p>

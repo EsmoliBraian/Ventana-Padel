@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useVenuePath } from '@/lib/venuePath'
 
 const NAV_LINKS = [
-  { to: '/', label: 'Inicio', end: true },
+  { to: '', label: 'Inicio', end: true },
   { to: '/blog', label: 'Blog', end: false },
   { to: '/torneos', label: 'Torneos', end: false },
   { to: '/ranking', label: 'Ranking', end: false },
@@ -28,6 +29,7 @@ export function SiteHeader() {
   const venueName = useSettingsStore((s) => s.venueName)
   const logoUrl = useSettingsStore((s) => s.logoUrl)
   const [menuOpen, setMenuOpen] = useState(false)
+  const path = useVenuePath()
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-medium transition-colors ${
@@ -37,7 +39,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-gray-800/60 bg-gray-950/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link to="/" className="flex min-w-0 items-center gap-2.5" onClick={() => setMenuOpen(false)}>
+        <Link to={path()} className="flex min-w-0 items-center gap-2.5" onClick={() => setMenuOpen(false)}>
           {logoUrl ? (
             <img src={logoUrl} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
           ) : (
@@ -52,7 +54,7 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-7 sm:flex">
           {NAV_LINKS.map((link) => (
-            <NavLink key={link.to} to={link.to} end={link.end} className={navClass}>
+            <NavLink key={link.to} to={path(link.to)} end={link.end} className={navClass}>
               {link.label}
             </NavLink>
           ))}
@@ -60,7 +62,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <Link
-            to="/reservar"
+            to={path('/reservar')}
             className="hidden shrink-0 rounded-full bg-primary-500 px-5 py-2 text-sm font-semibold text-gray-950 shadow-glow-sm hover:bg-primary-400 sm:block"
           >
             Reservar
@@ -82,7 +84,7 @@ export function SiteHeader() {
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
-                to={link.to}
+                to={path(link.to)}
                 end={link.end}
                 onClick={() => setMenuOpen(false)}
                 className={navClass}
@@ -91,7 +93,7 @@ export function SiteHeader() {
               </NavLink>
             ))}
             <Link
-              to="/reservar"
+              to={path('/reservar')}
               onClick={() => setMenuOpen(false)}
               className="rounded-full bg-primary-500 px-5 py-2.5 text-center text-sm font-semibold text-gray-950 hover:bg-primary-400"
             >

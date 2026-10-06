@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useParams } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useCourtsStore } from '@/store/courtsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
@@ -13,6 +13,7 @@ import { SiteHeader } from '@/components/site/SiteHeader'
 import { SiteFooter } from '@/components/site/SiteFooter'
 
 export function PublicLayout() {
+  const { slug } = useParams()
   const [status, setStatus] = useState<'loading' | 'found' | 'not-found'>('loading')
   const unsubscribeRef = useRef<() => void>(() => {})
 
@@ -23,7 +24,7 @@ export function PublicLayout() {
 
     useSettingsStore
       .getState()
-      .fetchDefaultSettings()
+      .fetchSettingsBySlug(slug ?? '')
       .then((found) => {
         if (cancelled) return
         if (!found) {
@@ -42,6 +43,7 @@ export function PublicLayout() {
         ]).then(() => {
           if (cancelled) return
           unsubscribeRef.current = useReservationsStore.getState().subscribeToChanges()
+          document.title = useSettingsStore.getState().venueName
           setStatus('found')
         })
       })
@@ -51,7 +53,7 @@ export function PublicLayout() {
       unsubscribeRef.current()
       unsubscribeRef.current = () => {}
     }
-  }, [])
+  }, [slug])
 
   if (status === 'loading') {
     return (
@@ -63,8 +65,8 @@ export function PublicLayout() {
   if (status === 'not-found') {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-2 text-gray-400">
-        <p className="text-lg text-gray-200">El club todavia no esta configurado</p>
-        <p className="text-sm">Volve a intentarlo en unos minutos.</p>
+        <p className="text-lg text-gray-200">No encontramos este complejo</p>
+        <p className="text-sm">Revisá que el link esté bien escrito.</p>
       </div>
     )
   }

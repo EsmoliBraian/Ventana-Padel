@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from 'react'
 import { useSettingsStore } from '@/store/settingsStore'
 import { ErrorText } from '@/components/ErrorText'
 import { uploadImage } from '@/lib/storage'
+import { publicVenueUrl } from '@/lib/venuePath'
 
 export function Configuracion() {
   const settings = useSettingsStore()
@@ -27,7 +28,7 @@ export function Configuracion() {
     address !== settings.address ||
     instagramUrl !== (settings.instagramUrl ?? '')
 
-  const bookingLink = window.location.origin
+  const bookingLink = publicVenueUrl(settings.slug)
 
   async function handleLogoChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]

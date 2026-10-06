@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { useSlidesStore } from '@/store/slidesStore'
+import { useVenuePath } from '@/lib/venuePath'
 
 function ArrowLeftIcon() {
   return (
@@ -11,13 +12,14 @@ function ArrowLeftIcon() {
 
 export function BlogPostPage() {
   const { id } = useParams()
+  const path = useVenuePath()
   const post = useSlidesStore((s) => s.slides).find((s) => s.id === id && s.published)
 
   if (!post) {
     return (
       <div className="mx-auto max-w-2xl px-5 py-20 text-center">
         <p className="text-lg text-gray-200">No encontramos este post.</p>
-        <Link to="/blog" className="mt-4 inline-flex items-center gap-1 text-sm text-primary-500 hover:underline">
+        <Link to={path('/blog')} className="mt-4 inline-flex items-center gap-1 text-sm text-primary-500 hover:underline">
           <ArrowLeftIcon /> Volver al blog
         </Link>
       </div>
@@ -27,7 +29,7 @@ export function BlogPostPage() {
   return (
     <article className="mx-auto max-w-3xl px-5 py-14 sm:py-20">
       <Link
-        to="/blog"
+        to={path('/blog')}
         className="mb-6 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-gray-200"
       >
         <ArrowLeftIcon /> Volver al blog
@@ -54,7 +56,7 @@ export function BlogPostPage() {
       )}
 
       <Link
-        to="/reservar"
+        to={path('/reservar')}
         className="mt-10 inline-flex rounded-full bg-primary-500 px-6 py-3 text-sm font-semibold text-gray-950 hover:bg-primary-400"
       >
         Reservar cancha

@@ -59,7 +59,6 @@ interface SettingsState {
   venueChecked: boolean
   fetchSettingsForOwner: (ownerId: string) => Promise<void>
   fetchSettingsBySlug: (slug: string) => Promise<boolean>
-  fetchDefaultSettings: () => Promise<boolean>
   createVenue: (input: CreateVenueInput) => Promise<string | null>
   updateSettings: (patch: Partial<Settings>) => Promise<string | null>
   reset: () => void
@@ -104,16 +103,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
       .select('*')
       .eq('slug', slug)
       .maybeSingle()
-    if (!error && data) {
-      set({ ...fromRow(data), venueChecked: true, loading: false })
-      return true
-    }
-    set({ venueChecked: true, loading: false })
-    return false
-  },
-  fetchDefaultSettings: async () => {
-    set({ loading: true })
-    const { data, error } = await supabase.from('settings').select('*').limit(1).maybeSingle()
     if (!error && data) {
       set({ ...fromRow(data), venueChecked: true, loading: false })
       return true

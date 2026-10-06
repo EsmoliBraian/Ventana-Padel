@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { RootPage } from '@/features/booking/RootPage'
 import { PublicLayout } from '@/features/booking/PublicLayout'
 import { LandingPage } from '@/features/booking/LandingPage'
 import { BookingFlowPage } from '@/features/booking/BookingFlowPage'
@@ -68,14 +69,7 @@ function App() {
     <BrowserRouter>
       <Suspense fallback={<AdminFallback />}>
         <Routes>
-          <Route path="/" element={<PublicLayout />}>
-            <Route index element={<LandingPage />} />
-            <Route path="reservar" element={<BookingFlowPage />} />
-            <Route path="torneos" element={<TorneosPage />} />
-            <Route path="ranking" element={<RankingPage />} />
-            <Route path="blog" element={<BlogPage />} />
-            <Route path="blog/:id" element={<BlogPostPage />} />
-          </Route>
+          <Route path="/" element={<RootPage />} />
 
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/signup" element={<AdminSignupPage />} />
@@ -98,6 +92,17 @@ function App() {
             <Route path="ventas" element={<VentasDelDia />} />
             <Route path="metricas" element={<Metricas />} />
             <Route path="configuracion" element={<Configuracion />} />
+          </Route>
+
+          {/* Sitio publico de cada complejo. Va al final: las rutas fijas de
+              arriba (/admin/...) tienen prioridad sobre /:slug. */}
+          <Route path="/:slug" element={<PublicLayout />}>
+            <Route index element={<LandingPage />} />
+            <Route path="reservar" element={<BookingFlowPage />} />
+            <Route path="torneos" element={<TorneosPage />} />
+            <Route path="ranking" element={<RankingPage />} />
+            <Route path="blog" element={<BlogPage />} />
+            <Route path="blog/:id" element={<BlogPostPage />} />
           </Route>
         </Routes>
       </Suspense>
