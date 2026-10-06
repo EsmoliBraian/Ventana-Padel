@@ -5,9 +5,10 @@ import { formatCurrency } from '@/lib/format'
 import { Modal } from '@/components/Modal'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ErrorText } from '@/components/ErrorText'
-import { PaymentBreakdown } from '@/components/admin/PaymentBreakdown'
-import { PAYMENT_COLORS } from '@/lib/paymentColors'
-import type { PaymentMethod, Sale, SaleItem, SalePayment } from '@/types'
+import { PaymentLinesEditor } from '@/components/admin/PaymentLinesEditor'
+import { linesTotal, type PaymentLine } from '@/lib/payments'
+import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
+import type { Sale, SaleItem } from '@/types'
 
 function productName(products: { id: string; name: string }[], productId: string) {
   return products.find((p) => p.id === productId)?.name ?? productId
@@ -16,23 +17,26 @@ function productName(products: { id: string; name: string }[], productId: string
 function CobrarModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
   const settleSale = useSalesStore((s) => s.settleSale)
   const products = useProductsStore((s) => s.products)
+  const methods = usePaymentMethodsStore((s) => s.methods)
 
-  const [method, setMethod] = useState<PaymentMethod>('efectivo')
-  const [splitPayments, setSplitPayments] = useState<SalePayment[]>([])
+  const [lines, setLines] = useState<PaymentLine[]>([
+    { method: methods[0]?.name ?? '', amount: String(sale.total) },
+  ])
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  function handleSelectMethod(m: PaymentMethod) {
-    setMethod(m)
-    if (m === 'mixto' && splitPayments.length === 0) {
-      setSplitPayments([{ method: 'efectivo', amount: 0 }])
-    }
-  }
+  const paid = linesTotal(lines)
 
   async function handleConfirm() {
+    if (paid !== sale.total) {
+      setError(`Los pagos tienen que sumar ${formatCurrency(sale.total)}.`)
+      return
+    }
     setSaving(true)
-    const payments = method === 'mixto' ? splitPayments.filter((p) => p.amount > 0) : []
-    const settleError = await settleSale(sale.id, method, payments)
+    const settleError = await settleSale(
+      sale.id,
+      lines.map((line) => ({ method: line.method, amount: Number(line.amount) || 0 })),
+    )
     setSaving(false)
     if (settleError) {
       setError(settleError)
@@ -50,33 +54,10 @@ function CobrarModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
         </p>
         <p className="text-lg font-semibold text-gray-50">{formatCurrency(sale.total)}</p>
 
-        <div className="grid grid-cols-3 gap-2">
-          {(['efectivo', 'transferencia', 'mixto'] as PaymentMethod[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => handleSelectMethod(m)}
-              className={`rounded-lg border py-1.5 text-xs font-medium capitalize ${
-                method === m ? '' : 'border-gray-800 text-gray-400'
-              }`}
-              style={
-                method === m
-                  ? {
-                      borderColor: PAYMENT_COLORS[m],
-                      backgroundColor: `${PAYMENT_COLORS[m]}1A`,
-                      color: PAYMENT_COLORS[m],
-                    }
-                  : undefined
-              }
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-
-        {method === 'mixto' && (
-          <PaymentBreakdown payments={splitPayments} onChange={setSplitPayments} total={sale.total} />
-        )}
+        <PaymentLinesEditor lines={lines} methods={methods} onChange={setLines} />
+        <p className="text-xs text-gray-500">
+          Cargado: {formatCurrency(paid)} de {formatCurrency(sale.total)}
+        </p>
 
         <ErrorText error={error} />
 

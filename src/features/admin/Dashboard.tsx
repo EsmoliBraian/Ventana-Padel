@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useCourtsStore } from '@/store/courtsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
@@ -12,7 +13,6 @@ import { formatCurrency, formatLongDate, fromDateKey, todayKey, toDateKey } from
 import { KpiCard } from '@/components/KpiCard'
 import { StatusBadge } from '@/components/StatusBadge'
 import { NuevaReservaModal } from './NuevaReservaModal'
-import { VentaRapidaCard, type VentaRapidaCardHandle } from './VentaRapidaCard'
 import { FiadoCard } from './FiadoCard'
 import { OnboardingChecklist } from './OnboardingChecklist'
 
@@ -26,7 +26,8 @@ export function Dashboard() {
 
   const [showModal, setShowModal] = useState(false)
   const [gridDate, setGridDate] = useState(todayKey())
-  const ventaRapidaRef = useRef<VentaRapidaCardHandle>(null)
+  const navigate = useNavigate()
+  const openOrders = useMemo(() => sales.filter((s) => s.status === 'en_curso'), [sales])
 
   const today = todayKey()
   const todayReservations = useMemo(
@@ -37,7 +38,11 @@ export function Dashboard() {
     () => reservations.filter((r) => r.date === gridDate && r.status !== 'cancelado'),
     [reservations, gridDate],
   )
-  const todaySales = useMemo(() => sales.filter((s) => s.date === today), [sales, today])
+  // Solo ventas cerradas: los pedidos en curso todavia no son una venta.
+  const todaySales = useMemo(
+    () => sales.filter((s) => s.date === today && s.status === 'cerrada'),
+    [sales, today],
+  )
   const feeAbsorbedReservationIds = useMemo(() => reservationIdsWithAbsorbedFee(sales), [sales])
 
   const ingresosHoy =
@@ -182,9 +187,9 @@ export function Dashboard() {
                           {reservation ? (
                             <button
                               type="button"
-                              onClick={() => ventaRapidaRef.current?.openReservation(reservation.id)}
+                              onClick={() => navigate(`/admin/mostrador?turno=${reservation.id}`)}
                               className="space-y-0.5 text-left hover:opacity-80"
-                              title="Abrir en Venta rapida"
+                              title="Abrir en el Mostrador"
                             >
                               <StatusBadge status={reservation.status} />
                               {reservation.customerName && (
@@ -194,14 +199,9 @@ export function Dashboard() {
                           ) : fixedSlot ? (
                             <button
                               type="button"
-                              onClick={() =>
-                                ventaRapidaRef.current?.openFixedSlot(
-                                  fixedSlot.id,
-                                  `${fixedSlot.customerName || 'Turno fijo'} — ${time}hs`,
-                                )
-                              }
+                              onClick={() => navigate(`/admin/mostrador?fijo=${fixedSlot.id}`)}
                               className="space-y-0.5 text-left hover:opacity-80"
-                              title="Abrir cuenta en Venta rapida"
+                              title="Abrir cuenta en el Mostrador"
                             >
                               <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-brand-300">
                                 Turno fijo
@@ -226,7 +226,24 @@ export function Dashboard() {
         </div>
 
         <div className="space-y-4">
-          <VentaRapidaCard ref={ventaRapidaRef} />
+          <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+            <p className="text-sm font-medium text-gray-300">Mostrador</p>
+            <p className="mt-2 text-3xl font-semibold text-gray-50">{openOrders.length}</p>
+            <p className="text-sm text-gray-400">
+              {openOrders.length === 1 ? 'pedido en curso' : 'pedidos en curso'}
+              {openOrders.length > 0 &&
+                ` · ${formatCurrency(openOrders.reduce((sum, o) => sum + o.total, 0))} sin cobrar`}
+            </p>
+            <Link
+              to="/admin/mostrador"
+              className="mt-4 block rounded-lg bg-primary-500 py-2 text-center text-sm font-medium text-gray-950 hover:bg-primary-400"
+            >
+              Abrir el Mostrador
+            </Link>
+            <p className="mt-2 text-xs text-gray-500">
+              Para abrir la cuenta de un turno, tocalo en la grilla de reservas.
+            </p>
+          </div>
         </div>
       </div>
 

@@ -1,19 +1,24 @@
 import type { Sale } from '@/types'
 
-// A sale linked to a reservation may have folded the turno's price into its
-// total (see VentaRapidaCard). We detect that by comparing the sale total to
-// what its line items alone add up to, instead of re-deriving it from the
-// reservation's current status, which could change after the sale was made.
+// Si el total de una venta ya incluye el precio de cancha de su turno.
+// - Pedidos del Mostrador: lo dice el propio pedido (courtFee).
+// - Ventas anteriores: no se guardaba aparte, asi que se deduce comparando el
+//   total con lo que suman sus productos.
 export function saleIncludesReservationFee(sale: Sale): boolean {
+  if (sale.courtFee !== null) return sale.courtFee > 0
   if (!sale.reservationId) return false
   const itemsSubtotal = sale.items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0)
   return sale.total > itemsSubtotal
 }
 
+// Turnos cuya cancha ya esta cobrada dentro de una venta cerrada (para no
+// contarla dos veces en los ingresos).
 export function reservationIdsWithAbsorbedFee(sales: Sale[]): Set<string> {
   const ids = new Set<string>()
   for (const sale of sales) {
-    if (sale.reservationId && saleIncludesReservationFee(sale)) ids.add(sale.reservationId)
+    if (sale.status === 'cerrada' && sale.reservationId && saleIncludesReservationFee(sale)) {
+      ids.add(sale.reservationId)
+    }
   }
   return ids
 }

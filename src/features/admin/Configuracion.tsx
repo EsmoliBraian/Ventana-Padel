@@ -3,6 +3,71 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { ErrorText } from '@/components/ErrorText'
 import { uploadImage } from '@/lib/storage'
 import { publicVenueUrl } from '@/lib/venuePath'
+import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
+
+// Medios de pago que aparecen al cerrar un pedido o cobrar un fiado. Cada
+// complejo arma su lista (por ejemplo, un alias de Mercado Pago).
+function MediosDePagoPanel() {
+  const methods = usePaymentMethodsStore((s) => s.methods)
+  const addMethod = usePaymentMethodsStore((s) => s.addMethod)
+  const deleteMethod = usePaymentMethodsStore((s) => s.deleteMethod)
+  const [name, setName] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleAdd() {
+    const addError = await addMethod(name)
+    setError(addError)
+    if (!addError) setName('')
+  }
+
+  return (
+    <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-900 p-4">
+      <p className="text-sm font-medium text-gray-200">Medios de pago</p>
+      <p className="text-xs text-gray-500">
+        Son las opciones que aparecen al cobrar. Quitar uno no cambia las ventas ya cobradas con él.
+      </p>
+      <ul className="flex flex-wrap gap-2">
+        {methods.map((m) => (
+          <li
+            key={m.id}
+            className="flex items-center gap-2 rounded-full border border-gray-700 bg-gray-925 py-1 pl-3 pr-2 text-sm text-gray-100"
+          >
+            {m.name}
+            <button
+              type="button"
+              onClick={async () => setError(await deleteMethod(m.id))}
+              aria-label={`Quitar ${m.name}`}
+              className="text-gray-500 hover:text-danger"
+            >
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="flex gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleAdd()
+          }}
+          placeholder="Por ejemplo: Alias MP"
+          aria-label="Nuevo medio de pago"
+          className="min-w-0 flex-1 rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-sm text-gray-100"
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={name.trim() === ''}
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+        >
+          Agregar
+        </button>
+      </div>
+      <ErrorText error={error} />
+    </div>
+  )
+}
 
 export function Configuracion() {
   const settings = useSettingsStore()
@@ -170,6 +235,8 @@ export function Configuracion() {
           />
         </label>
       </div>
+
+      <MediosDePagoPanel />
 
       <ErrorText error={error} />
 

@@ -19,14 +19,8 @@ import { useProductsStore } from '@/store/productsStore'
 import { ChartCard } from '@/components/ChartCard'
 import { reservationIdsWithAbsorbedFee } from '@/lib/salesRevenue'
 import { formatCurrency, toDateKey, weekdayShort } from '@/lib/format'
-import { PAYMENT_COLORS } from '@/lib/paymentColors'
-import type { PaymentMethod } from '@/types'
-
-const PAYMENT_LABELS: Record<PaymentMethod, string> = {
-  efectivo: 'Efectivo',
-  transferencia: 'Transferencia',
-  mixto: 'Mixto',
-}
+import { methodColor, totalsByMethod } from '@/lib/payments'
+import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
 const OCCUPANCY_COLORS = ['#B8FF3B', '#2A2C31']
 
 export function Metricas() {
@@ -80,20 +74,18 @@ export function Metricas() {
       .slice(0, 4)
   }, [sales, products])
 
+  const paymentMethods = usePaymentMethodsStore((s) => s.methods)
   const paymentBreakdown = useMemo(() => {
-    const totals: Record<PaymentMethod, number> = { efectivo: 0, transferencia: 0, mixto: 0 }
-    for (const sale of sales) {
-      if (sale.paymentStatus === 'pagado' && sale.paymentMethod) totals[sale.paymentMethod] += sale.total
-    }
-    const grandTotal = totals.efectivo + totals.transferencia + totals.mixto
-    return (Object.keys(totals) as PaymentMethod[])
-      .filter((method) => totals[method] > 0)
-      .map((method) => ({
-        method,
-        value: totals[method],
-        pct: grandTotal === 0 ? 0 : Math.round((totals[method] / grandTotal) * 100),
-      }))
-  }, [sales])
+    // Por linea de pago: una venta cobrada con dos medios suma en los dos.
+    const totals = totalsByMethod(sales, paymentMethods.map((m) => m.name)).filter((t) => t.total > 0)
+    const grandTotal = totals.reduce((sum, t) => sum + t.total, 0)
+    return totals.map((t) => ({
+      method: t.key,
+      label: t.label,
+      value: t.total,
+      pct: grandTotal === 0 ? 0 : Math.round((t.total / grandTotal) * 100),
+    }))
+  }, [sales, paymentMethods])
 
   return (
     <div className="space-y-4">
@@ -163,7 +155,7 @@ export function Metricas() {
               <PieChart>
                 <Pie data={paymentBreakdown} dataKey="value" innerRadius={40} outerRadius={70}>
                   {paymentBreakdown.map((entry) => (
-                    <Cell key={entry.method} fill={PAYMENT_COLORS[entry.method]} />
+                    <Cell key={entry.method} fill={methodColor(entry.method)} />
                   ))}
                 </Pie>
                 <Tooltip contentStyle={{ background: '#222325', border: '1px solid #393B42' }} />
@@ -174,9 +166,9 @@ export function Metricas() {
                 <div key={entry.method} className="flex items-center gap-2">
                   <span
                     className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: PAYMENT_COLORS[entry.method] }}
+                    style={{ backgroundColor: methodColor(entry.method) }}
                   />
-                  <span className="text-gray-300">{PAYMENT_LABELS[entry.method]}</span>
+                  <span className="text-gray-300">{entry.label}</span>
                   <span className="text-gray-500">{entry.pct}%</span>
                 </div>
               ))}

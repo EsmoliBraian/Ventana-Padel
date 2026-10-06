@@ -26,6 +26,9 @@ const AdminLayout = lazy(() =>
 const Dashboard = lazy(() =>
   import('@/features/admin/Dashboard').then((m) => ({ default: m.Dashboard })),
 )
+const MostradorPage = lazy(() =>
+  import('@/features/mostrador/MostradorPage').then((m) => ({ default: m.MostradorPage })),
+)
 const Reservas = lazy(() =>
   import('@/features/admin/Reservas').then((m) => ({ default: m.Reservas })),
 )
@@ -84,6 +87,7 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
+            <Route path="mostrador" element={<MostradorPage />} />
             <Route path="reservas" element={<Reservas />} />
             <Route path="horarios" element={<Horarios />} />
             <Route path="slides" element={<Slides />} />

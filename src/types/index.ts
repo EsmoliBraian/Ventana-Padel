@@ -95,31 +95,59 @@ export interface StockMovement {
   createdAt: string
 }
 
-export type PaymentMethod = 'efectivo' | 'transferencia' | 'mixto'
-export type SplitPaymentMethod = 'efectivo' | 'transferencia'
+// Las ventas guardan el nombre del medio de pago tal como estaba al cobrar
+// (los medios son configurables por complejo). 'mixto' = mas de una linea.
+export interface PaymentMethodOption {
+  id: string
+  name: string
+}
 
 export interface SaleItem {
+  id?: string // id de la linea guardada; falta en lineas todavia sin confirmar
   productId: string
   qty: number
   unitPrice: number
+  comment?: string
 }
 
 export interface SalePayment {
-  method: SplitPaymentMethod
+  method: string
   amount: number
 }
 
-export type PaymentStatus = 'pagado' | 'adeuda'
+// pendiente: pedido en curso, todavia sin cobrar.
+export type PaymentStatus = 'pagado' | 'adeuda' | 'pendiente'
 
+export type SaleStatus = 'en_curso' | 'cerrada'
+
+export interface SaleDiscount {
+  type: 'porcentaje' | 'fijo'
+  value: number
+  reason: string
+}
+
+// Una venta es un pedido del Mostrador: nace en curso, se le suman productos
+// y se cierra al cobrar (o al dejarlo como fiado).
 export interface Sale {
   id: string
-  date: string // YYYY-MM-DD
+  number?: number // correlativo por complejo, lo asigna la base
+  status: SaleStatus
+  date: string // YYYY-MM-DD: dia de apertura mientras esta en curso, de cierre despues
+  createdAt?: string
+  closedAt?: string
   items: SaleItem[]
   total: number
-  paymentMethod: PaymentMethod | null
+  paymentMethod: string | null
   paymentStatus: PaymentStatus
   customerName?: string
   reservationId?: string
+  fixedSlotId?: string
+  cantinero?: string
+  comment: string
+  // Precio de cancha incluido. null = venta anterior al Mostrador, donde no
+  // se guardaba aparte (ver saleIncludesReservationFee).
+  courtFee: number | null
+  discount?: SaleDiscount
   payments: SalePayment[]
 }
 

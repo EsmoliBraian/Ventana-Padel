@@ -13,6 +13,7 @@ import { useFixedSlotsStore } from '@/store/fixedSlotsStore'
 import { useCategoriesStore } from '@/store/categoriesStore'
 import { useRankingCategoriesStore } from '@/store/rankingCategoriesStore'
 import { useRankingStore } from '@/store/rankingStore'
+import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
 
 function AdminFallback() {
   return (
@@ -56,11 +57,15 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
       useRankingCategoriesStore.getState().fetchCategories(),
       useRankingStore.getState().fetchPoints(),
       useRankingStore.getState().fetchEntries(),
+      usePaymentMethodsStore.getState().fetchMethods(),
     ]).then(() => setHydrated(true))
 
     const unsubscribeReservations = useReservationsStore.getState().subscribeToChanges()
+    // Pedidos del Mostrador: se actualizan solos entre dispositivos.
+    const unsubscribeSales = useSalesStore.getState().subscribeToChanges()
     return () => {
       unsubscribeReservations()
+      unsubscribeSales()
     }
   }, [venueResolved, venueId])
 

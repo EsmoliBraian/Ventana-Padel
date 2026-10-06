@@ -7,6 +7,26 @@
     color-scheme: dark;
   }
 
+  /* Tema del Mostrador. Los colores van como variables (componentes RGB) y
+     Tailwind los expone como mo-* (ver tailwind.config.js). Un modo claro
+     se agrega redefiniendo estas variables, por ejemplo bajo
+     :root[data-theme='light'], sin tocar los componentes. */
+  :root {
+    --mo-bg: 18 18 18;
+    --mo-surface: 34 35 37;
+    --mo-surface-alt: 28 29 33;
+    --mo-header: 57 59 66;
+    --mo-border: 56 58 64;
+    --mo-text: 239 239 239;
+    --mo-text-muted: 148 151 158;
+    --mo-accent: 184 255 59;
+    --mo-accent-contrast: 18 18 18;
+    --mo-open: 255 102 102;
+    --mo-closed: 94 242 178;
+    --mo-pending: 255 200 87;
+    --mo-danger: 255 180 180;
+  }
+
   body {
     @apply text-gray-100 antialiased;
     background: linear-gradient(180deg, #17181c 0%, #141518 35%, #121212 100%);

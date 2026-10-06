@@ -5,13 +5,14 @@ import { useAdminAuthStore } from '@/store/adminAuthStore'
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Dashboard', end: true, icon: 'fa-gauge' },
+  { to: '/admin/mostrador', label: 'Mostrador', icon: 'fa-cash-register' },
   { to: '/admin/reservas', label: 'Reservas', icon: 'fa-calendar-check' },
   { to: '/admin/horarios', label: 'Horarios', icon: 'fa-clock' },
   { to: '/admin/slides', label: 'Blog / Novedades', icon: 'fa-images' },
   { to: '/admin/torneos', label: 'Torneos', icon: 'fa-trophy' },
   { to: '/admin/ranking', label: 'Ranking', icon: 'fa-ranking-star' },
   { to: '/admin/productos', label: 'Productos', icon: 'fa-cart-shopping' },
-  { to: '/admin/ventas', label: 'Ventas del dia', icon: 'fa-cash-register' },
+  { to: '/admin/ventas', label: 'Ventas del dia', icon: 'fa-receipt' },
   { to: '/admin/metricas', label: 'Metricas', icon: 'fa-chart-line' },
   { to: '/admin/configuracion', label: 'Configuracion', icon: 'fa-gear' },
 ]

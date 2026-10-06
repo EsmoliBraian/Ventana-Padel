@@ -3,13 +3,9 @@ import { useSalesStore } from '@/store/salesStore'
 import { useProductsStore } from '@/store/productsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
 import { formatCurrency, todayKey } from '@/lib/format'
-import type { PaymentMethod, Sale } from '@/types'
-
-const PAYMENT_LABELS: Record<PaymentMethod, string> = {
-  efectivo: 'Efectivo',
-  transferencia: 'Transferencia',
-  mixto: 'Mixto',
-}
+import { methodLabel, salePaymentLines, salePaymentSummary, totalsByMethod } from '@/lib/payments'
+import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
+import type { Sale } from '@/types'
 
 export function VentasDelDia() {
   const sales = useSalesStore((s) => s.sales)
@@ -18,20 +14,27 @@ export function VentasDelDia() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
   const today = todayKey()
-  const todaySales = useMemo(() => sales.filter((s) => s.date === today), [sales, today])
+  const paymentMethods = usePaymentMethodsStore((s) => s.methods)
+  // Solo ventas cerradas: los pedidos en curso se ven en el Mostrador.
+  const todaySales = useMemo(
+    () => sales.filter((s) => s.date === today && s.status === 'cerrada'),
+    [sales, today],
+  )
   const paidSales = useMemo(
     () => todaySales.filter((s) => s.paymentStatus === 'pagado'),
     [todaySales],
   )
 
   const total = paidSales.reduce((sum, s) => sum + s.total, 0)
-  const totalsByMethod = useMemo(() => {
-    const map: Record<PaymentMethod, number> = { efectivo: 0, transferencia: 0, mixto: 0 }
-    for (const s of paidSales) {
-      if (s.paymentMethod) map[s.paymentMethod] += s.total
-    }
-    return map
-  }, [paidSales])
+  // Por linea de pago: una venta cobrada con dos medios suma en los dos.
+  const methodTotals = useMemo(
+    () =>
+      totalsByMethod(
+        paidSales,
+        paymentMethods.map((m) => m.name),
+      ),
+    [paidSales, paymentMethods],
+  )
 
   const { groups, standalone } = useMemo(() => {
     const groupMap = new Map<string, Sale[]>()
@@ -70,12 +73,10 @@ export function VentasDelDia() {
           <p className="text-sm text-gray-400">Total del dia</p>
           <p className="mt-1 text-xl font-semibold text-gray-50">{formatCurrency(total)}</p>
         </div>
-        {(Object.keys(totalsByMethod) as PaymentMethod[]).map((method) => (
-          <div key={method} className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-            <p className="text-sm text-gray-400">{PAYMENT_LABELS[method]}</p>
-            <p className="mt-1 text-xl font-semibold text-gray-50">
-              {formatCurrency(totalsByMethod[method])}
-            </p>
+        {methodTotals.map((method) => (
+          <div key={method.key} className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+            <p className="text-sm text-gray-400">{method.label}</p>
+            <p className="mt-1 text-xl font-semibold text-gray-50">{formatCurrency(method.total)}</p>
           </div>
         ))}
       </div>
@@ -156,9 +157,7 @@ export function VentasDelDia() {
                             {sale.paymentStatus === 'pagado' ? 'Pagado' : 'Adeuda'}
                           </span>
                         </td>
-                        <td className="p-3 text-gray-400">
-                          {sale.paymentMethod ? PAYMENT_LABELS[sale.paymentMethod] : '-'}
-                        </td>
+                        <td className="p-3 text-gray-400">{salePaymentSummary(sale)}</td>
                         <td className="p-3 text-gray-300">{formatCurrency(sale.total)}</td>
                       </tr>
                     ))}
@@ -169,7 +168,9 @@ export function VentasDelDia() {
             {standalone.map((sale) => (
               <tr key={sale.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/40">
                 <td className="p-4 text-gray-300">
-                  {sale.items.map((item) => `${item.qty}x ${productName(item.productId)}`).join(', ')}
+                  {sale.items.length > 0
+                    ? sale.items.map((item) => `${item.qty}x ${productName(item.productId)}`).join(', ')
+                    : 'sin productos'}
                 </td>
                 <td className="p-4 text-gray-300">-</td>
                 <td className="p-4">
@@ -184,12 +185,12 @@ export function VentasDelDia() {
                   </span>
                 </td>
                 <td className="p-4 text-gray-300">
-                  {sale.paymentMethod ? PAYMENT_LABELS[sale.paymentMethod] : '-'}
-                  {sale.paymentMethod === 'mixto' && sale.payments.length > 0 && (
+                  {salePaymentSummary(sale)}
+                  {salePaymentLines(sale).length > 1 && (
                     <ul className="mt-1 text-xs text-gray-500">
-                      {sale.payments.map((p, i) => (
+                      {salePaymentLines(sale).map((p, i) => (
                         <li key={i}>
-                          {PAYMENT_LABELS[p.method]}: {formatCurrency(p.amount)}
+                          {methodLabel(p.method)}: {formatCurrency(p.amount)}
                         </li>
                       ))}
                     </ul>
