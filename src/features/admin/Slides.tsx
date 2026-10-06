@@ -5,11 +5,11 @@ import { ErrorText } from '@/components/ErrorText'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { HeroSlide } from '@/types'
 
-function SlideCard({ slide }: { slide: HeroSlide }) {
+function SlideCard({ slide, startEditing }: { slide: HeroSlide; startEditing: boolean }) {
   const updateSlide = useSlidesStore((s) => s.updateSlide)
   const deleteSlide = useSlidesStore((s) => s.deleteSlide)
 
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(startEditing)
   const [title, setTitle] = useState(slide.title)
   const [subtitle, setSubtitle] = useState(slide.subtitle)
   const [body, setBody] = useState(slide.body)
@@ -264,17 +264,23 @@ export function Slides() {
 
   const sortedSlides = [...slides].sort((a, b) => a.order - b.order)
 
+  // El post recien creado se abre directo en edicion.
+  const [newId, setNewId] = useState<string | null>(null)
+
   async function handleAdd() {
-    setError(
-      await addSlide({
-        imageUrl: '',
-        title: 'Nuevo post',
-        subtitle: '',
-        body: '',
-        order: slides.length,
-        published: false,
-      }),
-    )
+    const before = new Set(slides.map((s) => s.id))
+    const addError = await addSlide({
+      imageUrl: '',
+      title: 'Nuevo post',
+      subtitle: '',
+      body: '',
+      order: slides.length,
+      published: false,
+    })
+    setError(addError)
+    if (addError) return
+    const created = useSlidesStore.getState().slides.find((s) => !before.has(s.id))
+    setNewId(created?.id ?? null)
   }
 
   return (
@@ -286,7 +292,7 @@ export function Slides() {
           onClick={handleAdd}
           className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
         >
-          + Nuevo post
+          + Crear post
         </button>
       </div>
       <p className="text-sm text-gray-500">
@@ -298,7 +304,11 @@ export function Slides() {
 
       <div className="space-y-3">
         {sortedSlides.map((slide) => (
-          <SlideCard key={slide.id} slide={slide} />
+          <SlideCard
+            key={slide.id === newId ? `${slide.id}-nuevo` : slide.id}
+            slide={slide}
+            startEditing={slide.id === newId}
+          />
         ))}
         {slides.length === 0 && <p className="text-sm text-gray-500">No hay posts cargados.</p>}
       </div>

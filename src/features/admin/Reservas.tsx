@@ -36,6 +36,7 @@ function TurnosFijosPanel() {
   const [customerName, setCustomerName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null)
 
   const canAdd = courtId !== '' && time !== ''
@@ -65,6 +66,7 @@ function TurnosFijosPanel() {
     }
     setError(null)
     setCustomerName('')
+    setShowForm(false)
   }
 
   async function handleDelete(id: string) {
@@ -109,6 +111,18 @@ function TurnosFijosPanel() {
         )}
       </div>
 
+      {!showForm && (
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400"
+        >
+          + Crear turno fijo
+        </button>
+      )}
+
+      {showForm && (
+      <>
       <div className="grid grid-cols-2 gap-2 border-t border-gray-800 pt-3 sm:grid-cols-4">
         <select
           value={weekday}
@@ -156,8 +170,20 @@ function TurnosFijosPanel() {
         disabled={!canAdd || adding}
         className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
       >
-        + Agregar turno fijo
+        Guardar turno fijo
       </button>
+      <button
+        type="button"
+        onClick={() => {
+          setShowForm(false)
+          setError(null)
+        }}
+        className="ml-2 rounded-lg border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-800"
+      >
+        Cancelar
+      </button>
+      </>
+      )}
 
       <ErrorText error={error} />
 
@@ -178,14 +204,21 @@ function DuracionTurnoPanel() {
   const slotDurationMinutes = useSettingsStore((s) => s.slotDurationMinutes)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
 
-  const [duration, setDuration] = useState(slotDurationMinutes)
+  // Se guarda como texto para poder borrar el campo y escribir el numero.
+  const [durationText, setDurationText] = useState(String(slotDurationMinutes))
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  const duration = Number(durationText)
+  const valid = durationText !== '' && duration >= 15 && duration <= 240
   const dirty = duration !== slotDurationMinutes
 
   async function handleSave() {
+    if (!valid) {
+      setError('Poné una duración de entre 15 y 240 minutos.')
+      return
+    }
     setSaving(true)
     const saveError = await updateSettings({ slotDurationMinutes: duration })
     setSaving(false)
@@ -204,9 +237,9 @@ function DuracionTurnoPanel() {
       <label className="block text-sm text-gray-400">
         Minutos por turno
         <input
-          type="number"
-          value={duration}
-          onChange={(e) => setDuration(Number(e.target.value))}
+          value={durationText}
+          onChange={(e) => setDurationText(e.target.value.replace(/\D/g, '').slice(0, 3))}
+          inputMode="numeric"
           className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
         />
       </label>
@@ -216,7 +249,7 @@ function DuracionTurnoPanel() {
       <button
         type="button"
         onClick={handleSave}
-        disabled={!dirty || saving}
+        disabled={!dirty || durationText === '' || saving}
         className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
       >
         {saving ? 'Guardando...' : 'Guardar'}
@@ -231,7 +264,8 @@ function CanchaRow({ court }: { court: Court }) {
   const deleteCourt = useCourtsStore((s) => s.deleteCourt)
 
   const [name, setName] = useState(court.name)
-  const [price, setPrice] = useState(court.price)
+  const [priceText, setPriceText] = useState(String(court.price))
+  const price = Number(priceText)
   const [sport, setSport] = useState<Sport>(court.sport)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -271,16 +305,17 @@ function CanchaRow({ court }: { court: Court }) {
           ))}
         </select>
         <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
+          value={priceText}
+          onChange={(e) => setPriceText(e.target.value.replace(/\D/g, ''))}
+          inputMode="numeric"
+          aria-label="Precio por turno"
           className="w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-1.5 text-sm text-gray-100 sm:w-32"
         />
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleSave}
-            disabled={!dirty || saving}
+            disabled={!dirty || priceText === '' || saving}
             className="rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
           >
             {saving ? '...' : 'Guardar'}
@@ -309,6 +344,7 @@ function CanchasPanel() {
   const [newSport, setNewSport] = useState<Sport>(courts[courts.length - 1]?.sport ?? 'padel')
   const [error, setError] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
+  const [showForm, setShowForm] = useState(false)
 
   const canAdd = newName.trim() !== '' && Number(newPrice) > 0
 
@@ -324,6 +360,7 @@ function CanchasPanel() {
     setError(null)
     setNewName('')
     setNewPrice('')
+    setShowForm(false)
   }
 
   return (
@@ -338,8 +375,20 @@ function CanchasPanel() {
         {courts.length === 0 && <p className="text-sm text-gray-500">No hay canchas cargadas.</p>}
       </div>
 
+      {!showForm && (
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400"
+        >
+          + Crear cancha
+        </button>
+      )}
+
+      {showForm && (
       <div className="flex flex-col gap-2 border-t border-gray-800 pt-3 sm:flex-row sm:items-center">
         <input
+          autoFocus
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           placeholder="Nombre de la cancha"
@@ -358,9 +407,9 @@ function CanchasPanel() {
           ))}
         </select>
         <input
-          type="number"
           value={newPrice}
-          onChange={(e) => setNewPrice(e.target.value)}
+          onChange={(e) => setNewPrice(e.target.value.replace(/\D/g, ''))}
+          inputMode="numeric"
           placeholder="Precio"
           className="w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-1.5 text-sm text-gray-100 sm:w-32"
         />
@@ -370,9 +419,20 @@ function CanchasPanel() {
           disabled={!canAdd || adding}
           className="w-full rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50 sm:w-auto"
         >
-          + Agregar
+          Guardar cancha
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setShowForm(false)
+            setError(null)
+          }}
+          className="w-full rounded-lg border border-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-800 sm:w-auto"
+        >
+          Cancelar
         </button>
       </div>
+      )}
       <ErrorText error={error} />
     </div>
   )

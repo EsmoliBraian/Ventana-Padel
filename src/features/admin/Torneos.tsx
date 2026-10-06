@@ -6,11 +6,11 @@ import { ErrorText } from '@/components/ErrorText'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Tournament } from '@/types'
 
-function TournamentCard({ tournament }: { tournament: Tournament }) {
+function TournamentCard({ tournament, startEditing }: { tournament: Tournament; startEditing: boolean }) {
   const updateTournament = useTournamentsStore((s) => s.updateTournament)
   const deleteTournament = useTournamentsStore((s) => s.deleteTournament)
 
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(startEditing)
   const [name, setName] = useState(tournament.name)
   const [date, setDate] = useState(tournament.date)
   const [description, setDescription] = useState(tournament.description)
@@ -268,15 +268,21 @@ export function Torneos() {
 
   const sortedTournaments = [...tournaments].sort((a, b) => a.date.localeCompare(b.date))
 
+  // El torneo recien creado se abre directo en edicion.
+  const [newId, setNewId] = useState<string | null>(null)
+
   async function handleAdd() {
-    setError(
-      await addTournament({
-        name: 'Nuevo torneo',
-        date: todayKey(),
-        description: '',
-        published: false,
-      }),
-    )
+    const before = new Set(tournaments.map((t) => t.id))
+    const addError = await addTournament({
+      name: 'Nuevo torneo',
+      date: todayKey(),
+      description: '',
+      published: false,
+    })
+    setError(addError)
+    if (addError) return
+    const created = useTournamentsStore.getState().tournaments.find((t) => !before.has(t.id))
+    setNewId(created?.id ?? null)
   }
 
   return (
@@ -288,7 +294,7 @@ export function Torneos() {
           onClick={handleAdd}
           className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
         >
-          + Nuevo torneo
+          + Crear torneo
         </button>
       </div>
 
@@ -296,7 +302,11 @@ export function Torneos() {
 
       <div className="space-y-3">
         {sortedTournaments.map((t) => (
-          <TournamentCard key={t.id} tournament={t} />
+          <TournamentCard
+            key={t.id === newId ? `${t.id}-nuevo` : t.id}
+            tournament={t}
+            startEditing={t.id === newId}
+          />
         ))}
         {tournaments.length === 0 && (
           <p className="text-sm text-gray-500">No hay torneos cargados.</p>
