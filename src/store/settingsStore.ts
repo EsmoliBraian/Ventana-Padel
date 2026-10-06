@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { deleteImage } from '@/lib/storage'
-import type { Settings } from '@/types'
+import type { Settings, Sport } from '@/types'
 
 interface SettingsRow {
   id: string
@@ -36,10 +36,11 @@ function fromRow(row: SettingsRow): Settings {
 }
 
 interface CreateVenueInput {
-  ownerId: string
   slug: string
   venueName: string
-  whatsappPhone: string
+  ownerName: string
+  ownerWhatsapp: string
+  courts: { sport: Sport; count: number }[]
 }
 
 interface SettingsState {
@@ -111,17 +112,16 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     return false
   },
   createVenue: async (input) => {
-    const { data, error } = await supabase
-      .from('settings')
-      .insert({
-        owner_id: input.ownerId,
-        slug: input.slug,
-        venue_name: input.venueName,
-        whatsapp_phone: input.whatsappPhone,
-      })
-      .select()
-      .single()
-    if (error || !data) return error?.message ?? 'No se pudo crear el club.'
+    // El alta pasa por una funcion de la base (create_venue) que valida y
+    // crea todo junto: complejo, contacto del dueño y canchas.
+    const { data, error } = await supabase.rpc('create_venue', {
+      p_venue_name: input.venueName,
+      p_slug: input.slug,
+      p_owner_name: input.ownerName,
+      p_owner_whatsapp: input.ownerWhatsapp,
+      p_courts: input.courts,
+    })
+    if (error || !data) return error?.message ?? 'No se pudo crear el complejo.'
     set({ ...fromRow(data), venueChecked: true })
     return null
   },

@@ -1,7 +1,10 @@
+export type Sport = 'padel' | 'futbol5' | 'futbol7' | 'tenis' | 'otro'
+
 export interface Court {
   id: string
   name: string
   price: number
+  sport: Sport
 }
 
 export interface Settings {

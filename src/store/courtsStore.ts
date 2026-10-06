@@ -1,7 +1,18 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettingsStore } from '@/store/settingsStore'
-import type { Court } from '@/types'
+import type { Court, Sport } from '@/types'
+
+interface CourtRow {
+  id: string
+  name: string
+  price: number
+  sport?: Sport
+}
+
+function fromRow(row: CourtRow): Court {
+  return { id: row.id, name: row.name, price: row.price, sport: row.sport ?? 'padel' }
+}
 
 interface CourtsState {
   courts: Court[]
@@ -21,10 +32,10 @@ export const useCourtsStore = create<CourtsState>()((set, get) => ({
     set({ loading: true })
     const { data, error } = await supabase
       .from('courts')
-      .select('id, name, price')
+      .select('*')
       .eq('venue_id', venueId)
       .order('name')
-    if (!error && data) set({ courts: data })
+    if (!error && data) set({ courts: data.map(fromRow) })
     set({ loading: false })
   },
   addCourt: async (name, price) => {
@@ -33,10 +44,10 @@ export const useCourtsStore = create<CourtsState>()((set, get) => ({
     const { data, error } = await supabase
       .from('courts')
       .insert({ name, price, venue_id: venueId })
-      .select('id, name, price')
+      .select('*')
       .single()
     if (error) return error.message
-    set({ courts: [...get().courts, data] })
+    set({ courts: [...get().courts, fromRow(data)] })
     return null
   },
   updateCourt: async (id, patch) => {
