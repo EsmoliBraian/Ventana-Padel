@@ -78,7 +78,8 @@ export function RankingPage() {
   const [shared, setShared] = useState(false)
 
   const activeCategoryId = selectedCategoryId || categoryFromUrl || categories[0]?.id || ''
-  const activeCategoryName = categories.find((c) => c.id === activeCategoryId)?.name ?? ''
+  const activeCategory = categories.find((c) => c.id === activeCategoryId)
+  const activeCategoryName = activeCategory?.name ?? ''
   const categoryEntries = useMemo(
     () =>
       entries
@@ -144,6 +145,11 @@ export function RankingPage() {
 
       {categories.length > 0 && (
         <>
+          {activeCategory?.description && (
+            <p className="mb-4 text-sm text-gray-400">
+              {activeCategory.name} · {activeCategory.description}
+            </p>
+          )}
           {podium.length > 0 && (
             <div className="mb-6 grid grid-cols-3 items-end gap-3 sm:max-w-md">
               {podium.map((entry, i) => (

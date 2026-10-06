@@ -6,6 +6,9 @@ import { CategoriesModal } from '@/features/admin/CategoriesModal'
 import { Modal } from '@/components/Modal'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { formatCurrency } from '@/lib/format'
+import { needsRestock } from '@/lib/stock'
+import { StockBadge } from '@/components/admin/StockBadge'
+import { StockModal } from '@/features/admin/StockModal'
 import type { Category, Product } from '@/types'
 
 function ProductCard({ product, categories }: { product: Product; categories: Category[] }) {
@@ -17,33 +20,43 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
   const [description, setDescription] = useState(product.description)
   const [categoryId, setCategoryId] = useState(product.categoryId ?? '')
   const [price, setPrice] = useState(product.price)
+  const [sku, setSku] = useState(product.sku ?? '')
+  const [trackStock, setTrackStock] = useState(product.trackStock)
+  const [stockMinText, setStockMinText] = useState(product.stockMin?.toString() ?? '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [showStock, setShowStock] = useState(false)
 
   const dirty =
     name !== product.name ||
     description !== product.description ||
     categoryId !== (product.categoryId ?? '') ||
-    price !== product.price
+    price !== product.price ||
+    sku.trim() !== (product.sku ?? '') ||
+    trackStock !== product.trackStock ||
+    stockMinText !== (product.stockMin?.toString() ?? '')
+
+  function resetForm() {
+    setName(product.name)
+    setDescription(product.description)
+    setCategoryId(product.categoryId ?? '')
+    setPrice(product.price)
+    setSku(product.sku ?? '')
+    setTrackStock(product.trackStock)
+    setStockMinText(product.stockMin?.toString() ?? '')
+    setError(null)
+  }
 
   const categoryName = categories.find((c) => c.id === product.categoryId)?.name
 
   function handleEdit() {
-    setName(product.name)
-    setDescription(product.description)
-    setCategoryId(product.categoryId ?? '')
-    setPrice(product.price)
-    setError(null)
+    resetForm()
     setEditing(true)
   }
 
   function handleCancel() {
-    setName(product.name)
-    setDescription(product.description)
-    setCategoryId(product.categoryId ?? '')
-    setPrice(product.price)
-    setError(null)
+    resetForm()
     setEditing(false)
   }
 
@@ -54,6 +67,9 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
       description,
       categoryId: categoryId || undefined,
       price,
+      sku: sku.trim() || undefined,
+      trackStock,
+      stockMin: trackStock && stockMinText !== '' ? Number(stockMinText) : undefined,
     })
     setSaving(false)
     setError(saveError)
@@ -77,10 +93,23 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
                   {categoryName}
                 </span>
               )}
+              <StockBadge product={product} />
             </div>
-            <p className="text-xs text-gray-500">{formatCurrency(product.price)}</p>
+            <p className="text-xs text-gray-500">
+              {formatCurrency(product.price)}
+              {product.sku && <span className="ml-2">Cód. {product.sku}</span>}
+            </p>
           </div>
           <div className="flex items-center gap-3">
+            {product.trackStock && (
+              <button
+                type="button"
+                onClick={() => setShowStock(true)}
+                className="rounded-lg border border-gray-700 px-3 py-1 text-xs text-gray-200 hover:bg-gray-800"
+              >
+                Stock
+              </button>
+            )}
             <button
               type="button"
               onClick={handleEdit}
@@ -100,6 +129,7 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
           </div>
         </div>
         <ErrorText error={error} />
+        {showStock && <StockModal productId={product.id} onClose={() => setShowStock(false)} />}
         {confirmingDelete && (
           <ConfirmDialog
             title="Eliminar producto"
@@ -148,6 +178,39 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
             ))}
           </select>
         </label>
+        <label className="block text-sm text-gray-400">
+          Código (opcional)
+          <input
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            placeholder="SKU o código de barras"
+            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
+          />
+        </label>
+        <div className="block text-sm text-gray-400">
+          Stock
+          <label className="mt-1 flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100">
+            <input type="checkbox" checked={trackStock} onChange={(e) => setTrackStock(e.target.checked)} />
+            Controlar stock de este producto
+          </label>
+        </div>
+        {trackStock && (
+          <label className="block text-sm text-gray-400 sm:col-span-2">
+            Avisarme cuando queden (opcional)
+            <input
+              value={stockMinText}
+              onChange={(e) => setStockMinText(e.target.value.replace(/\D/g, ''))}
+              inputMode="numeric"
+              placeholder="Por ejemplo, 6"
+              className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
+            />
+            {!product.trackStock && (
+              <span className="mt-1 block text-xs text-gray-500">
+                Al guardar, cargá el stock actual desde el botón Stock del producto.
+              </span>
+            )}
+          </label>
+        )}
         <label className="block text-sm text-gray-400 sm:col-span-2">
           Descripcion
           <textarea
@@ -214,6 +277,10 @@ function NuevoProductoModal({
   const [price, setPrice] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [description, setDescription] = useState('')
+  const [sku, setSku] = useState('')
+  const [trackStock, setTrackStock] = useState(false)
+  const [initialStock, setInitialStock] = useState('')
+  const [stockMinText, setStockMinText] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
 
@@ -222,12 +289,18 @@ function NuevoProductoModal({
   async function handleCreate() {
     if (!canCreate) return
     setCreating(true)
-    const createError = await addProduct({
-      name: name.trim(),
-      description: description.trim(),
-      categoryId: categoryId || undefined,
-      price: Number(price),
-    })
+    const createError = await addProduct(
+      {
+        name: name.trim(),
+        description: description.trim(),
+        categoryId: categoryId || undefined,
+        price: Number(price),
+        sku: sku.trim() || undefined,
+        trackStock,
+        stockMin: trackStock && stockMinText !== '' ? Number(stockMinText) : undefined,
+      },
+      trackStock ? Number(initialStock) || 0 : 0,
+    )
     setCreating(false)
     if (createError) {
       setError(createError)
@@ -272,6 +345,46 @@ function NuevoProductoModal({
             ))}
           </select>
         </label>
+        <label className="block text-sm text-gray-400">
+          Código (opcional)
+          <input
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            placeholder="SKU o código de barras"
+            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
+          />
+        </label>
+        <div className="block text-sm text-gray-400">
+          Stock
+          <label className="mt-1 flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100">
+            <input type="checkbox" checked={trackStock} onChange={(e) => setTrackStock(e.target.checked)} />
+            Controlar stock de este producto
+          </label>
+        </div>
+        {trackStock && (
+          <>
+            <label className="block text-sm text-gray-400">
+              Stock inicial
+              <input
+                value={initialStock}
+                onChange={(e) => setInitialStock(e.target.value.replace(/\D/g, ''))}
+                inputMode="numeric"
+                placeholder="Cuántos hay hoy"
+                className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
+              />
+            </label>
+            <label className="block text-sm text-gray-400">
+              Avisarme cuando queden (opcional)
+              <input
+                value={stockMinText}
+                onChange={(e) => setStockMinText(e.target.value.replace(/\D/g, ''))}
+                inputMode="numeric"
+                placeholder="Por ejemplo, 6"
+                className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
+              />
+            </label>
+          </>
+        )}
         <label className="block text-sm text-gray-400 sm:col-span-2">
           Descripcion (opcional)
           <textarea
@@ -313,6 +426,10 @@ export function Productos() {
   const [showCategories, setShowCategories] = useState(false)
   const [showNewProduct, setShowNewProduct] = useState(false)
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+  const [onlyRestock, setOnlyRestock] = useState(false)
+
+  const restockProducts = useMemo(() => products.filter(needsRestock), [products])
+  const showOnlyRestock = onlyRestock && restockProducts.length > 0
 
   const productCountByCategory = useMemo(() => {
     const counts = new Map<string, number>()
@@ -324,12 +441,13 @@ export function Productos() {
 
   const filteredProducts = useMemo(() => {
     return products
+      .filter((p) => !showOnlyRestock || needsRestock(p))
       .filter((p) => !selectedCategoryId || p.categoryId === selectedCategoryId)
       .filter((p) => {
         if (!searchQuery.trim()) return true
         return p.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
       })
-  }, [products, searchQuery, selectedCategoryId])
+  }, [products, searchQuery, selectedCategoryId, showOnlyRestock])
 
   return (
     <div className="space-y-4">
@@ -352,6 +470,35 @@ export function Productos() {
           </button>
         </div>
       </div>
+
+      {restockProducts.length > 0 && (
+        <div
+          role="status"
+          className="flex flex-col gap-2 rounded-xl border border-warning-border/60 bg-warning-bg p-4 text-sm sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="font-medium text-warning">
+              {restockProducts.length === 1
+                ? 'Hay 1 producto para reponer'
+                : `Hay ${restockProducts.length} productos para reponer`}
+            </p>
+            <p className="mt-0.5 text-xs text-gray-300">
+              {restockProducts
+                .slice(0, 6)
+                .map((p) => `${p.name} (${p.stock})`)
+                .join(' · ')}
+              {restockProducts.length > 6 ? ' · …' : ''}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setOnlyRestock((v) => !v)}
+            className="shrink-0 rounded-lg border border-warning-border/60 px-3 py-1.5 text-xs font-medium text-warning hover:bg-warning/10"
+          >
+            {showOnlyRestock ? 'Ver todos' : 'Ver solo esos'}
+          </button>
+        </div>
+      )}
 
       <input
         value={searchQuery}

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useProductsStore } from '@/store/productsStore'
 import type { PaymentMethod, PaymentStatus, Sale, SaleItem, SalePayment } from '@/types'
 import { toDateKey } from '@/lib/format'
 
@@ -42,6 +43,14 @@ function fromRow(row: SaleRow): Sale {
       unitPrice: item.unit_price,
     })),
     payments: row.sale_payments.map((p) => ({ method: p.method, amount: p.amount })),
+  }
+}
+
+// La base descuenta (o devuelve) stock cuando cambian los items de una
+// venta, asi que despues de tocarlos se vuelven a leer los productos.
+function refreshStock() {
+  if (useProductsStore.getState().products.some((p) => p.trackStock)) {
+    useProductsStore.getState().fetchProducts()
   }
 }
 
@@ -140,6 +149,7 @@ export const useSalesStore = create<SalesState>()((set, get) => ({
         },
       ],
     })
+    refreshStock()
     return null
   },
   settleSale: async (id, paymentMethod, payments) => {
@@ -176,6 +186,7 @@ export const useSalesStore = create<SalesState>()((set, get) => ({
     const { error } = await supabase.from('sales').delete().eq('id', id)
     if (error) return error.message
     set({ sales: get().sales.filter((s) => s.id !== id) })
+    refreshStock()
     return null
   },
   updateSaleItems: async (id, items) => {
@@ -210,6 +221,7 @@ export const useSalesStore = create<SalesState>()((set, get) => ({
     set({
       sales: get().sales.map((s) => (s.id === id ? { ...s, items, total: newTotal } : s)),
     })
+    refreshStock()
     return null
   },
 }))

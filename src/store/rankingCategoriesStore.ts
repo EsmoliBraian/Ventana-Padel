@@ -3,6 +3,16 @@ import { supabase } from '@/lib/supabaseClient'
 import { useSettingsStore } from '@/store/settingsStore'
 import type { RankingCategory } from '@/types'
 
+interface RankingCategoryRow {
+  id: string
+  name: string
+  description?: string | null
+}
+
+function fromRow(row: RankingCategoryRow): RankingCategory {
+  return { id: row.id, name: row.name, description: row.description ?? '' }
+}
+
 interface RankingCategoriesState {
   categories: RankingCategory[]
   loading: boolean
@@ -21,10 +31,10 @@ export const useRankingCategoriesStore = create<RankingCategoriesState>()((set, 
     set({ loading: true })
     const { data, error } = await supabase
       .from('ranking_categories')
-      .select('id, name')
+      .select('*')
       .eq('venue_id', venueId)
       .order('name')
-    if (!error && data) set({ categories: data })
+    if (!error && data) set({ categories: data.map(fromRow) })
     set({ loading: false })
   },
   addCategory: async (name) => {
@@ -33,10 +43,12 @@ export const useRankingCategoriesStore = create<RankingCategoriesState>()((set, 
     const { data, error } = await supabase
       .from('ranking_categories')
       .insert({ name, venue_id: venueId })
-      .select('id, name')
+      .select('*')
       .single()
     if (error) return error.message
-    set({ categories: [...get().categories, data].sort((a, b) => a.name.localeCompare(b.name)) })
+    set({
+      categories: [...get().categories, fromRow(data)].sort((a, b) => a.name.localeCompare(b.name)),
+    })
     return null
   },
   updateCategory: async (id, name) => {

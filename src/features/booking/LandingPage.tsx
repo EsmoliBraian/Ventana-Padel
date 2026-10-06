@@ -79,8 +79,13 @@ export function LandingPage() {
   const courts = useCourtsStore((s) => s.courts)
   const tournaments = useTournamentsStore((s) => s.tournaments).filter((t) => t.published)
   const slides = useSlidesStore((s) => s.slides).filter((s) => s.published)
-  const rankingCategories = useRankingCategoriesStore((s) => s.categories)
+  const allRankingCategories = useRankingCategoriesStore((s) => s.categories)
   const rankingEntries = useRankingStore((s) => s.entries)
+  // Las categorias vienen precargadas: en el inicio se muestran solo las que
+  // ya tienen resultados.
+  const rankingCategories = allRankingCategories.filter((c) =>
+    rankingEntries.some((e) => e.categoryId === c.id),
+  )
   const path = useVenuePath()
 
   const sortedSlides = useMemo(() => [...slides].sort((a, b) => a.order - b.order), [slides])

@@ -276,5 +276,6 @@ alter publication supabase_realtime add table public.reservations;
 -- the app (/admin/signup).
 --
 -- This file is the schema as of migration 012. On a brand new project, run
--- supabase/migrations/013_trial_onboarding.sql right after it: it adds the
--- free trial, the create_venue() signup function and the final RLS policies.
+-- every file from supabase/migrations/013 onward right after it, in order:
+-- they add the free trial, the create_venue() signup function, the final RLS
+-- policies, the demo venue, the superadmin view and product stock.

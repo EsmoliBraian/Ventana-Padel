@@ -75,6 +75,24 @@ export interface Product {
   description: string
   categoryId?: string
   price: number
+  sku?: string // codigo propio o de barras, unico dentro del complejo
+  trackStock: boolean
+  stock: number // existencia actual; solo cambia por movimientos de stock
+  stockMin?: number // avisar cuando el stock llega a este numero
+}
+
+// Lo que se carga al crear o editar un producto: el stock no se edita a mano.
+export type ProductInput = Omit<Product, 'id' | 'stock'>
+
+export type StockMovementType = 'inicial' | 'entrada' | 'venta' | 'devolucion' | 'merma' | 'ajuste'
+
+export interface StockMovement {
+  id: string
+  productId: string
+  type: StockMovementType
+  qty: number // positivo entra, negativo sale
+  note: string
+  createdAt: string
 }
 
 export type PaymentMethod = 'efectivo' | 'transferencia' | 'mixto'
@@ -136,6 +154,7 @@ export type RankingInstance =
 export interface RankingCategory {
   id: string
   name: string
+  description: string // nivel de la categoria, por ejemplo "Intermedio"
 }
 
 export interface RankingEntry {
