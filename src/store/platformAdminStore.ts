@@ -58,6 +58,7 @@ interface PlatformAdminState {
   fetchVenues: () => Promise<string | null>
   activateVenue: (venueId: string) => Promise<string | null>
   extendTrial: (venueId: string, days: number) => Promise<string | null>
+  suspendVenue: (venueId: string) => Promise<string | null>
   reset: () => void
 }
 
@@ -97,6 +98,14 @@ export const usePlatformAdminStore = create<PlatformAdminState>()((set, get) => 
       p_venue_id: venueId,
       p_action: 'extend',
       p_days: days,
+    })
+    if (error) return error.message
+    return get().fetchVenues()
+  },
+  suspendVenue: async (venueId) => {
+    const { error } = await supabase.rpc('admin_set_plan', {
+      p_venue_id: venueId,
+      p_action: 'suspend',
     })
     if (error) return error.message
     return get().fetchVenues()

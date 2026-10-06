@@ -10,7 +10,29 @@ import { ErrorText } from '@/components/ErrorText'
 
 const EXTEND_DAYS = 30
 
-type PendingAction = { venue: AdminVenue; action: 'activate' | 'extend' }
+type PendingAction = { venue: AdminVenue; action: 'activate' | 'extend' | 'suspend' }
+
+const CONFIRM_TEXT: Record<
+  PendingAction['action'],
+  { title: string; confirmLabel: string; message: (venueName: string) => string }
+> = {
+  activate: {
+    title: 'Activar complejo',
+    confirmLabel: 'Activar',
+    message: (name) => `¿Pasar "${name}" a plan activo? Deja de tener vencimiento.`,
+  },
+  extend: {
+    title: 'Extender prueba',
+    confirmLabel: 'Extender',
+    message: (name) => `¿Sumarle ${EXTEND_DAYS} días de prueba a "${name}"?`,
+  },
+  suspend: {
+    title: 'Dar de baja',
+    confirmLabel: 'Dar de baja',
+    message: (name) =>
+      `¿Dar de baja "${name}"? Su panel queda en solo lectura y sus reservas online se pausan. No se borra ningún dato y se puede volver a activar.`,
+  },
+}
 
 function formatDate(iso?: string): string {
   if (!iso) return '—'
@@ -52,6 +74,7 @@ function PlanBadge({ venue }: { venue: AdminVenue }) {
 
 function expiryText(venue: AdminVenue): string {
   if (venue.isDemo || venue.planStatus === 'active') return 'Sin vencimiento'
+  if (venue.planStatus === 'expired') return 'Dado de baja'
   if (!venue.trialEndsAt) return '—'
   const plan = getPlanInfo(venue)
   if (plan.state === 'expired') return `Venció el ${formatDate(venue.trialEndsAt)}`
@@ -106,10 +129,10 @@ export function SuperadminPage() {
   async function handleConfirm() {
     if (!pending) return
     const store = usePlatformAdminStore.getState()
-    const actionError =
-      pending.action === 'activate'
-        ? await store.activateVenue(pending.venue.id)
-        : await store.extendTrial(pending.venue.id, EXTEND_DAYS)
+    let actionError: string | null
+    if (pending.action === 'activate') actionError = await store.activateVenue(pending.venue.id)
+    else if (pending.action === 'extend') actionError = await store.extendTrial(pending.venue.id, EXTEND_DAYS)
+    else actionError = await store.suspendVenue(pending.venue.id)
     setError(actionError)
     setPending(null)
   }
@@ -211,6 +234,15 @@ export function SuperadminPage() {
                           +{EXTEND_DAYS} días de prueba
                         </button>
                       )}
+                      {getPlanInfo(venue).state !== 'expired' && (
+                        <button
+                          type="button"
+                          onClick={() => setPending({ venue, action: 'suspend' })}
+                          className="rounded-lg border border-danger-border/60 px-3 py-1.5 text-xs text-danger hover:bg-danger-bg"
+                        >
+                          Dar de baja
+                        </button>
+                      )}
                     </div>
                   )}
                 </td>
@@ -229,14 +261,10 @@ export function SuperadminPage() {
 
       {pending && (
         <ConfirmDialog
-          title={pending.action === 'activate' ? 'Activar complejo' : 'Extender prueba'}
-          message={
-            pending.action === 'activate'
-              ? `¿Pasar "${pending.venue.venueName}" a plan activo? Deja de tener vencimiento.`
-              : `¿Sumarle ${EXTEND_DAYS} días de prueba a "${pending.venue.venueName}"?`
-          }
-          confirmLabel={pending.action === 'activate' ? 'Activar' : 'Extender'}
-          danger={false}
+          title={CONFIRM_TEXT[pending.action].title}
+          message={CONFIRM_TEXT[pending.action].message(pending.venue.venueName)}
+          confirmLabel={CONFIRM_TEXT[pending.action].confirmLabel}
+          danger={pending.action === 'suspend'}
           onConfirm={handleConfirm}
           onCancel={() => setPending(null)}
         />
