@@ -83,7 +83,7 @@ export const useSalesStore = create<SalesState>()((set, get) => ({
   },
   addSale: async (items, paymentMethod, payments, reservationId, customerName, reservationFee = 0) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const itemsTotal = items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0)
     const total = itemsTotal + reservationFee
     const date = toDateKey(new Date())
@@ -144,7 +144,7 @@ export const useSalesStore = create<SalesState>()((set, get) => ({
   },
   settleSale: async (id, paymentMethod, payments) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { error } = await supabase
       .from('sales')
       .update({ payment_status: 'pagado', payment_method: paymentMethod })
@@ -180,7 +180,7 @@ export const useSalesStore = create<SalesState>()((set, get) => ({
   },
   updateSaleItems: async (id, items) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const sale = get().sales.find((s) => s.id === id)
     if (!sale) return 'No se encontro la venta.'
 

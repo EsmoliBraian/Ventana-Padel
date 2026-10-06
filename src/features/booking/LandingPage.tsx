@@ -8,7 +8,8 @@ import { useRankingCategoriesStore } from '@/store/rankingCategoriesStore'
 import { useRankingStore } from '@/store/rankingStore'
 import { TournamentCard } from '@/components/TournamentCard'
 import { BlogPostCard } from '@/components/BlogPostCard'
-import { PadelHeroBackground } from '@/components/site/PadelHeroBackground'
+import { CourtHeroBackground } from '@/components/site/CourtHeroBackground'
+import { heroHeadline } from '@/lib/sports'
 import { buildWhatsAppLink } from '@/lib/whatsapp'
 import { useVenuePath } from '@/lib/venuePath'
 
@@ -101,14 +102,14 @@ export function LandingPage() {
     <div>
       {/* Hero */}
       <section className="relative flex min-h-[560px] items-end overflow-hidden sm:min-h-[640px]">
-        <PadelHeroBackground />
+        <CourtHeroBackground />
 
         <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-24">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary-500">
             {venueName}
           </p>
           <h1 className="mt-3 max-w-2xl text-4xl font-bold leading-tight text-gray-50 sm:text-5xl">
-            Tu cancha de padel, lista cuando quieras
+            {heroHeadline(courts)}
           </h1>
           <p className="mt-4 max-w-xl text-base text-gray-300 sm:text-lg">
             Reserva tu turno en segundos y confirmalo directo por WhatsApp.
@@ -131,17 +132,17 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Sobre el club */}
+      {/* Sobre el complejo */}
       <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
         <div className="grid gap-10 sm:grid-cols-[1.3fr_1fr] sm:gap-16">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">
-              Sobre el club
+              Sobre nosotros
             </p>
             <h2 className="mt-1 text-2xl font-semibold text-gray-50 sm:text-3xl">{venueName}</h2>
             <p className="mt-4 text-base leading-relaxed text-gray-400">
               {about ||
-                'Canchas de primera calidad, buena iluminacion y el mejor ambiente para jugar al padel con amigos.'}
+                'Canchas de primera calidad, buena iluminación y el mejor ambiente para jugar con amigos.'}
             </p>
             {address && (
               <p className="mt-5 flex items-center gap-2 text-sm text-gray-400">
@@ -172,7 +173,7 @@ export function LandingPage() {
       {latestPosts.length > 0 && (
         <section className="border-t border-gray-800/60 bg-gray-925/40">
           <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
-            <SectionHeading eyebrow="Blog" title="Lo ultimo del club" cta={{ to: path('/blog'), label: 'Ver todos' }} />
+            <SectionHeading eyebrow="Blog" title="Últimas novedades" cta={{ to: path('/blog'), label: 'Ver todos' }} />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {latestPosts.map((post) => (
                 <BlogPostCard key={post.id} post={post} />

@@ -38,7 +38,7 @@ export const useClosedDatesStore = create<ClosedDatesState>()((set, get) => ({
   },
   addClosedDate: async (date, reason) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('closed_dates')
       .insert({ venue_id: venueId, date, reason: reason || null })

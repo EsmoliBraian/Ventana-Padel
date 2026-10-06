@@ -29,7 +29,7 @@ export const useCategoriesStore = create<CategoriesState>()((set, get) => ({
   },
   addCategory: async (name) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('categories')
       .insert({ name, venue_id: venueId })

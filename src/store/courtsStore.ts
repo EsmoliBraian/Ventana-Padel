@@ -18,7 +18,7 @@ interface CourtsState {
   courts: Court[]
   loading: boolean
   fetchCourts: () => Promise<void>
-  addCourt: (name: string, price: number) => Promise<string | null>
+  addCourt: (name: string, price: number, sport: Sport) => Promise<string | null>
   updateCourt: (id: string, patch: Partial<Omit<Court, 'id'>>) => Promise<string | null>
   deleteCourt: (id: string) => Promise<string | null>
 }
@@ -38,12 +38,12 @@ export const useCourtsStore = create<CourtsState>()((set, get) => ({
     if (!error && data) set({ courts: data.map(fromRow) })
     set({ loading: false })
   },
-  addCourt: async (name, price) => {
+  addCourt: async (name, price, sport) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('courts')
-      .insert({ name, price, venue_id: venueId })
+      .insert({ name, price, sport, venue_id: venueId })
       .select('*')
       .single()
     if (error) return error.message
@@ -52,9 +52,10 @@ export const useCourtsStore = create<CourtsState>()((set, get) => ({
     return null
   },
   updateCourt: async (id, patch) => {
-    const row: { name?: string; price?: number } = {}
+    const row: { name?: string; price?: number; sport?: Sport } = {}
     if (patch.name !== undefined) row.name = patch.name
     if (patch.price !== undefined) row.price = patch.price
+    if (patch.sport !== undefined) row.sport = patch.sport
 
     const { error } = await supabase.from('courts').update(row).eq('id', id)
     if (error) return error.message

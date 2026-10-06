@@ -9,7 +9,7 @@ export function BlogPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">Blog</p>
-      <h1 className="mt-1 text-3xl font-semibold text-gray-50 sm:text-4xl">Novedades del club</h1>
+      <h1 className="mt-1 text-3xl font-semibold text-gray-50 sm:text-4xl">Novedades</h1>
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {sortedSlides.map((post) => (

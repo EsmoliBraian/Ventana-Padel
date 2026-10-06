@@ -1,4 +1,5 @@
-export function PadelHeroBackground() {
+// Fondo del hero: el contorno de una cancha generica, sirve para cualquier deporte.
+export function CourtHeroBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden bg-gray-950">
       <div className="absolute -right-24 -top-32 h-[420px] w-[420px] rounded-full bg-brand-500/30 blur-[110px]" />

@@ -50,7 +50,7 @@ export const useTournamentsStore = create<TournamentsState>()((set, get) => ({
   },
   addTournament: async (tournament) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('tournaments')
       .insert({

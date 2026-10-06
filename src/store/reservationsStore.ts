@@ -74,7 +74,7 @@ export const useReservationsStore = create<ReservationsState>()((set, get) => ({
   },
   addReservation: async (reservation) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('reservations')
       .insert({

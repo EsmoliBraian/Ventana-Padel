@@ -47,7 +47,7 @@ export const useProductsStore = create<ProductsState>()((set, get) => ({
   },
   addProduct: async (product) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('products')
       .insert({

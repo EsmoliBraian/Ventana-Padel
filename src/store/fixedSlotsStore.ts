@@ -47,7 +47,7 @@ export const useFixedSlotsStore = create<FixedSlotsState>()((set, get) => ({
   },
   addFixedSlot: async (slot) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('fixed_slots')
       .insert({

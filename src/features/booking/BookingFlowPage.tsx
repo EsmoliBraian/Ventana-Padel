@@ -9,8 +9,9 @@ import { getCourtTimeSlots } from '@/lib/availability'
 import { formatCurrency, formatLongDate, fromDateKey, nextDays, toDateKey, weekdayShort } from '@/lib/format'
 import { buildReservationMessage, buildWhatsAppLink } from '@/lib/whatsapp'
 import { getPlanInfo } from '@/lib/plan'
+import { defaultPlayers, sportLabel, venueSports } from '@/lib/sports'
 import { ErrorText } from '@/components/ErrorText'
-import type { Court } from '@/types'
+import type { Court, Sport } from '@/types'
 
 type Step = 'slot' | 'summary' | 'confirm'
 
@@ -35,7 +36,12 @@ export function BookingFlowPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const selectedCourt = courts.find((c) => c.id === selectedCourtId) ?? courts[0]
+  // Con mas de un deporte, primero se elige deporte y despues cancha.
+  const sports = useMemo(() => venueSports(courts), [courts])
+  const [selectedSport, setSelectedSport] = useState<Sport | null>(null)
+  const activeSport = selectedSport ?? sports[0]
+  const sportCourts = sports.length > 1 ? courts.filter((c) => c.sport === activeSport) : courts
+  const selectedCourt = sportCourts.find((c) => c.id === selectedCourtId) ?? sportCourts[0]
 
   const isClosed = closedDates.some((c) => c.date === selectedDate)
   const timeSlots = useMemo(
@@ -74,7 +80,7 @@ export function BookingFlowPage() {
       courtId: selectedSlot.court.id,
       date: selectedDate,
       time: selectedSlot.time,
-      players: 4,
+      players: defaultPlayers(selectedSlot.court.sport),
       status: 'reservado',
       createdVia: 'user',
       priceTotal: total,
@@ -157,12 +163,37 @@ export function BookingFlowPage() {
             })}
           </div>
 
-          {courts.length > 1 && (
+          {sports.length > 1 && (
+            <>
+              <h2 className="mb-2 text-sm font-medium text-gray-300">Deporte</h2>
+              <div className="mb-4 flex flex-wrap gap-2">
+                {sports.map((sport) => {
+                  const active = sport === activeSport
+                  return (
+                    <button
+                      key={sport}
+                      type="button"
+                      onClick={() => setSelectedSport(sport)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs ${
+                        active
+                          ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                          : 'border-gray-800 text-gray-400'
+                      }`}
+                    >
+                      {sportLabel(sport)}
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          {sportCourts.length > 1 && (
             <>
               <h2 className="mb-2 text-sm font-medium text-gray-300">Cancha</h2>
               <div className="mb-4 flex flex-wrap gap-2">
-                {courts.map((c) => {
-                  const active = c.id === selectedCourtId
+                {sportCourts.map((c) => {
+                  const active = c.id === selectedCourt?.id
                   return (
                     <button
                       key={c.id}

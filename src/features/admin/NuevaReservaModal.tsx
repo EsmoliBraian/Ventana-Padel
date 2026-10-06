@@ -7,6 +7,7 @@ import { ErrorText } from '@/components/ErrorText'
 import { generateTimeLabels } from '@/lib/timeSlots'
 import type { ReservationStatus } from '@/types'
 import { todayKey } from '@/lib/format'
+import { defaultPlayers } from '@/lib/sports'
 
 export function NuevaReservaModal({ onClose }: { onClose: () => void }) {
   const settings = useSettingsStore()
@@ -33,7 +34,7 @@ export function NuevaReservaModal({ onClose }: { onClose: () => void }) {
       courtId,
       date,
       time,
-      players: 4,
+      players: defaultPlayers(selectedCourt.sport),
       status,
       customerName: customerName || undefined,
       createdVia: 'admin',

@@ -77,7 +77,7 @@ export const useRankingStore = create<RankingState>()((set, get) => ({
   },
   updatePoints: async (points) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     for (const [instance, value] of Object.entries(points)) {
       const { error } = await supabase
         .from('ranking_points')
@@ -102,7 +102,7 @@ export const useRankingStore = create<RankingState>()((set, get) => ({
   },
   addResult: async (categoryId, playerName, instance) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const awardedPoints = get().points[instance]
     const existing = get().entries.find(
       (e) => e.categoryId === categoryId && e.playerName === playerName,

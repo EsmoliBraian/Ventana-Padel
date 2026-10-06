@@ -68,7 +68,7 @@ export function AdminLoginPage() {
         </button>
 
         <p className="mt-4 text-center text-sm text-gray-500">
-          Sos un club nuevo?{' '}
+          ¿Todavía no tenés cuenta?{' '}
           <Link to="/admin/signup" className="text-primary-500 hover:underline">
             Crear cuenta
           </Link>

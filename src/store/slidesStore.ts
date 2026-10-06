@@ -52,7 +52,7 @@ export const useSlidesStore = create<SlidesState>()((set, get) => ({
   },
   addSlide: async (slide) => {
     const venueId = useSettingsStore.getState().id
-    if (!venueId) return 'No hay club activo.'
+    if (!venueId) return 'No hay complejo activo.'
     const { data, error } = await supabase
       .from('hero_slides')
       .insert({

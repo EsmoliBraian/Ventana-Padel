@@ -8,7 +8,8 @@ import { ErrorText } from '@/components/ErrorText'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { generateTimeLabels } from '@/lib/timeSlots'
 import { formatCurrency, todayKey } from '@/lib/format'
-import type { Court, ReservationStatus } from '@/types'
+import { SPORTS } from '@/lib/sports'
+import type { Court, ReservationStatus, Sport } from '@/types'
 
 const WEEKDAY_LABELS = [
   'Domingo',
@@ -231,14 +232,15 @@ function CanchaRow({ court }: { court: Court }) {
 
   const [name, setName] = useState(court.name)
   const [price, setPrice] = useState(court.price)
+  const [sport, setSport] = useState<Sport>(court.sport)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  const dirty = name !== court.name || price !== court.price
+  const dirty = name !== court.name || price !== court.price || sport !== court.sport
 
   async function handleSave() {
     setSaving(true)
-    const saveError = await updateCourt(court.id, { name, price })
+    const saveError = await updateCourt(court.id, { name, price, sport })
     setSaving(false)
     setError(saveError)
   }
@@ -256,6 +258,18 @@ function CanchaRow({ court }: { court: Court }) {
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-1.5 text-sm text-gray-100 sm:flex-1"
         />
+        <select
+          value={sport}
+          onChange={(e) => setSport(e.target.value as Sport)}
+          aria-label="Deporte"
+          className="w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-1.5 text-sm text-gray-100 sm:w-32"
+        >
+          {SPORTS.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.label}
+            </option>
+          ))}
+        </select>
         <input
           type="number"
           value={price}
@@ -291,6 +305,8 @@ function CanchasPanel() {
 
   const [newName, setNewName] = useState('')
   const [newPrice, setNewPrice] = useState('')
+  // Por defecto, el deporte de la ultima cancha cargada.
+  const [newSport, setNewSport] = useState<Sport>(courts[courts.length - 1]?.sport ?? 'padel')
   const [error, setError] = useState<string | null>(null)
   const [adding, setAdding] = useState(false)
 
@@ -299,7 +315,7 @@ function CanchasPanel() {
   async function handleAdd() {
     if (!canAdd) return
     setAdding(true)
-    const addError = await addCourt(newName.trim(), Number(newPrice))
+    const addError = await addCourt(newName.trim(), Number(newPrice), newSport)
     setAdding(false)
     if (addError) {
       setError(addError)
@@ -313,7 +329,7 @@ function CanchasPanel() {
   return (
     <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-900 p-4">
       <p className="text-sm font-medium text-gray-300">Canchas</p>
-      <p className="text-xs text-gray-500">Cada cancha tiene su propio precio por turno.</p>
+      <p className="text-xs text-gray-500">Cada cancha tiene su deporte y su precio por turno.</p>
 
       <div className="space-y-3">
         {courts.map((court) => (
@@ -329,6 +345,18 @@ function CanchasPanel() {
           placeholder="Nombre de la cancha"
           className="w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-1.5 text-sm text-gray-100 sm:flex-1"
         />
+        <select
+          value={newSport}
+          onChange={(e) => setNewSport(e.target.value as Sport)}
+          aria-label="Deporte de la cancha nueva"
+          className="w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-1.5 text-sm text-gray-100 sm:w-32"
+        >
+          {SPORTS.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.label}
+            </option>
+          ))}
+        </select>
         <input
           type="number"
           value={newPrice}

@@ -98,7 +98,7 @@ export function Configuracion() {
 
       <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-900 p-4">
         <label className="block text-sm text-gray-400">
-          Nombre del club
+          Nombre del complejo
           <input
             value={venueName}
             onChange={(e) => setVenueName(e.target.value)}
@@ -117,7 +117,7 @@ export function Configuracion() {
         </label>
 
         <div className="block text-sm text-gray-400">
-          Logo / icono del club
+          Logo / icono del complejo
           <div className="mt-1 flex items-center gap-3">
             {logoUrl ? (
               <img src={logoUrl} alt="" className="h-12 w-12 rounded-full object-cover" />
@@ -140,12 +140,12 @@ export function Configuracion() {
         <p className="text-sm font-medium text-gray-200">Landing publica</p>
 
         <label className="block text-sm text-gray-400">
-          Sobre el club
+          Sobre el complejo
           <textarea
             value={about}
             onChange={(e) => setAbout(e.target.value)}
             rows={3}
-            placeholder="Contale a tus jugadores que hace especial al club..."
+            placeholder="Contale a tus clientes qué hace especial a tu complejo..."
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
           />
         </label>
@@ -165,7 +165,7 @@ export function Configuracion() {
           <input
             value={instagramUrl}
             onChange={(e) => setInstagramUrl(e.target.value)}
-            placeholder="https://instagram.com/tuclub"
+            placeholder="https://instagram.com/tucomplejo"
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
           />
         </label>
