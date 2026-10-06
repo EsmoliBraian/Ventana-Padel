@@ -20,6 +20,7 @@ interface SettingsRow {
   onboarding?: OnboardingState | null
   plan_status?: PlanStatus
   trial_ends_at?: string | null
+  is_demo?: boolean
 }
 
 function fromRow(row: SettingsRow): Settings {
@@ -40,6 +41,7 @@ function fromRow(row: SettingsRow): Settings {
     onboarding: row.onboarding ?? { dismissed: true },
     planStatus: row.plan_status ?? 'active',
     trialEndsAt: row.trial_ends_at ?? undefined,
+    isDemo: row.is_demo ?? false,
   }
 }
 
@@ -67,6 +69,7 @@ interface SettingsState {
   onboarding: OnboardingState
   planStatus: PlanStatus
   trialEndsAt?: string
+  isDemo: boolean
   loading: boolean
   venueChecked: boolean
   fetchSettingsForOwner: (ownerId: string) => Promise<void>
@@ -93,6 +96,7 @@ const defaultState = {
   onboarding: { dismissed: true } as OnboardingState,
   planStatus: 'active' as PlanStatus,
   trialEndsAt: undefined as string | undefined,
+  isDemo: false,
   loading: false,
   venueChecked: false,
 }

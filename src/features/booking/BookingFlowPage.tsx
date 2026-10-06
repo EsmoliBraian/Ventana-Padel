@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useCourtsStore } from '@/store/courtsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
@@ -62,6 +63,12 @@ export function BookingFlowPage() {
 
   async function handleConfirmReservation() {
     if (!selectedSlot) return
+    // En el complejo demo el recorrido es completo pero la reserva no se
+    // guarda (la base tampoco la acepta).
+    if (settings.isDemo) {
+      setStep('confirm')
+      return
+    }
     setSubmitting(true)
     const reservationError = await addReservation({
       courtId: selectedSlot.court.id,
@@ -238,7 +245,41 @@ export function BookingFlowPage() {
         </>
       )}
 
-      {step === 'confirm' && selectedSlot && (
+      {step === 'confirm' && selectedSlot && settings.isDemo && (
+        <>
+          <h1 className="mb-6 text-2xl font-semibold text-gray-50 sm:text-3xl">
+            Así de simple reservan tus clientes
+          </h1>
+          <div className="mb-4 rounded-lg border border-success/40 bg-success/10 p-4 text-sm text-gray-200">
+            <p className="mb-2 font-medium text-success">
+              En un complejo real, acá se abre WhatsApp con el mensaje ya escrito.
+            </p>
+            <p className="text-gray-400">
+              El turno queda tomado en la grilla y al complejo le llega la fecha, el horario y la
+              cancha. Como esto es una demo, la reserva no se guardó.
+            </p>
+          </div>
+
+          <Link
+            to="/admin/signup"
+            className="rounded-lg bg-primary-500 py-3 text-center font-medium text-gray-950 hover:bg-primary-400"
+          >
+            Crear mi complejo gratis
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedSlot(null)
+              setStep('slot')
+            }}
+            className="mt-3 text-sm text-gray-400 hover:text-gray-200"
+          >
+            Volver a probar
+          </button>
+        </>
+      )}
+
+      {step === 'confirm' && selectedSlot && !settings.isDemo && (
         <>
           <h1 className="mb-6 text-2xl font-semibold text-gray-50 sm:text-3xl">
             Confirma tu reserva

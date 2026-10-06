@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Outlet, useParams } from 'react-router-dom'
+import { Link, Outlet, useParams } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useCourtsStore } from '@/store/courtsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
@@ -15,6 +15,7 @@ import { SiteFooter } from '@/components/site/SiteFooter'
 export function PublicLayout() {
   const { slug } = useParams()
   const [status, setStatus] = useState<'loading' | 'found' | 'not-found'>('loading')
+  const isDemo = useSettingsStore((s) => s.isDemo)
   const unsubscribeRef = useRef<() => void>(() => {})
 
   useEffect(() => {
@@ -73,6 +74,14 @@ export function PublicLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {isDemo && (
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-brand-500 px-4 py-2 text-center text-sm text-gray-50">
+          <span>Estás viendo un complejo de ejemplo.</span>
+          <Link to="/admin/signup" className="font-semibold underline underline-offset-2">
+            Crear el mío gratis
+          </Link>
+        </div>
+      )}
       <SiteHeader />
       <div className="flex-1">
         <Outlet />

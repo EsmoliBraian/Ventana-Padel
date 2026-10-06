@@ -33,6 +33,7 @@ export interface Settings {
   onboarding: OnboardingState
   planStatus: PlanStatus
   trialEndsAt?: string // fecha y hora ISO; solo en prueba
+  isDemo: boolean // complejo de ejemplo publico: sus reservas no se guardan
 }
 
 export interface ClosedDate {
