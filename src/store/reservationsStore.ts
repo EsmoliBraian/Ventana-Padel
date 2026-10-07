@@ -29,6 +29,14 @@ function fromRow(row: ReservationRow): Reservation {
   }
 }
 
+// Lo que devuelve addReservation cuando la base rechaza la reserva porque el
+// horario ya esta tomado, por otra reserva (23505) o por un turno fijo (23P01).
+export const SLOT_TAKEN_MESSAGE = 'Ese horario ya está ocupado. Elegí otro.'
+
+function isSlotTaken(error: { code?: string } | null): boolean {
+  return error?.code === '23505' || error?.code === '23P01'
+}
+
 interface ReservationsState {
   reservations: Reservation[]
   loading: boolean
@@ -90,6 +98,11 @@ export const useReservationsStore = create<ReservationsState>()((set, get) => ({
       })
       .select()
       .single()
+    if (isSlotTaken(error)) {
+      // Alguien lo tomo mientras tanto: se refresca la grilla.
+      get().fetchReservations()
+      return SLOT_TAKEN_MESSAGE
+    }
     if (error || !data) return error?.message ?? 'No se pudo guardar la reserva.'
     set({ reservations: [...get().reservations, fromRow(data)] })
     return null

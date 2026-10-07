@@ -59,7 +59,11 @@ export const useFixedSlotsStore = create<FixedSlotsState>()((set, get) => ({
       })
       .select()
       .single()
-    if (error) return error.message
+    if (error) {
+      // 23505: ya hay un turno fijo ahi. El choque con una reserva (23P01)
+      // trae su propio mensaje, con la fecha.
+      return error.code === '23505' ? 'Ya hay un turno fijo en esa cancha, día y horario.' : error.message
+    }
     set({ fixedSlots: [...get().fixedSlots, fromRow(data)] })
     return null
   },

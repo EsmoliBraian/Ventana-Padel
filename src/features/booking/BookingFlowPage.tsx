@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useCourtsStore } from '@/store/courtsStore'
-import { useReservationsStore } from '@/store/reservationsStore'
+import { SLOT_TAKEN_MESSAGE, useReservationsStore } from '@/store/reservationsStore'
 import { useClosedDatesStore } from '@/store/closedDatesStore'
 import { useFixedSlotsStore } from '@/store/fixedSlotsStore'
 import { getCourtTimeSlots } from '@/lib/availability'
@@ -64,6 +64,7 @@ export function BookingFlowPage() {
 
   function handlePickSlot(time: string) {
     if (!selectedCourt) return
+    setError(null)
     setSelectedSlot({ time, court: selectedCourt })
     setStep('summary')
   }
@@ -87,6 +88,13 @@ export function BookingFlowPage() {
       priceTotal: total,
     })
     setSubmitting(false)
+    if (reservationError === SLOT_TAKEN_MESSAGE) {
+      // Lo reservaron recien: se vuelve a la grilla, ya actualizada.
+      setError('Ese horario se acaba de ocupar. Elegí otro.')
+      setSelectedSlot(null)
+      setStep('slot')
+      return
+    }
     if (reservationError) {
       setError('No pudimos guardar tu reserva. Probá de nuevo en un momento.')
       return
@@ -215,6 +223,7 @@ export function BookingFlowPage() {
           )}
 
           <h2 className="mb-2 text-sm font-medium text-gray-300">Horarios disponibles</h2>
+          <ErrorText error={error} />
           <div className="space-y-2">
             {timeSlots.map((slot) => (
               <button
