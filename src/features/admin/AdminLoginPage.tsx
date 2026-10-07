@@ -35,7 +35,7 @@ export function AdminLoginPage() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm rounded-xl border border-gray-800 bg-gray-900 p-6"
       >
-        <h1 className="mb-6 text-lg font-semibold text-gray-50">Panel de administracion</h1>
+        <h1 className="mb-6 text-lg font-semibold text-gray-50">Panel de administración</h1>
 
         <label className="mb-3 block text-sm text-gray-400">
           Email
@@ -48,7 +48,7 @@ export function AdminLoginPage() {
         </label>
 
         <label className="mb-4 block text-sm text-gray-400">
-          Contrasena
+          Contraseña
           <input
             type="password"
             value={pass}

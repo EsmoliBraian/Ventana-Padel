@@ -66,11 +66,11 @@ export function VentasDelDia() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-gray-50">Ventas del dia</h1>
+      <h1 className="text-xl font-semibold text-gray-50">Ventas del día</h1>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-          <p className="text-sm text-gray-400">Total del dia</p>
+          <p className="text-sm text-gray-400">Total del día</p>
           <p className="mt-1 text-xl font-semibold text-gray-50">{formatCurrency(total)}</p>
         </div>
         {methodTotals.map((method) => (
@@ -88,7 +88,7 @@ export function VentasDelDia() {
               <th className="p-4">Productos / Persona</th>
               <th className="p-4">Turno</th>
               <th className="p-4">Estado</th>
-              <th className="p-4">Metodo de pago</th>
+              <th className="p-4">Método de pago</th>
               <th className="p-4">Total</th>
             </tr>
           </thead>
@@ -203,7 +203,7 @@ export function VentasDelDia() {
             {todaySales.length === 0 && (
               <tr>
                 <td colSpan={5} className="p-4 text-center text-gray-500">
-                  Todavia no hay ventas hoy.
+                  Todavía no hay ventas hoy.
                 </td>
               </tr>
             )}

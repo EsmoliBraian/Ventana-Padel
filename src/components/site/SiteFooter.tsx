@@ -35,7 +35,7 @@ export function SiteFooter() {
   const instagramUrl = useSettingsStore((s) => s.instagramUrl)
 
   const whatsappLink = whatsappPhone
-    ? buildWhatsAppLink(whatsappPhone, `Hola! Quiero mas informacion sobre ${venueName}.`)
+    ? buildWhatsAppLink(whatsappPhone, `Hola! Quiero más información sobre ${venueName}.`)
     : null
 
   return (

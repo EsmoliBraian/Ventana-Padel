@@ -65,7 +65,7 @@ function EditEntryModal({ entry, onClose }: { entry: RankingEntry; onClose: () =
           />
         </label>
         <label className="block text-xs text-gray-400">
-          Instancia mas alta
+          Instancia más alta
           <select
             value={bestInstanceValue}
             onChange={(e) => setBestInstanceValue(e.target.value as RankingInstance)}
@@ -153,11 +153,11 @@ export function Ranking() {
 
   async function handleAddResult() {
     if (!resultPlayerName.trim()) {
-      setResultError('Ingresa el nombre del jugador.')
+      setResultError('Ingresá el nombre del jugador.')
       return
     }
     if (!resultCategoryId) {
-      setResultError('Elegi una categoria.')
+      setResultError('Elegí una categoría.')
       return
     }
     setSavingResult(true)
@@ -190,18 +190,18 @@ export function Ranking() {
           onClick={() => setShowCategories(true)}
           className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
         >
-          Crear o editar categoria
+          Crear o editar categoría
         </button>
       </div>
 
       {categories.length === 0 ? (
         <p className="text-sm text-gray-500">
-          No hay categorias de ranking todavia. Creá una para empezar a cargar resultados.
+          No hay categorías de ranking todavía. Creá una para empezar a cargar resultados.
         </p>
       ) : (
         <>
           <label className="block max-w-xs text-sm text-gray-400">
-            Categoria
+            Categoría
             <select
               value={selectedCategoryId}
               onChange={(e) => setSelectedCategoryId(e.target.value)}
@@ -256,7 +256,7 @@ export function Ranking() {
                 />
               </label>
               <label className="mt-3 block text-xs text-gray-400">
-                Categoria
+                Categoría
                 <select
                   value={resultCategoryId}
                   onChange={(e) => setResultCategoryId(e.target.value)}
@@ -307,7 +307,7 @@ export function Ranking() {
                 <tr className="text-left text-xs font-semibold text-gray-400">
                   <th className="pb-3 pr-3">Pos.</th>
                   <th className="pb-3 pr-3">Jugador</th>
-                  <th className="pb-3 pr-3">Instancia mas alta</th>
+                  <th className="pb-3 pr-3">Instancia más alta</th>
                   <th className="pb-3 pr-3">Puntos</th>
                   <th className="pb-3 pr-3" />
                 </tr>
@@ -333,7 +333,7 @@ export function Ranking() {
               </tbody>
             </table>
             {categoryEntries.length === 0 && (
-              <p className="mt-2 text-sm text-gray-500">Todavia no hay resultados cargados.</p>
+              <p className="mt-2 text-sm text-gray-500">Todavía no hay resultados cargados.</p>
             )}
           </div>
         </>

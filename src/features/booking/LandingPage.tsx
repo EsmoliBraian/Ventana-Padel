@@ -98,7 +98,7 @@ export function LandingPage() {
   )
 
   const whatsappLink = whatsappPhone
-    ? buildWhatsAppLink(whatsappPhone, `Hola! Quiero mas informacion sobre ${venueName}.`)
+    ? buildWhatsAppLink(whatsappPhone, `Hola! Quiero más información sobre ${venueName}.`)
     : null
   const mapsLink = address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
@@ -118,7 +118,7 @@ export function LandingPage() {
             {heroHeadline(courts)}
           </h1>
           <p className="mt-4 max-w-xl text-base text-gray-300 sm:text-lg">
-            Reserva tu turno en segundos y confirmalo directo por WhatsApp.
+            Reservá tu turno en segundos y confirmalo directo por WhatsApp.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -171,7 +171,7 @@ export function LandingPage() {
               <p className="text-2xl font-bold text-primary-500">
                 {openHour}:00 - {closeHour}:00
               </p>
-              <p className="mt-1 text-sm text-gray-400">Horario de atencion</p>
+              <p className="mt-1 text-sm text-gray-400">Horario de atención</p>
             </div>
           </div>
         </div>
@@ -204,7 +204,7 @@ export function LandingPage() {
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
           <SectionHeading
             eyebrow="Torneos"
-            title="Proximos torneos"
+            title="Próximos torneos"
             cta={{ to: path('/torneos'), label: 'Ver todos' }}
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -226,7 +226,7 @@ export function LandingPage() {
       {rankingCategories.length > 0 && (
         <section className="border-t border-gray-800/60 bg-gray-925/40">
           <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
-            <SectionHeading eyebrow="Ranking" title="Nuestras categorias" />
+            <SectionHeading eyebrow="Ranking" title="Nuestras categorías" />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {rankingCategories.map((category) => {
                 const top = rankingEntries
@@ -260,7 +260,7 @@ export function LandingPage() {
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-gray-500">Sin resultados todavia.</p>
+                        <p className="text-sm text-gray-500">Sin resultados todavía.</p>
                       )}
                     </div>
 
@@ -316,7 +316,7 @@ export function LandingPage() {
                   className="flex items-center gap-2 rounded-full border border-gray-700 px-6 py-3 text-sm font-medium text-gray-100 hover:bg-gray-800"
                 >
                   <PinIcon />
-                  Como llegar
+                  Cómo llegar
                 </a>
               )}
             </div>

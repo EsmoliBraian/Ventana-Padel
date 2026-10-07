@@ -83,14 +83,14 @@ export function CategoriesModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Modal title="Categorias de productos" onClose={onClose}>
+    <Modal title="Categorías de productos" onClose={onClose}>
       <div className="space-y-3 text-sm">
         <div className="space-y-2">
           {categories.map((c) => (
             <CategoryRow key={c.id} category={c} />
           ))}
           {categories.length === 0 && (
-            <p className="text-sm text-gray-500">No hay categorias cargadas.</p>
+            <p className="text-sm text-gray-500">No hay categorías cargadas.</p>
           )}
         </div>
 
@@ -98,7 +98,7 @@ export function CategoriesModal({ onClose }: { onClose: () => void }) {
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Nueva categoria"
+            placeholder="Nueva categoría"
             className="flex-1 rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-sm text-gray-100"
           />
           <button

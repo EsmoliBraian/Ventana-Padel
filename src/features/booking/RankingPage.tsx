@@ -121,7 +121,7 @@ export function RankingPage() {
       </div>
 
       {categories.length === 0 && (
-        <p className="text-sm text-gray-500">Todavia no hay ranking cargado.</p>
+        <p className="text-sm text-gray-500">Todavía no hay ranking cargado.</p>
       )}
 
       {categories.length > 1 && (
@@ -180,7 +180,7 @@ export function RankingPage() {
               </tbody>
             </table>
             {categoryEntries.length === 0 && (
-              <p className="text-sm text-gray-500">Todavia no hay resultados en esta categoria.</p>
+              <p className="text-sm text-gray-500">Todavía no hay resultados en esta categoría.</p>
             )}
           </div>
 

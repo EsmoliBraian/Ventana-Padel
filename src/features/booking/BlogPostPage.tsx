@@ -52,7 +52,7 @@ export function BlogPostPage() {
           {post.body}
         </div>
       ) : (
-        <p className="mt-6 text-base text-gray-500">Todavia no hay mas contenido para este post.</p>
+        <p className="mt-6 text-base text-gray-500">Todavía no hay más contenido para este post.</p>
       )}
 
       <Link

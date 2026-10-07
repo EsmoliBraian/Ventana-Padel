@@ -63,8 +63,8 @@ function CategoryRow({ category }: { category: RankingCategory }) {
 
       {confirmingDelete && (
         <ConfirmDialog
-          title="Eliminar categoria"
-          message={`¿Eliminar la categoria "${category.name}"? Se pierde el ranking cargado en esa categoria.`}
+          title="Eliminar categoría"
+          message={`¿Eliminar la categoría "${category.name}"? Se pierde el ranking cargado en esa categoría.`}
           confirmLabel="Eliminar"
           onConfirm={handleDelete}
           onCancel={() => setConfirmingDelete(false)}
@@ -96,14 +96,14 @@ export function RankingCategoriesModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Modal title="Categorias de ranking" onClose={onClose}>
+    <Modal title="Categorías de ranking" onClose={onClose}>
       <div className="space-y-3 text-sm">
         <div className="space-y-2">
           {categories.map((c) => (
             <CategoryRow key={c.id} category={c} />
           ))}
           {categories.length === 0 && (
-            <p className="text-sm text-gray-500">No hay categorias cargadas.</p>
+            <p className="text-sm text-gray-500">No hay categorías cargadas.</p>
           )}
         </div>
 

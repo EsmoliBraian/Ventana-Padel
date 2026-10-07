@@ -19,7 +19,7 @@ export function BlogPage() {
         <AdSlot placement="grillas" />
       </div>
       {sortedSlides.length === 0 && (
-        <p className="mt-4 text-sm text-gray-500">Todavia no hay posts publicados.</p>
+        <p className="mt-4 text-sm text-gray-500">Todavía no hay posts publicados.</p>
       )}
     </div>
   )

@@ -146,7 +146,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   },
   updateSettings: async (patch) => {
     const { id, logoUrl: previousLogoUrl } = get()
-    if (!id) return 'No se encontro la configuracion.'
+    if (!id) return 'No se encontró la configuración.'
     const row: Partial<SettingsRow> = {}
     if (patch.venueName !== undefined) row.venue_name = patch.venueName
     if (patch.whatsappPhone !== undefined) row.whatsapp_phone = patch.whatsappPhone

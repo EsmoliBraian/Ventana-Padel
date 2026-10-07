@@ -164,13 +164,13 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
           />
         </label>
         <label className="block text-sm text-gray-400 sm:col-span-2">
-          Categoria (opcional)
+          Categoría (opcional)
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
           >
-            <option value="">Sin categoria</option>
+            <option value="">Sin categoría</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -212,7 +212,7 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
           </label>
         )}
         <label className="block text-sm text-gray-400 sm:col-span-2">
-          Descripcion
+          Descripción
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -331,13 +331,13 @@ function NuevoProductoModal({
           />
         </label>
         <label className="block text-sm text-gray-400 sm:col-span-2">
-          Categoria (opcional)
+          Categoría (opcional)
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
           >
-            <option value="">Sin categoria</option>
+            <option value="">Sin categoría</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -386,7 +386,7 @@ function NuevoProductoModal({
           </>
         )}
         <label className="block text-sm text-gray-400 sm:col-span-2">
-          Descripcion (opcional)
+          Descripción (opcional)
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -459,7 +459,7 @@ export function Productos() {
             onClick={() => setShowCategories(true)}
             className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
           >
-            Crear o editar categoria
+            Crear o editar categoría
           </button>
           <button
             type="button"
@@ -545,7 +545,7 @@ export function Productos() {
           <p className="text-sm text-gray-500">
             {products.length === 0
               ? 'No hay productos cargados.'
-              : 'Ningun producto coincide con la busqueda o la categoria elegida.'}
+              : 'Ningún producto coincide con la búsqueda o la categoría elegida.'}
           </p>
         )}
       </div>

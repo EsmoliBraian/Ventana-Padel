@@ -315,7 +315,7 @@ export const useSalesStore = create<SalesState>()((set, get) => {
       const venueId = useSettingsStore.getState().id
       if (!venueId) return 'No hay complejo activo.'
       const sale = get().sales.find((s) => s.id === id)
-      if (!sale) return 'No se encontro la venta.'
+      if (!sale) return 'No se encontró la venta.'
 
       const currentItemsTotal = sale.items.reduce((sum, item) => sum + item.qty * item.unitPrice, 0)
       const extraFee = sale.total - currentItemsTotal

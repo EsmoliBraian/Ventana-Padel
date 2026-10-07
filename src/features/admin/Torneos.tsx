@@ -189,7 +189,7 @@ function TournamentCard({ tournament, startEditing }: { tournament: Tournament; 
             />
           </label>
           <label className="block text-sm text-gray-400 sm:col-span-2">
-            Descripcion
+            Descripción
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}

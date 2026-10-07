@@ -139,11 +139,11 @@ export function Configuracion() {
 
   return (
     <div className="max-w-lg space-y-4">
-      <h1 className="text-xl font-semibold text-gray-50">Configuracion</h1>
+      <h1 className="text-xl font-semibold text-gray-50">Configuración</h1>
 
       {bookingLink && (
         <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-          <p className="mb-2 text-sm text-gray-400">Tu link publico de reservas</p>
+          <p className="mb-2 text-sm text-gray-400">Tu link público de reservas</p>
           <div className="flex items-center gap-2">
             <input
               readOnly
@@ -172,7 +172,7 @@ export function Configuracion() {
         </label>
 
         <label className="block text-sm text-gray-400">
-          Telefono de WhatsApp (con codigo de pais, sin +)
+          Teléfono de WhatsApp (con código de país, sin +)
           <input
             value={whatsappPhone}
             onChange={(e) => setWhatsappPhone(e.target.value)}
@@ -197,12 +197,12 @@ export function Configuracion() {
         </div>
 
         <p className="text-xs text-gray-500">
-          Las canchas y su precio se administran en la seccion Reservas.
+          Las canchas y su precio se administran en la sección Reservas.
         </p>
       </div>
 
       <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p className="text-sm font-medium text-gray-200">Landing publica</p>
+        <p className="text-sm font-medium text-gray-200">Landing pública</p>
 
         <label className="block text-sm text-gray-400">
           Sobre el complejo
@@ -216,7 +216,7 @@ export function Configuracion() {
         </label>
 
         <label className="block text-sm text-gray-400">
-          Direccion
+          Dirección
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value)}
@@ -246,9 +246,9 @@ export function Configuracion() {
         disabled={!dirty || saving}
         className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
       >
-        {saving ? 'Guardando...' : 'Guardar configuracion'}
+        {saving ? 'Guardando...' : 'Guardar configuración'}
       </button>
-      {saved && <p className="text-sm text-success">Configuracion guardada.</p>}
+      {saved && <p className="text-sm text-success">Configuración guardada.</p>}
     </div>
   )
 }

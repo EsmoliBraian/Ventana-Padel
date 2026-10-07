@@ -38,7 +38,7 @@ export function BlogPostCard({ post }: { post: HeroSlide }) {
         <p className="text-base font-semibold text-gray-50">{post.title}</p>
         {post.subtitle && <p className="mt-1 text-sm text-gray-400">{post.subtitle}</p>}
         <span className="mt-4 flex items-center gap-1 text-sm font-medium text-primary-500">
-          Leer mas <ArrowIcon />
+          Leer más <ArrowIcon />
         </span>
       </div>
     </Link>

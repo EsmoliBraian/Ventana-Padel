@@ -15,10 +15,10 @@ const WEEKDAY_LABELS = [
   'Domingo',
   'Lunes',
   'Martes',
-  'Miercoles',
+  'Miércoles',
   'Jueves',
   'Viernes',
-  'Sabado',
+  'Sábado',
 ]
 
 function TurnosFijosPanel() {
@@ -79,7 +79,7 @@ function TurnosFijosPanel() {
     <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-900 p-4">
       <p className="text-sm font-medium text-gray-300">Turnos fijos</p>
       <p className="text-xs text-gray-500">
-        Un turno fijo queda reservado todas las semanas ese dia y horario hasta que lo canceles.
+        Un turno fijo queda reservado todas las semanas ese día y horario hasta que lo canceles.
       </p>
 
       <div className="space-y-2">
@@ -190,7 +190,7 @@ function TurnosFijosPanel() {
       {confirmingDeleteId && (
         <ConfirmDialog
           title="Cancelar turno fijo"
-          message="¿Cancelar este turno fijo? El horario queda libre desde la proxima semana."
+          message="¿Cancelar este turno fijo? El horario queda libre desde la próxima semana."
           confirmLabel="Cancelar turno"
           onConfirm={() => handleDelete(confirmingDeleteId)}
           onCancel={() => setConfirmingDeleteId(null)}
@@ -233,7 +233,7 @@ function DuracionTurnoPanel() {
 
   return (
     <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-      <p className="mb-3 text-sm font-medium text-gray-300">Duracion de turno</p>
+      <p className="mb-3 text-sm font-medium text-gray-300">Duración de turno</p>
       <label className="block text-sm text-gray-400">
         Minutos por turno
         <input

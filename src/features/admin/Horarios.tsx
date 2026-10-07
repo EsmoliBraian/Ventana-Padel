@@ -111,7 +111,7 @@ export function Horarios() {
       </div>
 
       <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p className="mb-3 text-sm font-medium text-gray-300">Dias cerrados</p>
+        <p className="mb-3 text-sm font-medium text-gray-300">Días cerrados</p>
 
         <div className="space-y-2">
           {closedDates.map((cd) => (
@@ -130,7 +130,7 @@ export function Horarios() {
             </div>
           ))}
           {closedDates.length === 0 && (
-            <p className="text-sm text-gray-500">No hay dias cerrados cargados.</p>
+            <p className="text-sm text-gray-500">No hay días cerrados cargados.</p>
           )}
         </div>
 
@@ -153,7 +153,7 @@ export function Horarios() {
             onClick={handleAddClosedDate}
             className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
           >
-            + Agregar dia cerrado
+            + Agregar día cerrado
           </button>
         </div>
       </div>

@@ -123,12 +123,12 @@ export function Dashboard() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="overflow-x-auto rounded-xl border border-gray-800 bg-gray-900 p-4 lg:col-span-2">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-medium text-gray-300">Reservas del dia</p>
+            <p className="text-sm font-medium text-gray-300">Reservas del día</p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => shiftGridDate(-1)}
-                aria-label="Dia anterior"
+                aria-label="Día anterior"
                 className="rounded-lg border border-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-800"
               >
                 &larr;
@@ -142,7 +142,7 @@ export function Dashboard() {
               <button
                 type="button"
                 onClick={() => shiftGridDate(1)}
-                aria-label="Dia siguiente"
+                aria-label="Día siguiente"
                 className="rounded-lg border border-gray-700 px-2 py-1 text-xs text-gray-300 hover:bg-gray-800"
               >
                 &rarr;

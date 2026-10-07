@@ -149,7 +149,7 @@ export function BookingFlowPage() {
           <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500">
             Reservar
           </p>
-          <h1 className="mb-6 text-2xl font-semibold text-gray-50 sm:text-3xl">Elegi fecha</h1>
+          <h1 className="mb-6 text-2xl font-semibold text-gray-50 sm:text-3xl">Elegí fecha</h1>
           <div className="mb-4 flex gap-2">
             {days.map((d) => {
               const key = toDateKey(d)
@@ -243,7 +243,7 @@ export function BookingFlowPage() {
             ))}
             {timeSlots.length === 0 && (
               <p className="text-sm text-gray-500">
-                {isClosed ? 'Cerrado ese dia.' : 'No hay horarios disponibles para este dia.'}
+                {isClosed ? 'Cerrado ese día.' : 'No hay horarios disponibles para este día.'}
               </p>
             )}
           </div>
@@ -324,13 +324,13 @@ export function BookingFlowPage() {
       {step === 'confirm' && selectedSlot && !settings.isDemo && (
         <>
           <h1 className="mb-6 text-2xl font-semibold text-gray-50 sm:text-3xl">
-            Confirma tu reserva
+            Confirmá tu reserva
           </h1>
           <div className="mb-4 rounded-lg border border-success/40 bg-success/10 p-4 text-sm text-gray-200">
             <p className="mb-2 font-medium text-success">
-              Seras redirigido a WhatsApp para confirmar tu reserva con la cancha.
+              Serás redirigido a WhatsApp para confirmar tu reserva con la cancha.
             </p>
-            <p className="text-gray-400">Tu mensaje incluira:</p>
+            <p className="text-gray-400">Tu mensaje incluirá:</p>
             <ul className="mt-1 list-disc pl-5 text-gray-300">
               <li>Fecha y horario</li>
               <li>Cancha</li>

@@ -165,7 +165,7 @@ function SlideCard({ slide, startEditing }: { slide: HeroSlide; startEditing: bo
 
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block text-sm text-gray-400">
-          Titulo
+          Título
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -186,7 +186,7 @@ function SlideCard({ slide, startEditing }: { slide: HeroSlide; startEditing: bo
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={6}
-            placeholder="Escribi la nota completa. Esto se muestra cuando alguien hace click en 'Leer mas'."
+            placeholder="Escribí la nota completa. Esto se muestra cuando alguien hace click en 'Leer más'."
             className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
           />
         </label>
@@ -296,8 +296,8 @@ export function Slides() {
         </button>
       </div>
       <p className="text-sm text-gray-500">
-        Estos posts aparecen en la seccion "Blog" del sitio publico. El titulo y la bajada se ven
-        en la tarjeta; el contenido completo se muestra al hacer click en "Leer mas".
+        Estos posts aparecen en la sección "Blog" del sitio público. El título y la bajada se ven
+        en la tarjeta; el contenido completo se muestra al hacer click en "Leer más".
       </p>
 
       <ErrorText error={error} />

@@ -89,10 +89,10 @@ export function Metricas() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-gray-50">Metricas y reportes</h1>
+      <h1 className="text-xl font-semibold text-gray-50">Métricas y reportes</h1>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ChartCard title={`Ingresos (ultimos 7 dias) — ${formatCurrency(ingresos7dias)}`}>
+        <ChartCard title={`Ingresos (últimos 7 días) — ${formatCurrency(ingresos7dias)}`}>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={last7Days}>
               <CartesianGrid strokeDasharray="3 3" stroke="#383A40" />
@@ -113,7 +113,7 @@ export function Metricas() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title={`Ocupacion — ${occupancyData.pct}%`}>
+        <ChartCard title={`Ocupación — ${occupancyData.pct}%`}>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
@@ -133,7 +133,7 @@ export function Metricas() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Productos mas vendidos">
+        <ChartCard title="Productos más vendidos">
           <div className="space-y-2">
             {topProducts.map((p, i) => (
               <div key={p.name} className="flex items-center justify-between text-sm">
@@ -144,12 +144,12 @@ export function Metricas() {
               </div>
             ))}
             {topProducts.every((p) => p.qty === 0) && (
-              <p className="text-sm text-gray-500">Sin ventas registradas todavia.</p>
+              <p className="text-sm text-gray-500">Sin ventas registradas todavía.</p>
             )}
           </div>
         </ChartCard>
 
-        <ChartCard title="Metodos de pago">
+        <ChartCard title="Métodos de pago">
           <div className="flex items-center gap-4">
             <ResponsiveContainer width="50%" height={160}>
               <PieChart>
@@ -173,7 +173,7 @@ export function Metricas() {
                 </div>
               ))}
               {paymentBreakdown.length === 0 && (
-                <p className="text-gray-500">Sin ventas registradas todavia.</p>
+                <p className="text-gray-500">Sin ventas registradas todavía.</p>
               )}
             </div>
           </div>
