@@ -11,11 +11,16 @@
 --   ad_billing     monto mensual y proximo pago. Privada: solo el dueño.
 --   ad_stats       vistas y clics por dia. Privada: solo el dueño la lee y
 --                  nadie la escribe desde la app.
+--   visible_ads()  la consulta que usa el sitio publico, igual para todos.
 --   ad_event_marks marcas para no contar dos veces al mismo visitante.
 --   ad_salts       clave secreta del dia para esas marcas.
 --                  Estas dos son internas: la app no las lee ni las escribe.
 --
 -- Que NO hace: no toca ninguna tabla ni dato existente.
+
+-- gen_random_bytes() y hmac() son de pgcrypto. Supabase la trae activa, pero
+-- se declara aca para no depender de eso.
+create extension if not exists pgcrypto;
 
 -- Fecha de hoy en Argentina: la vigencia se corta a la medianoche local, no
 -- a la del servidor (que esta en UTC).
@@ -31,13 +36,18 @@ $$;
 create table if not exists ads (
   id uuid primary key default gen_random_uuid(),
   venue_id uuid not null references settings(id) on delete cascade,
-  business_name text not null,
-  image_url text not null,
+  business_name text not null
+    check (char_length(btrim(business_name)) between 1 and 80),
+  image_url text not null check (image_url <> ''),
   -- Opcional, solo para banners: version para celular. Sin ella se recorta
   -- la imagen principal.
   mobile_image_url text,
-  caption text not null default '',
-  link_type text check (link_type is null or link_type in ('whatsapp', 'instagram', 'web')),
+  caption text not null default '' check (char_length(caption) <= 140),
+  -- Enlace opcional. Se guarda el dato (numero, usuario o direccion), nunca
+  -- un enlace armado: la URL final la construye el sitio segun el tipo. Los
+  -- formatos se exigen aca para que no pueda entrar, por ejemplo, un
+  -- "javascript:..." en un sitio que comparte dominio con otros complejos.
+  link_type text,
   link_value text,
   format text not null check (format in ('banner', 'tarjeta', 'logo')),
   -- Clave de la ubicacion. La lista de ubicaciones vive en la app
@@ -47,8 +57,23 @@ create table if not exists ads (
   ends_on date, -- null = sin fecha de fin
   active boolean not null default true,
   created_at timestamptz not null default now(),
-  check (ends_on is null or ends_on >= starts_on),
-  check ((link_type is null) = (link_value is null or link_value = ''))
+  constraint ads_dates_check check (ends_on is null or ends_on >= starts_on),
+  constraint ads_link_check check (
+    -- Con "case" y no con "or": en un check, comparar contra NULL da NULL y
+    -- el check deja pasar. Asi cada combinacion tiene una respuesta clara, y
+    -- un tipo sin valor o un valor sin tipo se rechazan.
+    case
+      when link_type is null then link_value is null
+      when link_value is null then false
+      -- WhatsApp: solo numeros, con codigo de pais.
+      when link_type = 'whatsapp' then link_value ~ '^[0-9]{8,15}$'
+      -- Instagram: solo el usuario, sin @ ni direccion.
+      when link_type = 'instagram' then link_value ~ '^[A-Za-z0-9._]{1,30}$'
+      -- Sitio web: tiene que empezar con http:// o https://, sin espacios.
+      when link_type = 'web' then link_value ~* '^https?://[^[:space:]]+$' and char_length(link_value) <= 300
+      else false
+    end
+  )
 );
 
 create index if not exists ads_venue_idx on ads (venue_id);
@@ -76,6 +101,27 @@ drop policy if exists "owner write ads" on ads;
 create policy "owner write ads" on ads for all
   using (venue_id = get_my_venue_id() and venue_is_writable(venue_id))
   with check (venue_id = get_my_venue_id() and venue_is_writable(venue_id));
+
+-- Lo que muestra el sitio publico. El sitio SIEMPRE consulta por aca, con o
+-- sin sesion: la politica "owner read ads" le deja al dueño leer tambien sus
+-- anuncios pausados y vencidos (los necesita en el panel), asi que si el
+-- sitio leyera la tabla directo, el dueño veria en su sitio anuncios que el
+-- publico no ve. Aca el filtro de activo y vigencia va en la propia consulta.
+create or replace function visible_ads(p_venue_id uuid)
+returns setof ads
+language sql
+stable
+as $$
+  select a.*
+  from ads a
+  where a.venue_id = p_venue_id
+    and a.active
+    and a.starts_on <= ar_today()
+    and (a.ends_on is null or a.ends_on >= ar_today())
+    and venue_is_writable(a.venue_id);
+$$;
+
+grant execute on function visible_ads(uuid) to anon, authenticated;
 
 -- === 2. Datos de cobro (privados). ===
 -- Van en una tabla aparte porque RLS decide que filas se leen, no que
@@ -142,6 +188,9 @@ create table if not exists ad_event_marks (
   primary key (ad_id, day, kind, visitor_hash)
 );
 
+-- La limpieza diaria borra por dia.
+create index if not exists ad_event_marks_day_idx on ad_event_marks (day);
+
 alter table ad_salts enable row level security;
 alter table ad_event_marks enable row level security;
 revoke all on ad_salts from anon, authenticated;
@@ -154,7 +203,8 @@ revoke all on ad_event_marks from anon, authenticated;
 --   - No cuenta al propio dueño mirando su sitio, ni al complejo demo.
 --   - Cuenta una vista y un clic por visitante, por anuncio, por dia.
 -- No frena a alguien decidido con muchas IP distintas, pero impide inflar
--- los numeros recargando la pagina o llamando a la funcion en bucle.
+-- los numeros recargando la pagina o llamando a la funcion en bucle: una
+-- llamada repetida cuesta una lectura y un insert que no hace nada.
 create or replace function track_ad_event(p_ad_id uuid, p_kind text)
 returns void
 language plpgsql
@@ -169,6 +219,7 @@ declare
   v_salt bytea;
   v_hash bytea;
   v_new int;
+  v_salt_created int;
 begin
   if p_kind is null or p_kind not in ('view', 'click') then
     return;
@@ -188,22 +239,24 @@ begin
     return;
   end if;
 
-  -- IP del visitante. cf-connecting-ip la pone la red de Supabase y el
-  -- visitante no puede falsearla; las otras son respaldo.
+  -- IP del visitante: solo se usa cf-connecting-ip, que la pone la red de
+  -- Supabase y el visitante no puede falsear. Otros encabezados (como
+  -- x-forwarded-for) los puede mandar cualquiera, asi que no se usan. Si el
+  -- confiable no llega, todos cuentan como un mismo visitante: se cuenta de
+  -- menos, nunca de mas.
   v_headers := nullif(current_setting('request.headers', true), '')::json;
-  v_ip := coalesce(
-    nullif(v_headers ->> 'cf-connecting-ip', ''),
-    nullif(v_headers ->> 'x-real-ip', ''),
-    nullif(btrim(split_part(v_headers ->> 'x-forwarded-for', ',', 1)), ''),
-    'desconocida'
-  );
+  v_ip := coalesce(nullif(v_headers ->> 'cf-connecting-ip', ''), 'desconocida');
 
-  -- Limpieza: huellas y claves de hace mas de 2 dias.
-  delete from ad_event_marks where day < v_today - 2;
-  delete from ad_salts where day < v_today - 2;
-
+  -- Clave del dia. Se crea con el primer evento del dia y recien ahi se hace
+  -- la limpieza de huellas y claves de hace mas de 2 dias: una vez por dia,
+  -- no en cada llamada.
   insert into ad_salts (day, salt) values (v_today, gen_random_bytes(32))
   on conflict (day) do nothing;
+  get diagnostics v_salt_created = row_count;
+  if v_salt_created = 1 then
+    delete from ad_event_marks where day < v_today - 2;
+    delete from ad_salts where day < v_today - 2;
+  end if;
   select salt into v_salt from ad_salts where day = v_today;
 
   v_hash := hmac(convert_to(v_ip, 'utf8'), v_salt, 'sha256');

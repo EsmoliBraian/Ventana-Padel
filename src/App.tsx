@@ -42,6 +42,9 @@ const Torneos = lazy(() =>
 const Ranking = lazy(() =>
   import('@/features/admin/Ranking').then((m) => ({ default: m.Ranking })),
 )
+const Publicidad = lazy(() =>
+  import('@/features/admin/Publicidad').then((m) => ({ default: m.Publicidad })),
+)
 const Productos = lazy(() =>
   import('@/features/admin/Productos').then((m) => ({ default: m.Productos })),
 )
@@ -93,6 +96,7 @@ function App() {
             <Route path="slides" element={<Slides />} />
             <Route path="torneos" element={<Torneos />} />
             <Route path="ranking" element={<Ranking />} />
+            <Route path="publicidad" element={<Publicidad />} />
             <Route path="productos" element={<Productos />} />
             <Route path="ventas" element={<VentasDelDia />} />
             <Route path="metricas" element={<Metricas />} />

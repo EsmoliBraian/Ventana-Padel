@@ -14,6 +14,7 @@ import { useCategoriesStore } from '@/store/categoriesStore'
 import { useRankingCategoriesStore } from '@/store/rankingCategoriesStore'
 import { useRankingStore } from '@/store/rankingStore'
 import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
+import { useAdsStore } from '@/store/adsStore'
 
 function AdminFallback() {
   return (
@@ -58,6 +59,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
       useRankingStore.getState().fetchPoints(),
       useRankingStore.getState().fetchEntries(),
       usePaymentMethodsStore.getState().fetchMethods(),
+      useAdsStore.getState().fetchAds(),
     ]).then(() => setHydrated(true))
 
     const unsubscribeReservations = useReservationsStore.getState().subscribeToChanges()

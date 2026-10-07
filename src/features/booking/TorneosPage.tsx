@@ -1,6 +1,7 @@
 import { useSettingsStore } from '@/store/settingsStore'
 import { useTournamentsStore } from '@/store/tournamentsStore'
 import { TournamentCard } from '@/components/TournamentCard'
+import { AdSlot } from '@/components/site/ads/AdSlot'
 
 export function TorneosPage() {
   const whatsappPhone = useSettingsStore((s) => s.whatsappPhone)
@@ -19,6 +20,7 @@ export function TorneosPage() {
         {tournaments.map((t) => (
           <TournamentCard key={t.id} tournament={t} whatsappPhone={whatsappPhone} />
         ))}
+        <AdSlot placement="grillas" />
       </div>
       {tournaments.length === 0 && (
         <p className="mt-4 text-sm text-gray-500">No hay torneos programados por ahora.</p>

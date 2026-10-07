@@ -10,6 +10,7 @@ import { TournamentCard } from '@/components/TournamentCard'
 import { BlogPostCard } from '@/components/BlogPostCard'
 import { CourtHeroBackground } from '@/components/site/CourtHeroBackground'
 import { heroHeadline } from '@/lib/sports'
+import { AdSlot } from '@/components/site/ads/AdSlot'
 import { buildWhatsAppLink } from '@/lib/whatsapp'
 import { useVenuePath } from '@/lib/venuePath'
 
@@ -137,6 +138,8 @@ export function LandingPage() {
         </div>
       </section>
 
+      <AdSlot placement="bajo_portada" className="mx-auto max-w-6xl px-5 pt-10" />
+
       {/* Sobre el complejo */}
       <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
         <div className="grid gap-10 sm:grid-cols-[1.3fr_1fr] sm:gap-16">
@@ -183,6 +186,8 @@ export function LandingPage() {
               {latestPosts.map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
+              {/* Ocupa la celda libre de la grilla, o una fila nueva si esta llena. */}
+              <AdSlot placement="grillas" />
             </div>
             <Link
               to={path('/blog')}
@@ -206,6 +211,7 @@ export function LandingPage() {
             {upcomingTournaments.map((t) => (
               <TournamentCard key={t.id} tournament={t} whatsappPhone={whatsappPhone} />
             ))}
+            <AdSlot placement="grillas" />
           </div>
           <Link
             to={path('/torneos')}
@@ -268,6 +274,8 @@ export function LandingPage() {
           </div>
         </section>
       )}
+
+      <AdSlot placement="entre_secciones" className="mx-auto max-w-6xl px-5 pt-4" />
 
       {/* Contacto */}
       <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">

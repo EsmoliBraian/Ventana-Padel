@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useSlidesStore } from '@/store/slidesStore'
 import { BlogPostCard } from '@/components/BlogPostCard'
+import { AdSlot } from '@/components/site/ads/AdSlot'
 
 export function BlogPage() {
   const slides = useSlidesStore((s) => s.slides).filter((s) => s.published)
@@ -15,6 +16,7 @@ export function BlogPage() {
         {sortedSlides.map((post) => (
           <BlogPostCard key={post.id} post={post} />
         ))}
+        <AdSlot placement="grillas" />
       </div>
       {sortedSlides.length === 0 && (
         <p className="mt-4 text-sm text-gray-500">Todavia no hay posts publicados.</p>

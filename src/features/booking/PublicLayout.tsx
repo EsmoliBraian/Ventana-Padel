@@ -11,6 +11,8 @@ import { useRankingCategoriesStore } from '@/store/rankingCategoriesStore'
 import { useRankingStore } from '@/store/rankingStore'
 import { SiteHeader } from '@/components/site/SiteHeader'
 import { SiteFooter } from '@/components/site/SiteFooter'
+import { SponsorStrip } from '@/components/site/ads/SponsorStrip'
+import { useAdsStore } from '@/store/adsStore'
 
 export function PublicLayout() {
   const { slug } = useParams()
@@ -41,6 +43,7 @@ export function PublicLayout() {
           useFixedSlotsStore.getState().fetchFixedSlots(),
           useRankingCategoriesStore.getState().fetchCategories(),
           useRankingStore.getState().fetchEntries(),
+          useAdsStore.getState().fetchVisibleAds(),
         ]).then(() => {
           if (cancelled) return
           unsubscribeRef.current = useReservationsStore.getState().subscribeToChanges()
@@ -86,6 +89,7 @@ export function PublicLayout() {
       <div className="flex-1">
         <Outlet />
       </div>
+      <SponsorStrip />
       <SiteFooter />
     </div>
   )

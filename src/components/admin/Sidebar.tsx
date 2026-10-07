@@ -4,6 +4,8 @@ import { useSettingsStore } from '@/store/settingsStore'
 import { useAdminAuthStore } from '@/store/adminAuthStore'
 import { useSalesStore } from '@/store/salesStore'
 import { useReservationsStore } from '@/store/reservationsStore'
+import { useAdsStore } from '@/store/adsStore'
+import { adAlerts } from '@/lib/ads'
 import { todayKey } from '@/lib/format'
 
 interface NavItem {
@@ -18,7 +20,7 @@ interface NavGroup {
   label: string
   icon: string
   // Cada hijo lleva un punto de color en vez de icono.
-  children: { to: string; label: string; dot: string }[]
+  children: { to: string; label: string; dot: string; badge?: 'adAlerts' }[]
 }
 
 type NavEntry = NavItem | NavGroup
@@ -38,6 +40,7 @@ const MENU: NavEntry[] = [
       { to: '/admin/slides', label: 'Blog / Novedades', dot: 'bg-brand-300' },
       { to: '/admin/torneos', label: 'Torneos', dot: 'bg-[#F78FB3]' },
       { to: '/admin/ranking', label: 'Ranking', dot: 'bg-danger-icon' },
+      { to: '/admin/publicidad', label: 'Publicidad', dot: 'bg-warning-icon', badge: 'adAlerts' },
     ],
   },
 ]
@@ -104,7 +107,9 @@ function NavContent({ collapsed, onNavigate, onToggleCollapsed }: NavContentProp
   const pendingReservations = useReservationsStore(
     (s) => s.reservations.filter((r) => r.status === 'reservado' && r.date >= today).length,
   )
-  const badges = { openOrders, pendingReservations }
+  // Anuncios por vencer o con un pago cerca.
+  const adAlertCount = useAdsStore((s) => s.ads.reduce((sum, ad) => sum + adAlerts(ad, today).length, 0))
+  const badges = { openOrders, pendingReservations, adAlerts: adAlertCount }
 
   // Un grupo arranca abierto si alguna de sus pantallas es la actual.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -194,6 +199,7 @@ function NavContent({ collapsed, onNavigate, onToggleCollapsed }: NavContentProp
               >
                 <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${child.dot}`} />
                 {!collapsed && <span className="truncate">{child.label}</span>}
+                {child.badge && <Badge count={badges[child.badge]} collapsed={collapsed} />}
                 {collapsed && <Tooltip label={child.label} />}
               </NavLink>
             ))}

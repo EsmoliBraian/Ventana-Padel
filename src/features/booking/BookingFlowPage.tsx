@@ -11,6 +11,7 @@ import { buildReservationMessage, buildWhatsAppLink } from '@/lib/whatsapp'
 import { getPlanInfo } from '@/lib/plan'
 import { defaultPlayers, sportLabel, venueSports } from '@/lib/sports'
 import { ErrorText } from '@/components/ErrorText'
+import { AdSlot } from '@/components/site/ads/AdSlot'
 import type { Court, Sport } from '@/types'
 
 type Step = 'slot' | 'summary' | 'confirm'
@@ -307,6 +308,7 @@ export function BookingFlowPage() {
           >
             Volver a probar
           </button>
+          <AdSlot placement="despues_de_reservar" className="mt-10" />
         </>
       )}
 
@@ -333,6 +335,7 @@ export function BookingFlowPage() {
           >
             CONTINUAR A WHATSAPP
           </button>
+          <AdSlot placement="despues_de_reservar" className="mt-10" />
         </>
       )}
     </div>

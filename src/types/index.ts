@@ -192,3 +192,36 @@ export interface RankingEntry {
   totalPoints: number
   bestInstance: RankingInstance
 }
+
+// --- Publicidad de comercios en el sitio del complejo ---
+
+export type AdFormat = 'banner' | 'tarjeta' | 'logo'
+export type AdLinkType = 'whatsapp' | 'instagram' | 'web'
+
+// Lo que se muestra de un anuncio. Es todo lo que recibe el sitio publico.
+export interface Ad {
+  id: string
+  businessName: string
+  imageUrl: string
+  mobileImageUrl?: string // solo banners; sin ella se recorta la principal
+  caption: string
+  // Se guarda el dato, no el enlace: la URL la arma buildAdHref (lib/ads.ts).
+  linkType?: AdLinkType
+  linkValue?: string
+  format: AdFormat
+  placement: string // clave de AD_PLACEMENTS
+  startsOn: string // YYYY-MM-DD
+  endsOn?: string // sin fecha de fin si falta
+  active: boolean
+}
+
+// Un anuncio como lo ve su dueño en el panel: con cobro y resultados.
+export interface OwnerAd extends Ad {
+  monthlyAmount: number
+  nextPaymentOn?: string
+  views: number
+  clicks: number
+}
+
+export type AdInput = Omit<OwnerAd, 'id' | 'views' | 'clicks'>
+
