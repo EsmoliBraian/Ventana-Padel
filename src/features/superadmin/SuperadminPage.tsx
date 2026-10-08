@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom'
 import { useAdminAuthStore } from '@/store/adminAuthStore'
 import { usePlatformAdminStore, type AdminVenue } from '@/store/platformAdminStore'
 import { getPlanInfo } from '@/lib/plan'
+import { fromDateKey, todayKey } from '@/lib/format'
 import { venuePath } from '@/lib/venuePath'
 import { buildWhatsAppLink } from '@/lib/whatsapp'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
@@ -19,7 +20,8 @@ const CONFIRM_TEXT: Record<
   activate: {
     title: 'Activar complejo',
     confirmLabel: 'Activar',
-    message: (name) => `¿Pasar "${name}" a plan activo? Deja de tener vencimiento.`,
+    message: (name) =>
+      `¿Pasar "${name}" a plan activo? Deja de tener vencimiento. Si es la primera vez, hoy queda como inicio del pago y el precio se congela por 6 meses.`,
   },
   extend: {
     title: 'Extender prueba',
@@ -80,6 +82,25 @@ function expiryText(venue: AdminVenue): string {
   if (plan.state === 'expired') return `Venció el ${formatDate(venue.trialEndsAt)}`
   const days = plan.daysLeft === 1 ? 'queda 1 día' : `quedan ${plan.daysLeft} días`
   return `${formatDate(venue.trialEndsAt)} (${days})`
+}
+
+// Desde cuando paga y hasta cuando tiene el precio congelado. Solo hay dato
+// para los complejos que se activaron alguna vez.
+function BillingCell({ venue }: { venue: AdminVenue }) {
+  if (venue.isDemo || !venue.paidSince) return <span className="text-gray-500">—</span>
+  const frozenOver = venue.priceFrozenUntil ? venue.priceFrozenUntil < todayKey() : false
+  return (
+    <>
+      <span className="block whitespace-nowrap">Paga desde el {formatDate(venue.paidSince)}</span>
+      {venue.priceFrozenUntil && (
+        <span className={`block whitespace-nowrap text-xs ${frozenOver ? 'text-warning' : 'text-gray-500'}`}>
+          Precio congelado hasta el{' '}
+          {fromDateKey(venue.priceFrozenUntil).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+          {frozenOver && ' (ya venció)'}
+        </span>
+      )}
+    </>
+  )
 }
 
 function NotFound() {
@@ -171,6 +192,7 @@ export function SuperadminPage() {
               <th className="px-4 py-3 font-semibold">Alta</th>
               <th className="px-4 py-3 font-semibold">Plan</th>
               <th className="px-4 py-3 font-semibold">Vencimiento</th>
+              <th className="px-4 py-3 font-semibold">Pago</th>
               <th className="px-4 py-3 font-semibold">Dueño</th>
               <th className="px-4 py-3 text-right font-semibold">Reservas</th>
               <th className="px-4 py-3 font-semibold">Última actividad</th>
@@ -195,6 +217,9 @@ export function SuperadminPage() {
                   <PlanBadge venue={venue} />
                 </td>
                 <td className="px-4 py-3 text-gray-300">{expiryText(venue)}</td>
+                <td className="px-4 py-3 text-gray-300">
+                  <BillingCell venue={venue} />
+                </td>
                 <td className="px-4 py-3 text-gray-300">
                   {venue.ownerName ?? '—'}
                   {venue.ownerWhatsapp && (
@@ -250,7 +275,7 @@ export function SuperadminPage() {
             ))}
             {venues.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                   {loading ? 'Cargando...' : 'Todavía no hay complejos.'}
                 </td>
               </tr>

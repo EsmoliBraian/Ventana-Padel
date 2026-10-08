@@ -15,6 +15,9 @@ export interface AdminVenue {
   ownerEmail?: string
   reservationsCount: number
   lastActivityAt?: string
+  // Cobro (migracion 024). Sin la migracion, o si nunca se activo, no vienen.
+  paidSince?: string
+  priceFrozenUntil?: string // YYYY-MM-DD, ultimo dia con el precio congelado
 }
 
 interface AdminVenueRow {
@@ -30,6 +33,8 @@ interface AdminVenueRow {
   owner_email: string | null
   reservations_count: number
   last_activity_at: string | null
+  paid_since?: string | null
+  price_frozen_until?: string | null
 }
 
 function fromRow(row: AdminVenueRow): AdminVenue {
@@ -46,6 +51,8 @@ function fromRow(row: AdminVenueRow): AdminVenue {
     ownerEmail: row.owner_email ?? undefined,
     reservationsCount: Number(row.reservations_count),
     lastActivityAt: row.last_activity_at ?? undefined,
+    paidSince: row.paid_since ?? undefined,
+    priceFrozenUntil: row.price_frozen_until ?? undefined,
   }
 }
 
