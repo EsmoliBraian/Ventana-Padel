@@ -1,0 +1,30 @@
+# Configuracion de las funciones del servidor (seña con Mercado Pago).
+#
+# Ninguna usa la verificacion automatica de sesion de Supabase, porque dos
+# de ellas las llama Mercado Pago (sin sesion) y otra la tarea programada.
+# Cada funcion hace su propio control:
+#   mp-oauth-start     sesion del dueño, validada contra el servidor de autenticacion
+#   mp-oauth-callback  "state" de un solo uso (lo llama Mercado Pago al volver)
+#   create-deposit     publico, solo desde los sitios de APP_URLS; la base valida todo
+#   deposit-confirm    publico, con la clave secreta del enlace del comprobante
+#   mp-webhook         firma de Mercado Pago (lo llama Mercado Pago)
+#   mp-refresh         clave de la tarea programada
+project_id = "playxp-plataforma"
+
+[functions.mp-oauth-start]
+verify_jwt = false
+
+[functions.mp-oauth-callback]
+verify_jwt = false
+
+[functions.create-deposit]
+verify_jwt = false
+
+[functions.deposit-confirm]
+verify_jwt = false
+
+[functions.mp-webhook]
+verify_jwt = false
+
+[functions.mp-refresh]
+verify_jwt = false
