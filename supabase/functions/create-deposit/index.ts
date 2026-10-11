@@ -3,7 +3,7 @@
 // cuenta de Mercado Pago del complejo. Del navegador solo se toma que
 // horario quiere y sus datos de contacto: nunca un monto.
 import { adminClient, allowedOrigin, corsHeaders, env, json, log, randomToken, sha256Hex, slugAllowed } from '../_shared/util.ts'
-import { createPreference, MpError, sellerToken, type Connection } from '../_shared/mp.ts'
+import { createPreference, markNeedsReconnect, MpError, sellerToken, type Connection } from '../_shared/mp.ts'
 
 Deno.serve(async (req) => {
   const origin = allowedOrigin(req)
@@ -12,12 +12,14 @@ Deno.serve(async (req) => {
   if (!origin) return json({ message: 'Origen no permitido.' }, 403, null)
 
   let depositId: string | null = null
+  let venueId: string | null = null
   const admin = adminClient()
   try {
     const body = await req.json().catch(() => ({}))
     const slug = typeof body.slug === 'string' ? body.slug : ''
     const { data: venue } = await admin.from('settings').select('id, slug, venue_name').eq('slug', slug).maybeSingle()
     if (!venue || !slugAllowed(venue.slug)) return json({ code: 'no_disponible', message: 'Este complejo no está tomando señas online.' }, 400, origin)
+    venueId = venue.id
 
     // Huella del visitante para el limite de horarios guardados. Solo con la
     // direccion que pone la red de borde (no se puede falsear desde el
@@ -76,6 +78,13 @@ Deno.serve(async (req) => {
   } catch (error) {
     // Si el cobro no se pudo armar, el horario se suelta en el momento.
     if (depositId) await admin.rpc('cancel_deposit_hold', { p_deposit_id: depositId })
+    // Mercado Pago rechaza la credencial del complejo (le quitaron el
+    // permiso): la seña se pausa para que el proximo jugador pueda reservar
+    // como siempre, y se le dice a este que vuelva a intentar.
+    if (error instanceof MpError && (error.status === 401 || error.status === 403) && venueId) {
+      await markNeedsReconnect(admin, venueId, 'Mercado Pago rechazó la autorización de la cuenta.')
+      return json({ code: 'sin_sena', message: 'El pago online no está disponible en este momento. Volvé a elegir el horario para reservar sin seña.' }, 409, origin)
+    }
     log('sena_error', { deposit: depositId, code: error instanceof MpError ? error.status : 0, reason: error instanceof MpError ? 'mercado_pago' : error instanceof Error ? error.message : 'error' })
     return json({ code: 'error', message: 'No pudimos iniciar el pago de la seña. Probá de nuevo en un momento.' }, 502, origin)
   }

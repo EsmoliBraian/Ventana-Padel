@@ -8,7 +8,7 @@
 //     son los datos de esa consulta.
 //  3. La base registra cada pago una sola vez: un aviso repetido no cambia nada.
 import { adminClient, env, hmacSha256Hex, isUuid, log, safeEqual } from '../_shared/util.ts'
-import { applyPayment, getPayment, MpError, sellerToken, type Connection, type MpPayment } from '../_shared/mp.ts'
+import { applyPayment, getPayment, markNeedsReconnect, MpError, sellerToken, tokenStillValid, type Connection, type MpPayment } from '../_shared/mp.ts'
 
 const reply = (status: number, body: Record<string, unknown>) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -49,10 +49,28 @@ Deno.serve(async (req) => {
       log('aviso_firma_invalida')
       return reply(401, { message: 'Firma no válida.' })
     }
-    const type = String(url.searchParams.get('type') ?? body.type ?? '')
+    // "topic" es el nombre viejo de "type" en los avisos de pagos.
+    const type = String(url.searchParams.get('type') ?? body.type ?? url.searchParams.get('topic') ?? body.topic ?? '')
+    const admin = adminClient()
+
+    // Vinculacion de aplicaciones: un complejo le quito el permiso a PlayXP
+    // desde su Mercado Pago. No se cree el aviso a ciegas: se prueba la
+    // credencial, y solo si Mercado Pago la rechaza la cuenta pasa a
+    // "reconectar".
+    if (type === 'mp-connect') {
+      const user = Number(body.user_id)
+      if (String(body.action ?? '').includes('deauthorized') && Number.isFinite(user) && user > 0) {
+        const { data: linked } = await admin.from('mp_connections').select('*').eq('mp_user_id', user).eq('status', 'conectada')
+        for (const conn of (linked ?? []) as Connection[]) {
+          if (!(await tokenStillValid(conn.access_token))) {
+            await markNeedsReconnect(admin, conn.venue_id, 'Se quitó el permiso de PlayXP desde Mercado Pago.')
+          }
+        }
+      }
+      return reply(200, { ok: true })
+    }
     if (type !== 'payment' || !/^[0-9]{1,20}$/.test(dataId)) return reply(200, { ok: true, ignored: true })
 
-    const admin = adminClient()
     // El aviso dice de que cuenta es el pago. Se busca el complejo conectado
     // con esa cuenta (incluso recien desconectado: su credencial se conserva
     // un tiempo para esto).

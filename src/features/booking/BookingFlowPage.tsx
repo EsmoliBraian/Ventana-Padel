@@ -156,6 +156,8 @@ export function BookingFlowPage() {
       setStep('slot')
       return
     }
+    // El pago online dejo de estar disponible: se sigue sin seña, como siempre.
+    if (result.data.code === 'sin_sena') setDepositActive(false)
     setError(result.data.message ?? 'No pudimos iniciar el pago de la seña. Probá de nuevo en un momento.')
   }
 

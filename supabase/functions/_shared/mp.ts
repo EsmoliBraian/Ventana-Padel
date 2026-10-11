@@ -189,6 +189,26 @@ export async function renewConnection(admin: SupabaseClient, conn: Connection): 
   }
 }
 
+// La credencial del complejo todavia sirve en Mercado Pago. false solo si
+// Mercado Pago la rechaza (permiso quitado); ante un error de red se asume
+// que si, para no pausar la seña por un corte momentaneo.
+export async function tokenStillValid(accessToken: string): Promise<boolean> {
+  try {
+    const res = await mpFetch('/users/me', accessToken)
+    return !(res.status === 401 || res.status === 403)
+  } catch {
+    return true
+  }
+}
+
+// El complejo le quito el permiso a la aplicacion (o Mercado Pago rechaza su
+// credencial): la cuenta queda "reconectar". La seña deja de regir sola, las
+// reservas siguen entrando como siempre y el panel avisa.
+export async function markNeedsReconnect(admin: SupabaseClient, venueId: string, reason: string): Promise<void> {
+  await admin.from('mp_connections').update({ status: 'reconectar', last_error: reason }).eq('venue_id', venueId).eq('status', 'conectada')
+  log('mp_reconectar', { venue: venueId })
+}
+
 // Credencial para operar en nombre del complejo. Si esta por vencer, se
 // renueva antes de usarla.
 export async function sellerToken(admin: SupabaseClient, conn: Connection): Promise<string | null> {
