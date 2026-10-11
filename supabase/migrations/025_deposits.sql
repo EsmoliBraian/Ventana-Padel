@@ -75,6 +75,24 @@ create table if not exists mp_oauth_states (
 alter table mp_oauth_states enable row level security;
 revoke all on mp_oauth_states from anon, authenticated;
 
+-- Canjear el "state" cuando Mercado Pago devuelve al dueño. Se marca usado
+-- y se devuelve en la misma operacion: aunque lleguen dos pedidos juntos con
+-- el mismo valor, solo uno lo obtiene. Vencido o ya usado, no devuelve nada.
+-- La llama solo la funcion del servidor.
+create or replace function consume_mp_oauth_state(p_state_hash text)
+returns table (venue_id uuid, user_id uuid, code_verifier text)
+language sql
+security definer
+set search_path = public
+as $$
+  update mp_oauth_states s
+  set used_at = now()
+  where s.state_hash = p_state_hash
+    and s.used_at is null
+    and s.expires_at > now()
+  returning s.venue_id, s.user_id, s.code_verifier;
+$$;
+
 -- === 3. Señas. ===
 -- Una por reserva hecha desde el sitio con la seña activa. Si la reserva se
 -- borra, la seña queda (con los datos del turno copiados): es el registro
@@ -477,6 +495,30 @@ begin
 end;
 $$;
 
+-- El jugador se arrepiente antes de pagar: suelta el horario en el momento,
+-- sin esperar a que venza. Hace falta la clave secreta de su enlace.
+create or replace function cancel_my_deposit(p_deposit_id uuid, p_key text)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not exists (
+    select 1 from reservation_deposit_secrets x
+    where x.deposit_id = p_deposit_id
+      and x.key_hash = encode(sha256(convert_to(coalesce(p_key, ''), 'UTF8')), 'hex')
+  ) then
+    return false;
+  end if;
+  perform cancel_deposit_hold(p_deposit_id);
+  return exists (select 1 from reservation_deposits where id = p_deposit_id and status = 'vencida');
+end;
+$$;
+
+revoke all on function cancel_my_deposit(uuid, text) from public;
+grant execute on function cancel_my_deposit(uuid, text) to anon, authenticated;
+
 -- === 8. Aplicar un pago avisado por Mercado Pago. ===
 -- La llama solo la funcion del servidor, DESPUES de verificar la firma del
 -- aviso y de consultarle el pago a Mercado Pago (los datos que llegan aca
@@ -825,8 +867,24 @@ revoke all on function sale_deposit(uuid, numeric) from public, anon, authentica
 revoke all on function settings_check_deposit() from public, anon, authenticated;
 revoke all on function reservations_normalize_public() from public, anon, authenticated;
 revoke all on function reservations_track_deposit() from public, anon, authenticated;
+revoke all on function consume_mp_oauth_state(text) from public, anon, authenticated;
+grant execute on function consume_mp_oauth_state(text) to service_role;
 grant execute on function create_deposit_hold(uuid, uuid, date, text, text, text, text, text) to service_role;
 grant execute on function expire_deposit_holds() to service_role;
 grant execute on function cancel_deposit_hold(uuid) to service_role;
 grant execute on function apply_deposit_payment(uuid, bigint, text, numeric, text, bigint, timestamptz) to service_role;
 grant all on mp_connections, mp_oauth_states, reservation_deposits, reservation_deposit_secrets, deposit_payments, reservation_contacts to service_role;
+
+-- === 13. Avisos en vivo para el panel. ===
+-- El panel del dueño se entera al instante cuando una seña cambia (por
+-- ejemplo, cuando queda "a devolver"). Solo le llegan las de su complejo:
+-- rige la politica de lectura de arriba.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'reservation_deposits'
+  ) then
+    alter publication supabase_realtime add table public.reservation_deposits;
+  end if;
+end $$;
