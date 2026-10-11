@@ -25,3 +25,6 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Archivos locales de la CLI de Supabase
+supabase/.temp
