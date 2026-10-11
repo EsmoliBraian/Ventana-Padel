@@ -4,6 +4,7 @@ import { RootPage } from '@/features/booking/RootPage'
 import { PublicLayout } from '@/features/booking/PublicLayout'
 import { LandingPage } from '@/features/booking/LandingPage'
 import { BookingFlowPage } from '@/features/booking/BookingFlowPage'
+import { DepositReceiptPage } from '@/features/booking/DepositReceiptPage'
 import { TorneosPage } from '@/features/booking/TorneosPage'
 import { RankingPage } from '@/features/booking/RankingPage'
 import { BlogPage } from '@/features/booking/BlogPage'
@@ -108,6 +109,7 @@ function App() {
           <Route path="/:slug" element={<PublicLayout />}>
             <Route index element={<LandingPage />} />
             <Route path="reservar" element={<BookingFlowPage />} />
+            <Route path="sena/:id" element={<DepositReceiptPage />} />
             <Route path="torneos" element={<TorneosPage />} />
             <Route path="ranking" element={<RankingPage />} />
             <Route path="blog" element={<BlogPage />} />

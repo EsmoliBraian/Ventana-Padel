@@ -36,6 +36,7 @@ interface SaleRow {
   comment?: string | null
   fixed_slot_id?: string | null
   court_fee?: number | null
+  deposit_applied?: number | null
   discount_type?: SaleDiscount['type'] | null
   discount_value?: number | null
   discount_reason?: string | null
@@ -60,6 +61,7 @@ function fromRow(row: SaleRow): Sale {
     cantinero: row.cantinero ?? undefined,
     comment: row.comment ?? '',
     courtFee: row.court_fee ?? null,
+    depositApplied: Number(row.deposit_applied ?? 0),
     discount:
       row.discount_type && (row.discount_value ?? 0) > 0
         ? { type: row.discount_type, value: row.discount_value ?? 0, reason: row.discount_reason ?? '' }

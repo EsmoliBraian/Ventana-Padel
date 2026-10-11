@@ -486,6 +486,11 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
           </div>
         )}
 
+        {sale.depositApplied > 0 && (
+          <p className="flex items-center justify-between px-4 py-2 text-sm text-mo-muted">
+            Seña ya pagada por Mercado Pago <span>− {formatCurrency(sale.depositApplied)}</span>
+          </p>
+        )}
         <p className="flex items-center justify-between bg-mo-header px-4 py-3 text-lg font-semibold text-mo-text">
           Total: <span>{formatCurrency(sale.total)}</span>
         </p>

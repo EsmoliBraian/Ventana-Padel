@@ -59,26 +59,25 @@ Deno.serve(async (req) => {
     const mpUser = Number(body.user_id)
     const query = admin.from('mp_connections').select('*')
     const { data: conns } = Number.isFinite(mpUser) && mpUser > 0 ? await query.eq('mp_user_id', mpUser) : await query
+    const connections = (conns ?? []) as Connection[]
     let payment: MpPayment | null = null
-    let owner: Connection | null = null
-    for (const conn of (conns ?? []) as Connection[]) {
+    for (const conn of connections) {
       const token = await sellerToken(admin, conn)
       if (!token) continue
       payment = await getPayment(token, dataId)
-      if (payment) {
-        owner = conn
-        break
-      }
+      if (payment) break
     }
-    if (!payment || !owner) {
+    if (!payment) {
       log('aviso_sin_pago', { payment: dataId })
       return reply(200, { ok: true, ignored: true })
     }
     const depositId = payment.externalReference
     if (!isUuid(depositId)) return reply(200, { ok: true, ignored: true })
     const { data: deposit } = await admin.from('reservation_deposits').select('id, venue_id').eq('id', depositId).maybeSingle()
-    // La seña tiene que ser del mismo complejo que la cuenta que cobro.
-    if (!deposit || deposit.venue_id !== owner.venue_id) return reply(200, { ok: true, ignored: true })
+    // La seña tiene que ser de un complejo conectado con la cuenta que cobro.
+    // (Una misma cuenta de Mercado Pago puede estar conectada a mas de un
+    // complejo; ademas, la base vuelve a comparar la cuenta receptora.)
+    if (!deposit || !connections.some((c) => c.venue_id === deposit.venue_id)) return reply(200, { ok: true, ignored: true })
 
     const result = await applyPayment(admin, depositId, payment)
     return reply(200, { ok: true, result })

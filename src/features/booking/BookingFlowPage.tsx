@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
 import { useCourtsStore } from '@/store/courtsStore'
@@ -10,6 +10,7 @@ import { formatCurrency, formatLongDate, fromDateKey, nextDays, toDateKey, weekd
 import { buildReservationMessage, buildWhatsAppLink } from '@/lib/whatsapp'
 import { getPlanInfo } from '@/lib/plan'
 import { defaultPlayers, sportLabel, venueSports } from '@/lib/sports'
+import { depositAmountFor, fetchDepositActive, startDeposit } from '@/lib/deposits'
 import { ErrorText } from '@/components/ErrorText'
 import { AdSlot } from '@/components/site/ads/AdSlot'
 import type { Court, Sport } from '@/types'
@@ -37,6 +38,24 @@ export function BookingFlowPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  // Seña con Mercado Pago: si el complejo la tiene activa, antes de reservar
+  // se piden los datos del jugador y se paga la seña.
+  const [depositActive, setDepositActive] = useState(false)
+  const [playerName, setPlayerName] = useState('')
+  const [playerWhatsapp, setPlayerWhatsapp] = useState('')
+  const venueId = settings.id
+  const isDemo = settings.isDemo
+  useEffect(() => {
+    if (!venueId || isDemo) return
+    let active = true
+    fetchDepositActive(venueId).then((value) => {
+      if (active) setDepositActive(value)
+    })
+    return () => {
+      active = false
+    }
+  }, [venueId, isDemo])
+
   // Con mas de un deporte, primero se elige deporte y despues cancha.
   const sports = useMemo(() => venueSports(courts), [courts])
   const [selectedSport, setSelectedSport] = useState<Sport | null>(null)
@@ -61,6 +80,7 @@ export function BookingFlowPage() {
   )
 
   const total = selectedSlot ? selectedSlot.court.price : 0
+  const depositAmount = depositActive ? depositAmountFor(settings, total) : 0
 
   function handlePickSlot(time: string) {
     if (!selectedCourt) return
@@ -75,6 +95,10 @@ export function BookingFlowPage() {
     // guarda (la base tampoco la acepta).
     if (settings.isDemo) {
       setStep('confirm')
+      return
+    }
+    if (depositActive) {
+      await handlePayDeposit()
       return
     }
     setSubmitting(true)
@@ -101,6 +125,38 @@ export function BookingFlowPage() {
     }
     setError(null)
     setStep('confirm')
+  }
+
+  // Con seña: el servidor guarda el horario, calcula el monto y devuelve el
+  // enlace de pago de Mercado Pago. El jugador vuelve al comprobante.
+  async function handlePayDeposit() {
+    if (!selectedSlot) return
+    const whatsapp = playerWhatsapp.replace(/\D/g, '')
+    if (playerName.trim() === '') return setError('Completá tu nombre.')
+    if (whatsapp.length < 8) return setError('Completá tu número de WhatsApp, con código de área.')
+    setSubmitting(true)
+    const result = await startDeposit({
+      slug: settings.slug ?? '',
+      courtId: selectedSlot.court.id,
+      date: selectedDate,
+      time: selectedSlot.time,
+      name: playerName.trim(),
+      whatsapp,
+    })
+    if (result.ok && result.data.payUrl) {
+      window.location.href = result.data.payUrl
+      return
+    }
+    setSubmitting(false)
+    if (result.data.code === 'ocupado') {
+      // Lo reservaron recien: se vuelve a la grilla, ya actualizada.
+      useReservationsStore.getState().fetchReservations()
+      setError('Ese horario se acaba de ocupar. Elegí otro.')
+      setSelectedSlot(null)
+      setStep('slot')
+      return
+    }
+    setError(result.data.message ?? 'No pudimos iniciar el pago de la seña. Probá de nuevo en un momento.')
   }
 
   function handleWhatsAppRedirect() {
@@ -272,14 +328,68 @@ export function BookingFlowPage() {
             </span>
           </p>
 
+          {depositActive && (
+            <>
+              <div className="mb-4 space-y-1 rounded-lg border border-primary-500/40 bg-primary-500/10 p-3 text-sm">
+                <p className="text-gray-300">
+                  Seña para reservar <span className="float-right font-semibold text-gray-50">{formatCurrency(depositAmount)}</span>
+                </p>
+                <p className="text-gray-400">
+                  Te queda pagar en el complejo <span className="float-right text-gray-100">{formatCurrency(total - depositAmount)}</span>
+                </p>
+              </div>
+              {settings.depositPolicy && (
+                <p className="mb-4 rounded-lg border border-gray-800 bg-gray-900 p-3 text-xs text-gray-300">
+                  <span className="mb-1 block font-semibold text-gray-200">Política de la seña</span>
+                  {settings.depositPolicy}
+                </p>
+              )}
+              <label className="mb-3 block text-sm text-gray-400">
+                Tu nombre
+                <input
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value.slice(0, 80))}
+                  autoComplete="name"
+                  className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
+                />
+              </label>
+              <label className="mb-2 block text-sm text-gray-400">
+                Tu WhatsApp
+                <input
+                  value={playerWhatsapp}
+                  onChange={(e) => setPlayerWhatsapp(e.target.value.replace(/[^\d+ -]/g, '').slice(0, 20))}
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="Con código de área, por ejemplo 2915551234"
+                  className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100"
+                />
+              </label>
+              <p className="mb-4 text-xs text-gray-500">
+                Tu nombre y tu WhatsApp los ve solo el complejo, para identificar tu reserva y avisarte si hay algún cambio.
+                El pago se hace en Mercado Pago: acá no se guarda ningún dato de tu tarjeta.
+              </p>
+            </>
+          )}
+
           <button
             type="button"
             onClick={handleConfirmReservation}
             disabled={submitting}
             className="rounded-lg bg-primary-500 py-3 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-60"
           >
-            {submitting ? 'RESERVANDO...' : 'RESERVAR Y CONFIRMAR'}
+            {depositActive
+              ? submitting
+                ? 'ABRIENDO MERCADO PAGO...'
+                : `PAGAR SEÑA DE ${formatCurrency(depositAmount)}`
+              : submitting
+                ? 'RESERVANDO...'
+                : 'RESERVAR Y CONFIRMAR'}
           </button>
+          {depositActive && (
+            <p className="mt-2 text-xs text-gray-500">
+              Te guardamos el horario {settings.depositHoldMinutes} minutos mientras pagás. Si no se paga, se libera solo.
+            </p>
+          )}
           <div className="mt-2">
             <ErrorText error={error} />
           </div>

@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useDepositsStore } from '@/store/depositsStore'
+import { depositIncomeOn, paidDepositByReservation, withDepositNames } from '@/lib/deposits'
+import { DepositAlerts } from './DepositAlerts'
 import { useCourtsStore } from '@/store/courtsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
 import { useSalesStore } from '@/store/salesStore'
@@ -18,6 +21,8 @@ import { OnboardingChecklist } from './OnboardingChecklist'
 
 export function Dashboard() {
   const settings = useSettingsStore()
+  const deposits = useDepositsStore((s) => s.deposits)
+  const depositPayments = useDepositsStore((s) => s.payments)
   const courts = useCourtsStore((s) => s.courts)
   const reservations = useReservationsStore((s) => s.reservations)
   const sales = useSalesStore((s) => s.sales)
@@ -35,8 +40,8 @@ export function Dashboard() {
     [reservations, today],
   )
   const gridReservations = useMemo(
-    () => reservations.filter((r) => r.date === gridDate && r.status !== 'cancelado'),
-    [reservations, gridDate],
+    () => withDepositNames(reservations, deposits).filter((r) => r.date === gridDate && r.status !== 'cancelado'),
+    [reservations, deposits, gridDate],
   )
   // Solo ventas cerradas: los pedidos en curso todavia no son una venta.
   const todaySales = useMemo(
@@ -45,10 +50,13 @@ export function Dashboard() {
   )
   const feeAbsorbedReservationIds = useMemo(() => reservationIdsWithAbsorbedFee(sales), [sales])
 
+  // La seña cuenta el dia en que se pago; del turno queda lo que falta cobrar.
+  const paidDeposits = useMemo(() => paidDepositByReservation(deposits), [deposits])
   const ingresosHoy =
+    depositIncomeOn(depositPayments, today) +
     todayReservations
       .filter((r) => !feeAbsorbedReservationIds.has(r.id))
-      .reduce((sum, r) => sum + r.priceTotal, 0) +
+      .reduce((sum, r) => sum + r.priceTotal - (paidDeposits.get(r.id) ?? 0), 0) +
     todaySales
       .filter((s) => s.paymentStatus === 'pagado')
       .reduce((sum, s) => sum + s.total, 0)
@@ -92,6 +100,8 @@ export function Dashboard() {
       </div>
 
       <OnboardingChecklist />
+
+      <DepositAlerts />
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KpiCard

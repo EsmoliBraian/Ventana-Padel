@@ -2,9 +2,11 @@ import { Fragment, useMemo, useState } from 'react'
 import { useSalesStore } from '@/store/salesStore'
 import { useProductsStore } from '@/store/productsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
-import { formatCurrency, todayKey } from '@/lib/format'
+import { formatCurrency, todayKey, toDateKey } from '@/lib/format'
 import { methodLabel, salePaymentLines, salePaymentSummary, totalsByMethod } from '@/lib/payments'
 import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
+import { useDepositsStore } from '@/store/depositsStore'
+import { DEPOSIT_METHOD_LABEL, MP_FEE_NOTE } from '@/lib/deposits'
 import type { Sale } from '@/types'
 
 export function VentasDelDia() {
@@ -25,7 +27,16 @@ export function VentasDelDia() {
     [todaySales],
   )
 
-  const total = paidSales.reduce((sum, s) => sum + s.total, 0)
+  // Señas pagadas hoy por Mercado Pago (las devueltas no cuentan).
+  const depositPayments = useDepositsStore((s) => s.payments)
+  const deposits = useDepositsStore((s) => s.deposits)
+  const todayDeposits = useMemo(
+    () => depositPayments.filter((p) => p.status !== 'devuelto' && toDateKey(new Date(p.paidAt)) === today),
+    [depositPayments, today],
+  )
+  const depositsTotal = todayDeposits.reduce((sum, p) => sum + p.amount, 0)
+
+  const total = paidSales.reduce((sum, s) => sum + s.total, 0) + depositsTotal
   // Por linea de pago: una venta cobrada con dos medios suma en los dos.
   const methodTotals = useMemo(
     () =>
@@ -79,7 +90,36 @@ export function VentasDelDia() {
             <p className="mt-1 text-xl font-semibold text-gray-50">{formatCurrency(method.total)}</p>
           </div>
         ))}
+        {depositsTotal > 0 && (
+          <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+            <p className="text-sm text-gray-400">{DEPOSIT_METHOD_LABEL}</p>
+            <p className="mt-1 text-xl font-semibold text-gray-50">{formatCurrency(depositsTotal)}</p>
+          </div>
+        )}
       </div>
+
+      {todayDeposits.length > 0 && (
+        <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 text-sm">
+          <p className="font-medium text-gray-200">Señas cobradas hoy</p>
+          <ul className="mt-2 space-y-1 text-gray-300">
+            {todayDeposits.map((payment) => {
+              const deposit = deposits.find((d) => d.id === payment.depositId)
+              return (
+                <li key={payment.paymentId} className="flex flex-wrap justify-between gap-x-4">
+                  <span>
+                    {deposit ? `${deposit.courtName} · ${deposit.date.slice(8, 10)}/${deposit.date.slice(5, 7)} ${deposit.time} hs` : 'Seña'}
+                    {deposit?.contactName ? ` · ${deposit.contactName}` : ''}
+                    <span className="text-gray-500"> · operación {payment.paymentId}</span>
+                    {payment.status === 'a_devolver' && <span className="text-warning"> · a devolver</span>}
+                  </span>
+                  <span className="font-medium text-gray-100">{formatCurrency(payment.amount)}</span>
+                </li>
+              )
+            })}
+          </ul>
+          <p className="mt-2 text-xs text-gray-500">{MP_FEE_NOTE}</p>
+        </div>
+      )}
 
       <div className="overflow-x-auto rounded-xl border border-gray-800 bg-gray-900">
         <table className="w-full text-sm">

@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom'
 import { useSalesStore } from '@/store/salesStore'
 import { useReservationsStore } from '@/store/reservationsStore'
 import { useFixedSlotsStore } from '@/store/fixedSlotsStore'
+import { useDepositsStore } from '@/store/depositsStore'
+import { withDepositNames } from '@/lib/deposits'
 import { useCourtsStore } from '@/store/courtsStore'
 import { buildTurnos, byNumber, orderOwnerLabel, ordersOfTurno, turnoKeyOfSale } from '@/lib/orders'
 import { OrdersTable } from './OrdersTable'
@@ -21,6 +23,7 @@ export function MostradorPage() {
   const sales = useSalesStore((s) => s.sales)
   const reservations = useReservationsStore((s) => s.reservations)
   const fixedSlots = useFixedSlotsStore((s) => s.fixedSlots)
+  const deposits = useDepositsStore((s) => s.deposits)
   const courts = useCourtsStore((s) => s.courts)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -32,8 +35,8 @@ export function MostradorPage() {
   const [pendingByOrder, setPendingByOrder] = useState<Record<string, PendingItem[]>>({})
 
   const turnos = useMemo(
-    () => buildTurnos(reservations, fixedSlots, courts, sales),
-    [reservations, fixedSlots, courts, sales],
+    () => buildTurnos(withDepositNames(reservations, deposits), fixedSlots, courts, sales),
+    [reservations, deposits, fixedSlots, courts, sales],
   )
 
   const looseOrders = useMemo(() => sales.filter((s) => turnoKeyOfSale(s) === null), [sales])

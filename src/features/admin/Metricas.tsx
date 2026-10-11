@@ -21,6 +21,8 @@ import { reservationIdsWithAbsorbedFee } from '@/lib/salesRevenue'
 import { formatCurrency, toDateKey, weekdayShort } from '@/lib/format'
 import { methodColor, totalsByMethod } from '@/lib/payments'
 import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
+import { useDepositsStore } from '@/store/depositsStore'
+import { DEPOSIT_METHOD_LABEL, depositIncomeOn, MP_FEE_NOTE, paidDepositByReservation } from '@/lib/deposits'
 const OCCUPANCY_COLORS = ['#B8FF3B', '#2A2C31']
 
 export function Metricas() {
@@ -30,7 +32,12 @@ export function Metricas() {
   const sales = useSalesStore((s) => s.sales)
   const products = useProductsStore((s) => s.products)
 
+  const deposits = useDepositsStore((s) => s.deposits)
+  const depositPayments = useDepositsStore((s) => s.payments)
+
   const feeAbsorbedReservationIds = useMemo(() => reservationIdsWithAbsorbedFee(sales), [sales])
+  // La seña cuenta el dia en que se pago; del turno queda lo que falta cobrar.
+  const paidDeposits = useMemo(() => paidDepositByReservation(deposits), [deposits])
 
   const last7Days = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
@@ -41,13 +48,13 @@ export function Metricas() {
         .filter(
           (r) => r.date === date && r.status !== 'cancelado' && !feeAbsorbedReservationIds.has(r.id),
         )
-        .reduce((sum, r) => sum + r.priceTotal, 0)
+        .reduce((sum, r) => sum + r.priceTotal - (paidDeposits.get(r.id) ?? 0), 0)
       const salesTotal = sales
         .filter((s) => s.date === date && s.paymentStatus === 'pagado')
         .reduce((sum, s) => sum + s.total, 0)
-      return { label: weekdayShort(d), total: reservationsTotal + salesTotal }
+      return { label: weekdayShort(d), total: reservationsTotal + salesTotal + depositIncomeOn(depositPayments, date) }
     })
-  }, [reservations, sales, feeAbsorbedReservationIds])
+  }, [reservations, sales, feeAbsorbedReservationIds, paidDeposits, depositPayments])
 
   const ingresos7dias = last7Days.reduce((sum, d) => sum + d.total, 0)
 
@@ -78,6 +85,9 @@ export function Metricas() {
   const paymentBreakdown = useMemo(() => {
     // Por linea de pago: una venta cobrada con dos medios suma en los dos.
     const totals = totalsByMethod(sales, paymentMethods.map((m) => m.name)).filter((t) => t.total > 0)
+    // Señas cobradas por Mercado Pago (sin las devueltas).
+    const depositsTotal = depositPayments.filter((p) => p.status !== 'devuelto').reduce((sum, p) => sum + p.amount, 0)
+    if (depositsTotal > 0) totals.push({ key: 'mercado-pago-señas', label: DEPOSIT_METHOD_LABEL, total: depositsTotal })
     const grandTotal = totals.reduce((sum, t) => sum + t.total, 0)
     return totals.map((t) => ({
       method: t.key,
@@ -85,7 +95,8 @@ export function Metricas() {
       value: t.total,
       pct: grandTotal === 0 ? 0 : Math.round((t.total / grandTotal) * 100),
     }))
-  }, [sales, paymentMethods])
+  }, [sales, paymentMethods, depositPayments])
+  const hasDeposits = depositPayments.some((p) => p.status !== 'devuelto')
 
   return (
     <div className="space-y-4">
@@ -175,6 +186,7 @@ export function Metricas() {
               {paymentBreakdown.length === 0 && (
                 <p className="text-gray-500">Sin ventas registradas todavía.</p>
               )}
+              {hasDeposits && <p className="pt-1 text-xs text-gray-500">Señas: {MP_FEE_NOTE.charAt(0).toLowerCase() + MP_FEE_NOTE.slice(1)}</p>}
             </div>
           </div>
         </ChartCard>

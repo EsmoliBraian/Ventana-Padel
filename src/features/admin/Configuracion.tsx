@@ -4,6 +4,7 @@ import { ErrorText } from '@/components/ErrorText'
 import { uploadImage } from '@/lib/storage'
 import { publicVenueUrl } from '@/lib/venuePath'
 import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
+import { SenaPanel } from './SenaPanel'
 
 // Medios de pago que aparecen al cerrar un pedido o cobrar un fiado. Cada
 // complejo arma su lista (por ejemplo, un alias de Mercado Pago).
@@ -237,6 +238,8 @@ export function Configuracion() {
       </div>
 
       <MediosDePagoPanel />
+
+      <SenaPanel />
 
       <ErrorText error={error} />
 

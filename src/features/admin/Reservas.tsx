@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { useDepositsStore } from '@/store/depositsStore'
+import { buildWhatsAppLink } from '@/lib/whatsapp'
 import { useCourtsStore } from '@/store/courtsStore'
 import { useReservationsStore } from '@/store/reservationsStore'
 import { useSettingsStore } from '@/store/settingsStore'
@@ -9,7 +11,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { generateTimeLabels } from '@/lib/timeSlots'
 import { formatCurrency, todayKey } from '@/lib/format'
 import { SPORTS } from '@/lib/sports'
-import type { Court, ReservationStatus, Sport } from '@/types'
+import type { Court, ReservationStatus, Sport, Deposit } from '@/types'
 
 const WEEKDAY_LABELS = [
   'Domingo',
@@ -438,8 +440,40 @@ function CanchasPanel() {
   )
 }
 
+// Estado de la seña de una reserva hecha desde el sitio.
+function DepositCell({ deposit }: { deposit?: Deposit }) {
+  if (!deposit) return <span className="text-gray-600">—</span>
+  if (deposit.status === 'pendiente') {
+    return <span className="whitespace-nowrap rounded-full bg-info-bg px-2 py-0.5 text-xs font-medium text-info">Esperando seña</span>
+  }
+  if (deposit.status === 'vencida') return <span className="text-xs text-gray-500">No pagó la seña</span>
+  const paidOn = deposit.paidAt
+    ? new Date(deposit.paidAt).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+    : ''
+  const label = deposit.status === 'pagada' ? 'Seña pagada' : deposit.status === 'a_devolver' ? 'Seña a devolver' : 'Seña devuelta'
+  const tone = deposit.status === 'pagada' ? 'bg-success/20 text-success' : deposit.status === 'a_devolver' ? 'bg-warning-bg text-warning' : 'bg-gray-800 text-gray-400'
+  return (
+    <div className="text-xs">
+      <span className={`whitespace-nowrap rounded-full px-2 py-0.5 font-medium ${tone}`}>{label}</span>
+      <p className="mt-1 whitespace-nowrap text-gray-300">
+        {formatCurrency(deposit.amount)}
+        {paidOn && ` · ${paidOn}`}
+      </p>
+      {deposit.paymentId && <p className="whitespace-nowrap text-gray-500">Operación {deposit.paymentId}</p>}
+    </div>
+  )
+}
+
 export function Reservas() {
   const courts = useCourtsStore((s) => s.courts)
+  const depositsAvailable = useDepositsStore((s) => s.available)
+  const deposits = useDepositsStore((s) => s.deposits)
+  const depositByReservation = useMemo(
+    () => new Map(deposits.filter((d) => d.reservationId).map((d) => [d.reservationId as string, d])),
+    [deposits],
+  )
+  // Cancelar o eliminar una reserva con la seña pagada: antes se avisa.
+  const [refundWarning, setRefundWarning] = useState<{ deposit: Deposit; run: () => void; verb: string } | null>(null)
   const reservations = useReservationsStore((s) => s.reservations)
   const updateStatus = useReservationsStore((s) => s.updateStatus)
   const deleteReservation = useReservationsStore((s) => s.deleteReservation)
@@ -501,22 +535,57 @@ export function Reservas() {
               <th className="p-3">Jugadores</th>
               <th className="p-3">Cliente</th>
               <th className="p-3">Total</th>
+              {depositsAvailable && <th className="p-3">Seña</th>}
               <th className="p-3">Estado</th>
               <th className="p-3" />
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r) => (
+            {filtered.map((r) => {
+              const deposit = depositByReservation.get(r.id)
+              const paid = deposit?.status === 'pagada'
+              return (
               <tr key={r.id} className="border-b border-gray-800 last:border-0">
                 <td className="p-3 text-gray-100">{r.time}</td>
                 <td className="p-3 text-gray-300">{courtName(r.courtId)}</td>
                 <td className="p-3 text-gray-300">{r.players}</td>
-                <td className="p-3 text-gray-300">{r.customerName ?? '-'}</td>
-                <td className="p-3 text-gray-300">{formatCurrency(r.priceTotal)}</td>
+                <td className="p-3 text-gray-300">
+                  {r.customerName ?? deposit?.contactName ?? '-'}
+                  {deposit?.contactWhatsapp && (
+                    <a
+                      href={buildWhatsAppLink(deposit.contactWhatsapp, `Hola ${deposit.contactName ?? ''}!`)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block text-xs text-primary-500 hover:underline"
+                    >
+                      WhatsApp {deposit.contactWhatsapp}
+                    </a>
+                  )}
+                </td>
+                <td className="p-3 text-gray-300">
+                  {formatCurrency(r.priceTotal)}
+                  {paid && deposit && (
+                    <span className="block whitespace-nowrap text-xs text-gray-500">
+                      Falta cobrar {formatCurrency(r.priceTotal - deposit.amount)}
+                    </span>
+                  )}
+                </td>
+                {depositsAvailable && (
+                  <td className="p-3">
+                    <DepositCell deposit={deposit} />
+                  </td>
+                )}
                 <td className="p-3">
                   <select
                     value={r.status}
-                    onChange={(e) => updateStatus(r.id, e.target.value as ReservationStatus)}
+                    onChange={(e) => {
+                      const next = e.target.value as ReservationStatus
+                      if (next === 'cancelado' && paid && deposit) {
+                        setRefundWarning({ deposit, verb: 'Cancelar', run: () => updateStatus(r.id, next) })
+                      } else {
+                        updateStatus(r.id, next)
+                      }
+                    }}
                     className="rounded-lg border border-gray-700 bg-gray-925 px-2 py-1 text-xs text-gray-100"
                   >
                     <option value="reservado">Reservado</option>
@@ -527,17 +596,21 @@ export function Reservas() {
                 <td className="p-3">
                   <button
                     type="button"
-                    onClick={() => deleteReservation(r.id)}
+                    onClick={() => {
+                      if (paid && deposit) setRefundWarning({ deposit, verb: 'Eliminar', run: () => deleteReservation(r.id) })
+                      else deleteReservation(r.id)
+                    }}
                     className="text-xs text-danger hover:underline"
                   >
                     Eliminar
                   </button>
                 </td>
               </tr>
-            ))}
+              )
+            })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="p-4 text-center text-gray-500">
+                <td colSpan={depositsAvailable ? 8 : 7} className="p-4 text-center text-gray-500">
                   No hay reservas para este filtro.
                 </td>
               </tr>
@@ -545,6 +618,20 @@ export function Reservas() {
           </tbody>
         </table>
       </div>
+
+      {refundWarning && (
+        <ConfirmDialog
+          title={`${refundWarning.verb} una reserva con seña pagada`}
+          message={`Esta reserva tiene una seña de ${formatCurrency(refundWarning.deposit.amount)} ya pagada (operación ${refundWarning.deposit.paymentId ?? ''}). Si seguís, queda como "seña a devolver": la devolución la tenés que hacer vos desde tu Mercado Pago. El panel te la va a recordar hasta que la marques como devuelta.`}
+          confirmLabel={`${refundWarning.verb} igual`}
+          onConfirm={() => {
+            refundWarning.run()
+            setRefundWarning(null)
+            setTimeout(() => useDepositsStore.getState().fetchAll(), 800)
+          }}
+          onCancel={() => setRefundWarning(null)}
+        />
+      )}
 
       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-xs text-gray-500">
         <span>{filtered.length} reserva(s) —</span>

@@ -34,6 +34,52 @@ export interface Settings {
   planStatus: PlanStatus
   trialEndsAt?: string // fecha y hora ISO; solo en prueba
   isDemo: boolean // complejo de ejemplo publico: sus reservas no se guardan
+  // Seña con Mercado Pago al reservar (migracion 025). Nace desactivada.
+  depositEnabled: boolean
+  depositType: DepositType
+  depositValue: number // pesos, o porcentaje del precio del turno
+  depositHoldMinutes: number // cuanto se guarda el horario mientras se paga
+  depositPolicy: string // texto que ve el jugador antes de pagar
+}
+
+export type DepositType = 'fijo' | 'porcentaje'
+export type DepositStatus = 'pendiente' | 'pagada' | 'vencida' | 'a_devolver' | 'devuelta'
+export type DepositRefundReason = 'pago_tardio' | 'cancelada_por_el_complejo' | 'pago_duplicado' | 'no_coincide'
+
+// Cuenta de Mercado Pago del complejo. Solo lo que se muestra: las
+// credenciales no salen del servidor.
+export interface MpConnection {
+  status: 'conectada' | 'reconectar'
+  accountLabel: string
+  connectedAt: string
+  lastError?: string
+}
+
+export interface Deposit {
+  id: string
+  reservationId?: string
+  courtName: string
+  date: string
+  time: string
+  priceTotal: number
+  amount: number
+  status: DepositStatus
+  expiresAt: string
+  paymentId?: number // numero de operacion de Mercado Pago
+  paidAt?: string
+  refundReason?: DepositRefundReason
+  contactName?: string
+  contactWhatsapp?: string
+}
+
+export interface DepositPayment {
+  paymentId: number
+  depositId: string
+  amount: number
+  paidAt: string
+  status: 'aprobado' | 'a_devolver' | 'devuelto'
+  refundReason?: DepositRefundReason
+  refundedAt?: string
 }
 
 export interface ClosedDate {
@@ -147,6 +193,8 @@ export interface Sale {
   // Precio de cancha incluido. null = venta anterior al Mostrador, donde no
   // se guardaba aparte (ver saleIncludesReservationFee).
   courtFee: number | null
+  // Seña ya pagada por Mercado Pago, descontada del total (la calcula la base).
+  depositApplied: number
   discount?: SaleDiscount
   payments: SalePayment[]
 }

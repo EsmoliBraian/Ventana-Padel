@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { deleteImage } from '@/lib/storage'
 import { setCurrentPlan } from '@/lib/plan'
-import type { OnboardingState, PlanStatus, Settings, Sport } from '@/types'
+import type { DepositType, OnboardingState, PlanStatus, Settings, Sport } from '@/types'
 
 interface SettingsRow {
   id: string
@@ -21,6 +21,11 @@ interface SettingsRow {
   plan_status?: PlanStatus
   trial_ends_at?: string | null
   is_demo?: boolean
+  deposit_enabled?: boolean
+  deposit_type?: DepositType
+  deposit_value?: number
+  deposit_hold_minutes?: number
+  deposit_policy?: string
 }
 
 function fromRow(row: SettingsRow): Settings {
@@ -42,6 +47,12 @@ function fromRow(row: SettingsRow): Settings {
     planStatus: row.plan_status ?? 'active',
     trialEndsAt: row.trial_ends_at ?? undefined,
     isDemo: row.is_demo ?? false,
+    // Sin las columnas (migracion 025 sin correr), la seña no existe.
+    depositEnabled: row.deposit_enabled ?? false,
+    depositType: row.deposit_type ?? 'fijo',
+    depositValue: Number(row.deposit_value ?? 0),
+    depositHoldMinutes: row.deposit_hold_minutes ?? 15,
+    depositPolicy: row.deposit_policy ?? '',
   }
 }
 
@@ -70,6 +81,11 @@ interface SettingsState {
   planStatus: PlanStatus
   trialEndsAt?: string
   isDemo: boolean
+  depositEnabled: boolean
+  depositType: DepositType
+  depositValue: number
+  depositHoldMinutes: number
+  depositPolicy: string
   loading: boolean
   venueChecked: boolean
   fetchSettingsForOwner: (ownerId: string) => Promise<void>
@@ -97,6 +113,11 @@ const defaultState = {
   planStatus: 'active' as PlanStatus,
   trialEndsAt: undefined as string | undefined,
   isDemo: false,
+  depositEnabled: false,
+  depositType: 'fijo' as DepositType,
+  depositValue: 0,
+  depositHoldMinutes: 15,
+  depositPolicy: '',
   loading: false,
   venueChecked: false,
 }
@@ -157,6 +178,11 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     if (patch.about !== undefined) row.about = patch.about
     if (patch.address !== undefined) row.address = patch.address
     if (patch.instagramUrl !== undefined) row.instagram_url = patch.instagramUrl ?? null
+    if (patch.depositEnabled !== undefined) row.deposit_enabled = patch.depositEnabled
+    if (patch.depositType !== undefined) row.deposit_type = patch.depositType
+    if (patch.depositValue !== undefined) row.deposit_value = patch.depositValue
+    if (patch.depositHoldMinutes !== undefined) row.deposit_hold_minutes = patch.depositHoldMinutes
+    if (patch.depositPolicy !== undefined) row.deposit_policy = patch.depositPolicy
 
     const { error } = await supabase.from('settings').update(row).eq('id', id)
     if (error) return error.message
