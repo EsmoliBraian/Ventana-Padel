@@ -4,7 +4,7 @@ import type { SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import { env, functionsUrl, log } from './util.ts'
 
 const API = () => (Deno.env.get('MP_API_BASE') ?? 'https://api.mercadopago.com').replace(/\/+$/, '')
-const AUTH = () => (Deno.env.get('MP_AUTH_BASE') ?? 'https://auth.mercadopago.com').replace(/\/+$/, '')
+const AUTH = () => (Deno.env.get('MP_AUTH_BASE') ?? 'https://auth.mercadopago.com.ar').replace(/\/+$/, '')
 
 export const redirectUri = () => `${functionsUrl()}/mp-oauth-callback`
 
