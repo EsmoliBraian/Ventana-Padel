@@ -39,6 +39,9 @@ interface DepositsState {
   // false si la base todavia no tiene la migracion 025: el panel no muestra
   // nada de la seña y todo sigue como siempre.
   available: boolean
+  // La seña se habilita complejo por complejo. false: este complejo no la
+  // tiene habilitada y el panel no ofrece conectar. null: todavia no se sabe.
+  allowed: boolean | null
   connection: MpConnection | null
   deposits: Deposit[]
   payments: DepositPayment[]
@@ -50,10 +53,15 @@ interface DepositsState {
   reset: () => void
 }
 
+// Complejo por el que ya se pregunto si tiene la seña habilitada: se
+// pregunta una sola vez por complejo.
+let allowedAskedFor: string | null = null
+
 // Señas con Mercado Pago, del lado del panel. Las credenciales nunca llegan
 // aca: de la conexion solo se conoce el nombre de la cuenta y su estado.
 export const useDepositsStore = create<DepositsState>()((set, get) => ({
   available: false,
+  allowed: null,
   connection: null,
   deposits: [],
   payments: [],
@@ -64,6 +72,17 @@ export const useDepositsStore = create<DepositsState>()((set, get) => ({
     if (conn.error) {
       set({ available: false, connection: null, deposits: [], payments: [] })
       return
+    }
+    // Sin frenar el resto de la carga.
+    if (allowedAskedFor !== venueId) {
+      allowedAskedFor = venueId
+      set({ allowed: null })
+      callFunction<{ allowed?: boolean }>('mp-oauth-start', { check: true }, true).then((res) => {
+        // Si no se pudo preguntar, el panel ofrece conectar igual: el
+        // servidor es el que decide al tocar el boton.
+        if (allowedAskedFor !== venueId) return
+        set({ allowed: res.ok && typeof res.data.allowed === 'boolean' ? res.data.allowed : true })
+      })
     }
     const [deposits, payments, contacts] = await Promise.all([
       supabase.from('reservation_deposits').select('*').eq('venue_id', venueId).order('created_at', { ascending: false }).limit(500),
@@ -141,5 +160,8 @@ export const useDepositsStore = create<DepositsState>()((set, get) => ({
     await get().fetchAll()
     return null
   },
-  reset: () => set({ available: false, connection: null, deposits: [], payments: [] }),
+  reset: () => {
+    allowedAskedFor = null
+    set({ available: false, allowed: null, connection: null, deposits: [], payments: [] })
+  },
 }))

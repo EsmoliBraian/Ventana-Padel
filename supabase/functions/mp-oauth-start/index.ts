@@ -22,7 +22,12 @@ Deno.serve(async (req) => {
       .eq('owner_id', auth.user.id)
       .maybeSingle()
     if (!venue) return json({ message: 'No encontramos tu complejo.' }, 404, origin)
-    if (venue.is_demo || !slugAllowed(venue.slug)) return json({ message: 'La seña con Mercado Pago todavía no está disponible para tu complejo.' }, 403, origin)
+    // La seña se habilita complejo por complejo (DEPOSIT_ALLOWED_SLUGS). El
+    // panel pregunta primero, para no ofrecer conectar a quien no la tiene.
+    const allowed = !venue.is_demo && slugAllowed(venue.slug)
+    const body = await req.json().catch(() => ({}))
+    if (body?.check === true) return json({ allowed }, 200, origin)
+    if (!allowed) return json({ message: 'La seña con Mercado Pago todavía no está disponible para tu complejo.' }, 403, origin)
     if (!venueWritable(venue)) return json({ message: 'La prueba gratis de este complejo terminó: el panel está en solo lectura.' }, 403, origin)
 
     // "state": al azar, de un solo uso, vence en 10 minutos y queda atado a

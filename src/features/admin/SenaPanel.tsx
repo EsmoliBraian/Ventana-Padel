@@ -5,6 +5,7 @@ import { useDepositsStore } from '@/store/depositsStore'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { ErrorText } from '@/components/ErrorText'
 import { depositAmountFor, MP_FEE_NOTE } from '@/lib/deposits'
+import { buildDepositRequestLink } from '@/lib/plan'
 import { formatCurrency } from '@/lib/format'
 import type { DepositType } from '@/types'
 
@@ -43,6 +44,7 @@ export function SenaPanel() {
   const settings = useSettingsStore()
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const available = useDepositsStore((s) => s.available)
+  const allowed = useDepositsStore((s) => s.allowed)
   const connection = useDepositsStore((s) => s.connection)
   const pendingCount = useDepositsStore((s) => s.deposits.filter((d) => d.status === 'pendiente').length)
   const [params, setParams] = useSearchParams()
@@ -74,6 +76,10 @@ export function SenaPanel() {
   if (!available) return null
 
   const connected = connection?.status === 'conectada'
+  // La seña se habilita complejo por complejo: a quien no la tiene no se le
+  // ofrece conectar ni configurar nada.
+  const onRequest = allowed === false
+  const requestLink = buildDepositRequestLink(settings.venueName)
   const numericValue = Number(value) || 0
   const numericMinutes = Number(minutes) || 0
   const dirty =
@@ -138,8 +144,24 @@ export function SenaPanel() {
         </p>
       )}
 
+      {onRequest && (
+        <div className="rounded-lg border border-gray-800 bg-gray-925 p-3">
+          <p className="text-sm text-gray-300">La seña con Mercado Pago se activa a pedido. Escribinos por WhatsApp.</p>
+          {requestLink && (
+            <a
+              href={requestLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-block rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+            >
+              Pedir por WhatsApp
+            </a>
+          )}
+        </div>
+      )}
+
       {/* Cuenta */}
-      {connection ? (
+      {onRequest && !connection ? null : connection ? (
         <div className="rounded-lg border border-gray-800 bg-gray-925 p-3">
           <p className="text-xs text-gray-500">{connected ? 'Cuenta conectada' : 'Hay que volver a conectar la cuenta'}</p>
           <p className="break-all text-sm font-medium text-gray-100">{connection.accountLabel}</p>
@@ -151,7 +173,7 @@ export function SenaPanel() {
             </p>
           )}
           <div className="mt-3 flex flex-wrap gap-2">
-            {!connected && (
+            {!connected && !onRequest && (
               <button
                 type="button"
                 onClick={handleConnect}
@@ -181,7 +203,7 @@ export function SenaPanel() {
           <button
             type="button"
             onClick={handleConnect}
-            disabled={busy}
+            disabled={busy || allowed === null}
             className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
           >
             {busy ? 'Abriendo Mercado Pago...' : 'Conectar Mercado Pago'}
@@ -190,7 +212,7 @@ export function SenaPanel() {
       )}
 
       {/* Configuracion del cobro */}
-      <fieldset disabled={!connection} className="space-y-3 disabled:opacity-50">
+      <fieldset disabled={!connection} hidden={onRequest} className="space-y-3 disabled:opacity-50">
         <label className="flex items-center gap-3 text-sm text-gray-200">
           <input
             type="checkbox"

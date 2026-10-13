@@ -49,3 +49,11 @@ export function buildContractLink(venueName: string): string | null {
   const message = `Hola! Quiero contratar el plan para mi complejo "${venueName}".`
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
 }
+
+// Link para pedir que le activen la seña con Mercado Pago al complejo.
+export function buildDepositRequestLink(venueName: string): string | null {
+  const digits = CONTACT_WHATSAPP.replace(/\D/g, '')
+  if (!digits) return null
+  const message = `Hola! Quiero activar la seña con Mercado Pago en mi complejo "${venueName}".`
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`
+}

@@ -18,7 +18,15 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
     const slug = typeof body.slug === 'string' ? body.slug : ''
     const { data: venue } = await admin.from('settings').select('id, slug, venue_name').eq('slug', slug).maybeSingle()
-    if (!venue || !slugAllowed(venue.slug)) return json({ code: 'no_disponible', message: 'Este complejo no está tomando señas online.' }, 400, origin)
+    if (!venue) return json({ code: 'no_disponible', message: 'Este complejo no está tomando señas online.' }, 400, origin)
+    if (!slugAllowed(venue.slug)) {
+      // El complejo ya no esta entre los habilitados (DEPOSIT_ALLOWED_SLUGS)
+      // pero tenia la seña activa: se apaga en el momento, para que este
+      // jugador y los que siguen reserven sin seña, como siempre.
+      await admin.from('settings').update({ deposit_enabled: false }).eq('id', venue.id).eq('deposit_enabled', true)
+      log('sena_no_habilitada', { venue: venue.id })
+      return json({ code: 'sin_sena', message: 'El pago online no está disponible en este momento. Volvé a elegir el horario para reservar sin seña.' }, 409, origin)
+    }
     venueId = venue.id
 
     // Huella del visitante para el limite de horarios guardados. Solo con la
