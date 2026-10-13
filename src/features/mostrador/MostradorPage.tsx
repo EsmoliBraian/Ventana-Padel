@@ -4,7 +4,7 @@ import { useSalesStore } from '@/store/salesStore'
 import { useReservationsStore } from '@/store/reservationsStore'
 import { useFixedSlotsStore } from '@/store/fixedSlotsStore'
 import { useDepositsStore } from '@/store/depositsStore'
-import { withDepositNames } from '@/lib/deposits'
+import { paidDepositByReservation, withDepositNames } from '@/lib/deposits'
 import { useCourtsStore } from '@/store/courtsStore'
 import { buildTurnos, byNumber, orderOwnerLabel, ordersOfTurno, turnoKeyOfSale } from '@/lib/orders'
 import { OrdersTable } from './OrdersTable'
@@ -38,6 +38,8 @@ export function MostradorPage() {
     () => buildTurnos(withDepositNames(reservations, deposits), fixedSlots, courts, sales),
     [reservations, deposits, fixedSlots, courts, sales],
   )
+
+  const paidDeposits = useMemo(() => paidDepositByReservation(deposits), [deposits])
 
   const looseOrders = useMemo(() => sales.filter((s) => turnoKeyOfSale(s) === null), [sales])
   const looseOpen = useMemo(
@@ -123,6 +125,7 @@ export function MostradorPage() {
             <TurnosList
               turnos={turnos}
               sales={sales}
+              paidDeposits={paidDeposits}
               selectedId={selectedId}
               onSelect={selectOrder}
               onNewOrder={(turnoKey) => openNew(turnoKey)}

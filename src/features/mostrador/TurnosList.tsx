@@ -5,6 +5,8 @@ import type { Sale } from '@/types'
 interface TurnosListProps {
   turnos: Turno[]
   sales: Sale[]
+  // Seña ya pagada por Mercado Pago, por reserva.
+  paidDeposits: Map<string, number>
   selectedId: string | null
   onSelect: (saleId: string) => void
   onNewOrder: (turnoKey: string) => void
@@ -12,7 +14,7 @@ interface TurnosListProps {
 
 // Pestaña Turnos: cada turno del dia con sus pedidos agrupados debajo, el
 // total del turno y en que pedido esta cargada la cancha.
-export function TurnosList({ turnos, sales, selectedId, onSelect, onNewOrder }: TurnosListProps) {
+export function TurnosList({ turnos, sales, paidDeposits, selectedId, onSelect, onNewOrder }: TurnosListProps) {
   const today = todayKey()
 
   if (turnos.length === 0) {
@@ -30,6 +32,7 @@ export function TurnosList({ turnos, sales, selectedId, onSelect, onNewOrder }: 
         const total = orders.reduce((sum, o) => sum + o.total, 0)
         const courtOrder = orderWithCourtFee(orders)
         const otherDay = turno.date !== undefined && turno.date !== today
+        const deposit = turno.reservationId ? paidDeposits.get(turno.reservationId) : undefined
 
         return (
           <section key={turno.key} className="overflow-hidden rounded-lg border border-mo-border bg-mo-surface">
@@ -40,6 +43,11 @@ export function TurnosList({ turnos, sales, selectedId, onSelect, onNewOrder }: 
                   {turno.fixedSlotId && (
                     <span className="ml-2 rounded-full bg-mo-accent/20 px-2 py-0.5 text-xs font-medium text-mo-accent">
                       Turno fijo
+                    </span>
+                  )}
+                  {deposit !== undefined && (
+                    <span className="ml-2 rounded-full bg-mo-open/20 px-2 py-0.5 text-xs font-medium text-mo-open">
+                      Seña pagada {formatCurrency(deposit)}
                     </span>
                   )}
                   {otherDay && turno.date && (
