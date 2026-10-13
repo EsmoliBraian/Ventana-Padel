@@ -79,6 +79,18 @@ export function BookingFlowPage() {
     [settings, selectedCourt, reservations, selectedDate, closedDates, fixedSlots],
   )
 
+  // Los horarios de hoy que ya pasaron no se pueden reservar.
+  const slots = useMemo(() => {
+    const now = new Date()
+    const isToday = selectedDate === toDateKey(now)
+    const nowMinutes = now.getHours() * 60 + now.getMinutes()
+    return timeSlots.map((slot) => {
+      const [hours, minutes] = slot.time.split(':').map(Number)
+      const past = isToday && hours * 60 + minutes <= nowMinutes
+      return { ...slot, past, available: slot.available && !past }
+    })
+  }, [timeSlots, selectedDate])
+
   const total = selectedSlot ? selectedSlot.court.price : 0
   const depositAmount = depositActive ? depositAmountFor(settings, total) : 0
 
@@ -283,7 +295,7 @@ export function BookingFlowPage() {
           <h2 className="mb-2 text-sm font-medium text-gray-300">Horarios disponibles</h2>
           <ErrorText error={error} />
           <div className="space-y-2">
-            {timeSlots.map((slot) => (
+            {slots.map((slot) => (
               <button
                 key={slot.time}
                 type="button"
@@ -296,7 +308,7 @@ export function BookingFlowPage() {
                 }`}
               >
                 {slot.time}
-                {!slot.available && <span className="ml-2 text-xs">Reservado</span>}
+                {!slot.available && <span className="ml-2 text-xs">{slot.past ? 'Ya pasó' : 'Reservado'}</span>}
               </button>
             ))}
             {timeSlots.length === 0 && (
