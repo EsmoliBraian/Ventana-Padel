@@ -45,6 +45,7 @@ export function SenaPanel() {
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const available = useDepositsStore((s) => s.available)
   const allowed = useDepositsStore((s) => s.allowed)
+  const demo = useDepositsStore((s) => s.demo)
   const connection = useDepositsStore((s) => s.connection)
   const pendingCount = useDepositsStore((s) => s.deposits.filter((d) => d.status === 'pendiente').length)
   const [params, setParams] = useSearchParams()
@@ -76,7 +77,7 @@ export function SenaPanel() {
   if (!available) return null
 
   const connected = connection?.status === 'conectada'
-  // La seña se habilita complejo por complejo: a quien no la tiene no se le
+  // A un complejo que no tiene la seña habilitada (o al de ejemplo) no se le
   // ofrece conectar ni configurar nada.
   const onRequest = allowed === false
   const requestLink = buildDepositRequestLink(settings.venueName)
@@ -146,8 +147,12 @@ export function SenaPanel() {
 
       {onRequest && (
         <div className="rounded-lg border border-gray-800 bg-gray-925 p-3">
-          <p className="text-sm text-gray-300">La seña con Mercado Pago se activa a pedido. Escribinos por WhatsApp.</p>
-          {requestLink && (
+          <p className="text-sm text-gray-300">
+            {demo
+              ? 'En el complejo de ejemplo la seña con Mercado Pago no se puede activar.'
+              : 'La seña con Mercado Pago se activa a pedido. Escribinos por WhatsApp.'}
+          </p>
+          {requestLink && !demo && (
             <a
               href={requestLink}
               target="_blank"

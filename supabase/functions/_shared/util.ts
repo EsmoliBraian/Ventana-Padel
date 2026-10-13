@@ -55,14 +55,17 @@ export function json(body: unknown, status = 200, origin: string | null = null):
   })
 }
 
-// Mientras se prueba, DEPOSIT_ALLOWED_SLUGS limita la seña a esos complejos.
-// Vacio o sin definir: cualquiera.
+// Que complejos pueden usar la seña (secreto DEPOSIT_ALLOWED_SLUGS):
+//   "*"                      todos
+//   "un-slug,otro-slug"      solo esos
+//   vacio o sin definir      todos (igual que "*")
+// Para volver a limitarla alcanza con cargar una lista de slugs.
 export function slugAllowed(slug: string | null | undefined): boolean {
   const list = (Deno.env.get('DEPOSIT_ALLOWED_SLUGS') ?? '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
-  return list.length === 0 || (!!slug && list.includes(slug))
+  return list.length === 0 || list.includes('*') || (!!slug && list.includes(slug))
 }
 
 const encoder = new TextEncoder()

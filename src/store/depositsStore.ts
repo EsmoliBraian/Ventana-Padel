@@ -42,6 +42,8 @@ interface DepositsState {
   // La seña se habilita complejo por complejo. false: este complejo no la
   // tiene habilitada y el panel no ofrece conectar. null: todavia no se sabe.
   allowed: boolean | null
+  // El complejo de ejemplo nunca cobra señas.
+  demo: boolean
   connection: MpConnection | null
   deposits: Deposit[]
   payments: DepositPayment[]
@@ -62,6 +64,7 @@ let allowedAskedFor: string | null = null
 export const useDepositsStore = create<DepositsState>()((set, get) => ({
   available: false,
   allowed: null,
+  demo: false,
   connection: null,
   deposits: [],
   payments: [],
@@ -77,11 +80,11 @@ export const useDepositsStore = create<DepositsState>()((set, get) => ({
     if (allowedAskedFor !== venueId) {
       allowedAskedFor = venueId
       set({ allowed: null })
-      callFunction<{ allowed?: boolean }>('mp-oauth-start', { check: true }, true).then((res) => {
+      callFunction<{ allowed?: boolean; demo?: boolean }>('mp-oauth-start', { check: true }, true).then((res) => {
         // Si no se pudo preguntar, el panel ofrece conectar igual: el
         // servidor es el que decide al tocar el boton.
         if (allowedAskedFor !== venueId) return
-        set({ allowed: res.ok && typeof res.data.allowed === 'boolean' ? res.data.allowed : true })
+        set({ allowed: res.ok && typeof res.data.allowed === 'boolean' ? res.data.allowed : true, demo: res.ok && res.data.demo === true })
       })
     }
     const [deposits, payments, contacts] = await Promise.all([
@@ -162,6 +165,6 @@ export const useDepositsStore = create<DepositsState>()((set, get) => ({
   },
   reset: () => {
     allowedAskedFor = null
-    set({ available: false, allowed: null, connection: null, deposits: [], payments: [] })
+    set({ available: false, allowed: null, demo: false, connection: null, deposits: [], payments: [] })
   },
 }))
