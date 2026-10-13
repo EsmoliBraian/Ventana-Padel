@@ -36,11 +36,11 @@ export function PublicLayout() {
         }
         Promise.all([
           useCourtsStore.getState().fetchCourts(),
-          useReservationsStore.getState().fetchReservations(),
+          useReservationsStore.getState().fetchReservations('public'),
           useTournamentsStore.getState().fetchTournaments(),
           useSlidesStore.getState().fetchSlides(),
           useClosedDatesStore.getState().fetchClosedDates(),
-          useFixedSlotsStore.getState().fetchFixedSlots(),
+          useFixedSlotsStore.getState().fetchFixedSlots('public'),
           useRankingCategoriesStore.getState().fetchCategories(),
           useRankingStore.getState().fetchEntries(),
           useAdsStore.getState().fetchVisibleAds(),

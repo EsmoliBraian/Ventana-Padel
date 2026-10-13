@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettingsStore } from '@/store/settingsStore'
+import type { ReservationsScope } from '@/store/reservationsStore'
 import type { FixedSlot } from '@/types'
 
 interface FixedSlotRow {
@@ -24,7 +25,7 @@ function fromRow(row: FixedSlotRow): FixedSlot {
 interface FixedSlotsState {
   fixedSlots: FixedSlot[]
   loading: boolean
-  fetchFixedSlots: () => Promise<void>
+  fetchFixedSlots: (scope?: ReservationsScope) => Promise<void>
   addFixedSlot: (slot: Omit<FixedSlot, 'id'>) => Promise<string | null>
   deleteFixedSlot: (id: string) => Promise<string | null>
 }
@@ -32,10 +33,29 @@ interface FixedSlotsState {
 export const useFixedSlotsStore = create<FixedSlotsState>()((set, get) => ({
   fixedSlots: [],
   loading: false,
-  fetchFixedSlots: async () => {
+  fetchFixedSlots: async (scope = 'owner') => {
     const venueId = useSettingsStore.getState().id
     if (!venueId) return
     set({ loading: true })
+    if (scope === 'public') {
+      // El sitio publico solo necesita saber que horarios estan tomados, sin
+      // el nombre del cliente.
+      const busy = await supabase.rpc('busy_fixed_slots', { p_venue_id: venueId })
+      if (!busy.error && busy.data) {
+        set({
+          fixedSlots: (busy.data as Omit<FixedSlotRow, 'customer_name'>[]).map((r) => fromRow({ ...r, customer_name: '' })),
+          loading: false,
+        })
+        return
+      }
+      // Sin la migracion 027 esa funcion no existe y la tabla todavia se
+      // puede leer: se sigue como antes. Ante cualquier otro error se deja
+      // la grilla como estaba.
+      if (busy.error?.code !== 'PGRST202') {
+        set({ loading: false })
+        return
+      }
+    }
     const { data, error } = await supabase
       .from('fixed_slots')
       .select('*')

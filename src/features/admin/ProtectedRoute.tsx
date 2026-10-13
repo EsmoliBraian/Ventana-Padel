@@ -48,7 +48,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
     setHydrated(false)
     Promise.all([
       useCourtsStore.getState().fetchCourts(),
-      useReservationsStore.getState().fetchReservations(),
+      useReservationsStore.getState().fetchReservations('owner'),
       useProductsStore.getState().fetchProducts(),
       useSalesStore.getState().fetchSales(),
       useTournamentsStore.getState().fetchTournaments(),
