@@ -46,7 +46,7 @@ export function TurnosList({ turnos, sales, paidDeposits, selectedId, onSelect, 
                     </span>
                   )}
                   {deposit !== undefined && (
-                    <span className="ml-2 rounded-full bg-mo-open/20 px-2 py-0.5 text-xs font-medium text-mo-open">
+                    <span className="ml-2 rounded-full bg-mo-closed/20 px-2 py-0.5 text-xs font-medium text-mo-closed">
                       Seña pagada {formatCurrency(deposit)}
                     </span>
                   )}
