@@ -93,7 +93,7 @@ export function Dashboard() {
         <button
           type="button"
           onClick={() => setShowModal(true)}
-          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400"
         >
           + Nueva reserva
         </button>
@@ -108,13 +108,11 @@ export function Dashboard() {
           label="Reservas hoy"
           value={String(todayReservations.length)}
           icon="fa-calendar-check"
-          accentColor="#B8FF3B"
         />
         <KpiCard
           label="Ingresos hoy"
           value={formatCurrency(ingresosHoy)}
           icon="fa-sack-dollar"
-          accentColor="#B8FF3B"
         />
         <KpiCard
           label="Productos vendidos"
@@ -161,7 +159,7 @@ export function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setGridDate(today)}
-                  className="rounded-lg border border-primary-500 px-2 py-1 text-xs text-primary-500 hover:bg-primary-500/10"
+                  className="rounded-lg border border-primary-300 px-2 py-1 text-xs text-primary-200 hover:bg-primary-500/10"
                 >
                   Hoy
                 </button>
@@ -221,7 +219,7 @@ export function Dashboard() {
                               )}
                             </button>
                           ) : (
-                            <span className="rounded-full bg-[#24262A] px-2 py-0.5 text-[#A7ADB6]">
+                            <span className="rounded-full bg-success-bg/50 px-2 py-0.5 text-success/80">
                               Disponible
                             </span>
                           )}
@@ -246,7 +244,7 @@ export function Dashboard() {
             </p>
             <Link
               to="/admin/mostrador"
-              className="mt-4 block rounded-lg bg-primary-500 py-2 text-center text-sm font-medium text-gray-950 hover:bg-primary-400"
+              className="mt-4 block rounded-lg bg-primary-500 py-2 text-center text-sm font-medium text-white hover:bg-primary-400"
             >
               Abrir el Mostrador
             </Link>

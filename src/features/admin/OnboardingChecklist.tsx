@@ -33,7 +33,7 @@ export function OnboardingChecklist() {
       title: 'Cargá tus canchas y precios',
       detail: 'Te dejamos canchas de ejemplo: ponéles tu nombre y tu precio.',
       action: (
-        <Link to="/admin/reservas" className="text-primary-500 hover:underline">
+        <Link to="/admin/reservas" className="text-primary-200 hover:underline">
           Ir a Reservas
         </Link>
       ),
@@ -43,7 +43,7 @@ export function OnboardingChecklist() {
       title: 'Revisá tus horarios',
       detail: 'Arrancás de 8 a 23 hs. Ajustalo y marcá los días que cerrás.',
       action: (
-        <Link to="/admin/horarios" className="text-primary-500 hover:underline">
+        <Link to="/admin/horarios" className="text-primary-200 hover:underline">
           Ir a Horarios
         </Link>
       ),
@@ -53,7 +53,7 @@ export function OnboardingChecklist() {
       title: 'Compartí tu link de reservas',
       detail: bookingLink,
       action: (
-        <button type="button" onClick={handleCopyLink} className="text-primary-500 hover:underline">
+        <button type="button" onClick={handleCopyLink} className="text-primary-200 hover:underline">
           {linkCopied ? '¡Copiado!' : 'Copiar link'}
         </button>
       ),

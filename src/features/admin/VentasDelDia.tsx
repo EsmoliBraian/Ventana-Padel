@@ -168,7 +168,7 @@ export function VentasDelDia() {
                       <button
                         type="button"
                         onClick={() => toggleExpanded(reservationId)}
-                        className="ml-2 text-xs text-primary-500 hover:underline"
+                        className="ml-2 text-xs text-primary-200 hover:underline"
                       >
                         {expanded ? 'Ocultar' : 'Detalle'}
                       </button>

@@ -60,7 +60,7 @@ function MediosDePagoPanel() {
           type="button"
           onClick={handleAdd}
           disabled={name.trim() === ''}
-          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           Agregar
         </button>
@@ -154,7 +154,7 @@ export function Configuracion() {
             <button
               type="button"
               onClick={handleCopyLink}
-              className="shrink-0 rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+              className="shrink-0 rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white hover:bg-primary-400"
             >
               {linkCopied ? 'Copiado!' : 'Copiar'}
             </button>
@@ -247,7 +247,7 @@ export function Configuracion() {
         type="button"
         onClick={handleSave}
         disabled={!dirty || saving}
-        className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+        className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
       >
         {saving ? 'Guardando...' : 'Guardar configuración'}
       </button>

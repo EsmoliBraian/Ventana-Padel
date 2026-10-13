@@ -19,7 +19,7 @@ export function BlogPostPage() {
     return (
       <div className="mx-auto max-w-2xl px-5 py-20 text-center">
         <p className="text-lg text-gray-200">No encontramos este post.</p>
-        <Link to={path('/blog')} className="mt-4 inline-flex items-center gap-1 text-sm text-primary-500 hover:underline">
+        <Link to={path('/blog')} className="mt-4 inline-flex items-center gap-1 text-sm text-primary-200 hover:underline">
           <ArrowLeftIcon /> Volver al blog
         </Link>
       </div>
@@ -41,7 +41,7 @@ export function BlogPostPage() {
         </div>
       )}
 
-      <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-primary-500">
+      <p className="mt-8 text-xs font-semibold uppercase tracking-widest text-primary-200">
         Blog
       </p>
       <h1 className="mt-1 text-3xl font-semibold text-gray-50 sm:text-4xl">{post.title}</h1>
@@ -57,7 +57,7 @@ export function BlogPostPage() {
 
       <Link
         to={path('/reservar')}
-        className="mt-10 inline-flex rounded-full bg-primary-500 px-6 py-3 text-sm font-semibold text-gray-950 hover:bg-primary-400"
+        className="mt-10 inline-flex rounded-full bg-primary-500 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-400"
       >
         Reservar cancha
       </Link>

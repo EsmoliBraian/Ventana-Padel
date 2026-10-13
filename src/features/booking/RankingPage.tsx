@@ -42,7 +42,7 @@ function PodiumCard({ entry, place }: { entry: RankingEntry; place: number }) {
   return (
     <div
       className={`flex flex-col items-center rounded-xl border bg-gray-900 p-4 ${
-        isFirst ? 'border-primary-500/50 shadow-glow-sm' : 'border-gray-800'
+        isFirst ? 'border-primary-300/50 shadow-glow-sm' : 'border-gray-800'
       }`}
       style={isFirst ? { order: 0 } : { order: place === 2 ? -1 : 1 }}
     >
@@ -63,7 +63,7 @@ function PodiumCard({ entry, place }: { entry: RankingEntry; place: number }) {
       <p className="mt-2 max-w-full truncate text-sm font-medium text-gray-100">
         {entry.playerName}
       </p>
-      <p className="text-base font-bold text-primary-500">{entry.totalPoints}</p>
+      <p className="text-base font-bold text-primary-200">{entry.totalPoints}</p>
     </div>
   )
 }
@@ -109,11 +109,11 @@ export function RankingPage() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-14 sm:py-20">
       <div className="mb-8 flex items-center gap-3">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-500/10 text-primary-500">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-500/10 text-primary-200">
           <TrophyIcon />
         </span>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">
             Ranking
           </p>
           <h1 className="text-2xl font-semibold text-gray-50 sm:text-3xl">{venueName}</h1>
@@ -133,7 +133,7 @@ export function RankingPage() {
               onClick={() => setSelectedCategoryId(c.id)}
               className={`rounded-full px-3 py-1.5 text-sm font-medium ${
                 c.id === activeCategoryId
-                  ? 'bg-primary-500 text-gray-950'
+                  ? 'bg-primary-500 text-white'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >
@@ -172,7 +172,7 @@ export function RankingPage() {
                   <tr key={entry.id} className="border-t border-gray-800/60">
                     <td className="py-3 pr-3 font-semibold text-gray-500">{i + 4}</td>
                     <td className="py-3 pr-3 text-gray-100">{entry.playerName}</td>
-                    <td className="py-3 pr-3 text-right font-semibold text-primary-500">
+                    <td className="py-3 pr-3 text-right font-semibold text-primary-200">
                       {entry.totalPoints}
                     </td>
                   </tr>
@@ -188,7 +188,7 @@ export function RankingPage() {
             <button
               type="button"
               onClick={handleShare}
-              className="mt-6 flex items-center justify-center gap-2 rounded-full bg-primary-500 px-6 py-3 text-sm font-medium text-gray-950 hover:bg-primary-400"
+              className="mt-6 flex items-center justify-center gap-2 rounded-full bg-primary-500 px-6 py-3 text-sm font-medium text-white hover:bg-primary-400"
             >
               <ShareIcon />
               {shared ? 'Link copiado!' : 'Compartir ranking'}

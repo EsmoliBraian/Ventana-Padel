@@ -18,7 +18,7 @@ export function CourtHeroBackground() {
           <line x1="200" y1="20" x2="200" y2="180" stroke="currentColor" strokeWidth="1.5" />
           <line x1="200" y1="420" x2="200" y2="580" stroke="currentColor" strokeWidth="1.5" />
           {/* En celular el dibujo queda detras del titular: el punto se oculta para no taparlo. */}
-          <circle cx="200" cy="300" r="4" className="hidden fill-primary-500 sm:block" />
+          <circle cx="200" cy="300" r="4" className="hidden fill-primary-200 sm:block" />
         </g>
       </svg>
 

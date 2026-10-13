@@ -228,7 +228,7 @@ export function BookingFlowPage() {
     <div className="mx-auto flex max-w-xl flex-col px-5 py-14 sm:py-20">
       {step === 'slot' && (
         <>
-          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-500">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary-200">
             Reservar
           </p>
           <h1 className="mb-6 text-2xl font-semibold text-gray-50 sm:text-3xl">Elegí fecha</h1>
@@ -243,7 +243,7 @@ export function BookingFlowPage() {
                   onClick={() => setSelectedDate(key)}
                   className={`flex flex-1 flex-col items-center rounded-lg border py-2 text-xs ${
                     active
-                      ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                      ? 'border-primary-300 bg-primary-500/10 text-primary-200'
                       : 'border-gray-800 text-gray-400'
                   }`}
                 >
@@ -267,7 +267,7 @@ export function BookingFlowPage() {
                       onClick={() => setSelectedSport(sport)}
                       className={`rounded-lg border px-3 py-1.5 text-xs ${
                         active
-                          ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                          ? 'border-primary-300 bg-primary-500/10 text-primary-200'
                           : 'border-gray-800 text-gray-400'
                       }`}
                     >
@@ -292,7 +292,7 @@ export function BookingFlowPage() {
                       onClick={() => setSelectedCourtId(c.id)}
                       className={`rounded-lg border px-3 py-1.5 text-xs ${
                         active
-                          ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                          ? 'border-primary-300 bg-primary-500/10 text-primary-200'
                           : 'border-gray-800 text-gray-400'
                       }`}
                     >
@@ -315,7 +315,7 @@ export function BookingFlowPage() {
                 onClick={() => handlePickSlot(slot.time)}
                 className={`w-full rounded-lg border py-3 text-sm ${
                   slot.available
-                    ? 'border-gray-800 bg-gray-900 text-gray-100 hover:border-primary-500'
+                    ? 'border-gray-800 bg-gray-900 text-gray-100 hover:border-primary-300'
                     : 'cursor-not-allowed border-gray-800 bg-gray-900/40 text-gray-600'
                 }`}
               >
@@ -356,7 +356,7 @@ export function BookingFlowPage() {
 
           {depositActive && (
             <>
-              <div className="mb-4 space-y-1 rounded-lg border border-primary-500/40 bg-primary-500/10 p-3 text-sm">
+              <div className="mb-4 space-y-1 rounded-lg border border-primary-300/40 bg-primary-500/10 p-3 text-sm">
                 <p className="text-gray-300">
                   Seña para reservar <span className="float-right font-semibold text-gray-50">{formatCurrency(depositAmount)}</span>
                 </p>
@@ -401,7 +401,7 @@ export function BookingFlowPage() {
             type="button"
             onClick={handleConfirmReservation}
             disabled={submitting}
-            className="rounded-lg bg-primary-500 py-3 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-60"
+            className="rounded-lg bg-primary-500 py-3 font-medium text-white hover:bg-primary-400 disabled:opacity-60"
           >
             {depositActive
               ? submitting
@@ -439,7 +439,7 @@ export function BookingFlowPage() {
 
           <Link
             to="/admin/signup"
-            className="rounded-lg bg-primary-500 py-3 text-center font-medium text-gray-950 hover:bg-primary-400"
+            className="rounded-lg bg-primary-500 py-3 text-center font-medium text-white hover:bg-primary-400"
           >
             Crear mi complejo gratis
           </Link>

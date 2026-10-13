@@ -15,7 +15,7 @@ export function BlogPostCard({ post }: { post: HeroSlide }) {
   return (
     <Link
       to={path(`/blog/${post.id}`)}
-      className="group flex flex-col overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-card transition-colors hover:border-primary-500/50"
+      className="group flex flex-col overflow-hidden rounded-xl border border-gray-800 bg-gray-900 shadow-card transition-colors hover:border-primary-300/50"
     >
       <div className="aspect-[16/10] w-full shrink-0 overflow-hidden bg-gray-925">
         {post.imageUrl ? (
@@ -37,7 +37,7 @@ export function BlogPostCard({ post }: { post: HeroSlide }) {
       <div className="flex flex-1 flex-col p-4">
         <p className="text-base font-semibold text-gray-50">{post.title}</p>
         {post.subtitle && <p className="mt-1 text-sm text-gray-400">{post.subtitle}</p>}
-        <span className="mt-4 flex items-center gap-1 text-sm font-medium text-primary-500">
+        <span className="mt-4 flex items-center gap-1 text-sm font-medium text-primary-200">
           Leer más <ArrowIcon />
         </span>
       </div>

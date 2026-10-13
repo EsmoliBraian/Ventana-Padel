@@ -139,7 +139,7 @@ function NavContent({ collapsed, onNavigate, onToggleCollapsed }: NavContentProp
           <>
             <i
               className={`fa-solid ${item.icon} w-5 text-center text-base ${
-                isActive ? 'text-primary-500' : 'text-gray-500 group-hover:text-gray-300'
+                isActive ? 'text-primary-200' : 'text-gray-500 group-hover:text-gray-300'
               }`}
             />
             {!collapsed && <span className="truncate">{item.label}</span>}
@@ -159,7 +159,7 @@ function NavContent({ collapsed, onNavigate, onToggleCollapsed }: NavContentProp
       <div key={group.label}>
         {collapsed ? (
           <div role="img" aria-label={group.label} className={`${itemClass(hasActiveChild)} cursor-default`}>
-            <i className={`fa-solid ${group.icon} w-5 text-center text-base ${hasActiveChild ? 'text-primary-500' : 'text-gray-500'}`} />
+            <i className={`fa-solid ${group.icon} w-5 text-center text-base ${hasActiveChild ? 'text-primary-200' : 'text-gray-500'}`} />
             <Tooltip label={group.label} />
           </div>
         ) : (
@@ -171,7 +171,7 @@ function NavContent({ collapsed, onNavigate, onToggleCollapsed }: NavContentProp
           >
             <i
               className={`fa-solid ${group.icon} w-5 text-center text-base ${
-                hasActiveChild ? 'text-primary-500' : 'text-gray-500 group-hover:text-gray-300'
+                hasActiveChild ? 'text-primary-200' : 'text-gray-500 group-hover:text-gray-300'
               }`}
             />
             <span className="truncate">{group.label}</span>

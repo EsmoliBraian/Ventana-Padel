@@ -157,7 +157,7 @@ export function SenaPanel() {
               href={requestLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-block rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+              className="mt-3 inline-block rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400"
             >
               Pedir por WhatsApp
             </a>
@@ -183,7 +183,7 @@ export function SenaPanel() {
                 type="button"
                 onClick={handleConnect}
                 disabled={busy}
-                className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+                className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
               >
                 Volver a conectar
               </button>
@@ -209,7 +209,7 @@ export function SenaPanel() {
             type="button"
             onClick={handleConnect}
             disabled={busy || allowed === null}
-            className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             {busy ? 'Abriendo Mercado Pago...' : 'Conectar Mercado Pago'}
           </button>
@@ -284,7 +284,7 @@ export function SenaPanel() {
           type="button"
           onClick={handleSave}
           disabled={!dirty || busy}
-          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           Guardar seña
         </button>

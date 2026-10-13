@@ -93,7 +93,7 @@ function EditEntryModal({ entry, onClose }: { entry: RankingEntry; onClose: () =
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
@@ -238,7 +238,7 @@ export function Ranking() {
                 type="button"
                 onClick={handleSavePoints}
                 disabled={!pointsDirty || savingPoints}
-                className="mt-3 w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+                className="mt-3 w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
               >
                 {savingPoints ? 'Guardando...' : 'Guardar cambios'}
               </button>
@@ -291,7 +291,7 @@ export function Ranking() {
                 type="button"
                 onClick={handleAddResult}
                 disabled={savingResult}
-                className="mt-3 w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+                className="mt-3 w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
               >
                 {savingResult ? 'Agregando...' : 'Agregar al ranking'}
               </button>
@@ -323,7 +323,7 @@ export function Ranking() {
                       <button
                         type="button"
                         onClick={() => setEditEntry(entry)}
-                        className="text-xs text-primary-500 hover:underline"
+                        className="text-xs text-primary-200 hover:underline"
                       >
                         Editar
                       </button>

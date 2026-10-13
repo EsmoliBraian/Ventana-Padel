@@ -1,3 +1,4 @@
+import { themeColor } from '@/lib/theme'
 import type { Sale, SalePayment } from '@/types'
 
 // Medios de pago con los que nace cada complejo (ver seed_payment_methods en
@@ -67,16 +68,17 @@ export function salePaymentSummary(sale: Sale): string {
 }
 
 const KNOWN_COLORS: Record<string, string> = {
-  efectivo: '#B8FF3B',
   transferencia: '#4CA8FF',
-  mixto: '#B68CFF',
+  mixto: '#F78FB3',
   tarjeta: '#FF9F6B',
-  qr: '#5EF2B2',
+  qr: '#6FCF97',
 }
-const EXTRA_COLORS = ['#F78FB3', '#FFC857', '#7FD8FF', '#C3A6FF', '#9BE01F']
+const EXTRA_COLORS = ['#FFC857', '#7FD8FF', '#E8A0FF', '#7FE0C6', '#FF8FA3']
 
 // Color estable por medio de pago, para graficos.
 export function methodColor(key: string): string {
+  // El efectivo, que suele ser lo mas cobrado, lleva el color de la marca.
+  if (key === 'efectivo') return themeColor('brand-light')
   if (KNOWN_COLORS[key]) return KNOWN_COLORS[key]
   let hash = 0
   for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0

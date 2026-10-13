@@ -43,7 +43,7 @@ export function AdminLoginPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100 outline-none focus:border-primary-500"
+            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100 outline-none focus:border-primary-300"
           />
         </label>
 
@@ -53,7 +53,7 @@ export function AdminLoginPage() {
             type="password"
             value={pass}
             onChange={(e) => setPass(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100 outline-none focus:border-primary-500"
+            className="mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100 outline-none focus:border-primary-300"
           />
         </label>
 
@@ -62,14 +62,14 @@ export function AdminLoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-60"
+          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-white hover:bg-primary-400 disabled:opacity-60"
         >
           {submitting ? 'Ingresando...' : 'Ingresar'}
         </button>
 
         <p className="mt-4 text-center text-sm text-gray-500">
           ¿Todavía no tenés cuenta?{' '}
-          <Link to="/admin/signup" className="text-primary-500 hover:underline">
+          <Link to="/admin/signup" className="text-primary-200 hover:underline">
             Crear cuenta
           </Link>
         </p>

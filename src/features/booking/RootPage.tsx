@@ -27,11 +27,11 @@ export function RootPage() {
         </p>
         <Link
           to="/admin/signup"
-          className="mt-6 block rounded-lg bg-primary-500 py-2 font-medium text-gray-950 hover:bg-primary-400"
+          className="mt-6 block rounded-lg bg-primary-500 py-2 font-medium text-white hover:bg-primary-400"
         >
           Probar gratis
         </Link>
-        <Link to="/admin/login" className="mt-3 block text-sm text-primary-500 hover:underline">
+        <Link to="/admin/login" className="mt-3 block text-sm text-primary-200 hover:underline">
           Ya tengo cuenta
         </Link>
       </div>

@@ -23,7 +23,7 @@ import { methodColor, totalsByMethod } from '@/lib/payments'
 import { usePaymentMethodsStore } from '@/store/paymentMethodsStore'
 import { useDepositsStore } from '@/store/depositsStore'
 import { DEPOSIT_METHOD_LABEL, depositIncomeOn, MP_FEE_NOTE, paidDepositByReservation } from '@/lib/deposits'
-const OCCUPANCY_COLORS = ['#B8FF3B', '#2A2C31']
+import { themeColor } from '@/lib/theme'
 
 export function Metricas() {
   const settings = useSettingsStore()
@@ -116,8 +116,8 @@ export function Metricas() {
               <Area
                 type="monotone"
                 dataKey="total"
-                stroke="#B8FF3B"
-                fill="#B8FF3B"
+                stroke={themeColor('brand-light')}
+                fill={themeColor('brand')}
                 fillOpacity={0.2}
               />
             </AreaChart>
@@ -136,7 +136,7 @@ export function Metricas() {
                 endAngle={-270}
               >
                 {occupancyData.data.map((entry, index) => (
-                  <Cell key={entry.name} fill={OCCUPANCY_COLORS[index]} />
+                  <Cell key={entry.name} fill={index === 0 ? themeColor('brand') : '#2A2C31'} />
                 ))}
               </Pie>
               <Tooltip contentStyle={{ background: '#222325', border: '1px solid #393B42' }} />

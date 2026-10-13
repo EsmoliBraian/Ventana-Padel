@@ -33,7 +33,7 @@ export function SiteHeader() {
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-medium transition-colors ${
-      isActive ? 'text-primary-500' : 'text-gray-300 hover:text-gray-50'
+      isActive ? 'text-primary-200' : 'text-gray-300 hover:text-gray-50'
     }`
 
   return (
@@ -43,7 +43,7 @@ export function SiteHeader() {
           {logoUrl ? (
             <img src={logoUrl} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
           ) : (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-500/10 text-primary-500">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-500/10 text-primary-200">
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
                 <circle cx="12" cy="12" r="9" />
               </svg>
@@ -63,7 +63,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <Link
             to={path('/reservar')}
-            className="hidden shrink-0 rounded-full bg-primary-500 px-5 py-2 text-sm font-semibold text-gray-950 shadow-glow-sm hover:bg-primary-400 sm:block"
+            className="hidden shrink-0 rounded-full bg-primary-500 px-5 py-2 text-sm font-semibold text-white shadow-glow-sm hover:bg-primary-400 sm:block"
           >
             Reservar
           </Link>
@@ -95,7 +95,7 @@ export function SiteHeader() {
             <Link
               to={path('/reservar')}
               onClick={() => setMenuOpen(false)}
-              className="rounded-full bg-primary-500 px-5 py-2.5 text-center text-sm font-semibold text-gray-950 hover:bg-primary-400"
+              className="rounded-full bg-primary-500 px-5 py-2.5 text-center text-sm font-semibold text-white hover:bg-primary-400"
             >
               Reservar
             </Link>

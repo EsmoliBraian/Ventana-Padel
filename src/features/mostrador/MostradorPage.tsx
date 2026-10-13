@@ -179,7 +179,7 @@ export function MostradorPage() {
           ) : panel.kind === 'order' ? (
             <div className="p-6 text-sm text-mo-muted">
               <p>Este pedido ya no existe: se anuló desde otro dispositivo.</p>
-              <button type="button" onClick={() => openNew()} className="mt-3 text-mo-accent hover:underline">
+              <button type="button" onClick={() => openNew()} className="mt-3 text-mo-accent-text hover:underline">
                 Crear un pedido nuevo
               </button>
             </div>

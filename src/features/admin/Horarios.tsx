@@ -102,7 +102,7 @@ export function Horarios() {
           type="button"
           onClick={handleSave}
           disabled={!dirty || open >= close || saving}
-          className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           {saving ? 'Guardando...' : 'Guardar'}
         </button>
@@ -151,7 +151,7 @@ export function Horarios() {
           <button
             type="button"
             onClick={handleAddClosedDate}
-            className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+            className="w-full rounded-lg bg-primary-500 py-2 text-sm font-medium text-white hover:bg-primary-400"
           >
             + Agregar día cerrado
           </button>

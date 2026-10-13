@@ -11,7 +11,7 @@ export function TorneosPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-      <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">Torneos</p>
+      <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">Torneos</p>
       <h1 className="mt-1 text-3xl font-semibold text-gray-50 sm:text-4xl">
         Todos los torneos
       </h1>

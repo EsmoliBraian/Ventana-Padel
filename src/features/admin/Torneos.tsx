@@ -109,7 +109,7 @@ function TournamentCard({ tournament, startEditing }: { tournament: Tournament; 
               onClick={handlePublishToggle}
               aria-label={tournament.published ? 'Despublicar' : 'Publicar'}
               title={tournament.published ? 'Despublicar' : 'Publicar'}
-              className="text-gray-400 hover:text-primary-500"
+              className="text-gray-400 hover:text-primary-200"
             >
               <i className={`fa-solid ${tournament.published ? 'fa-eye-slash' : 'fa-eye'}`} />
             </button>
@@ -118,7 +118,7 @@ function TournamentCard({ tournament, startEditing }: { tournament: Tournament; 
               onClick={handleEdit}
               aria-label="Editar torneo"
               title="Editar"
-              className="text-gray-400 hover:text-primary-500"
+              className="text-gray-400 hover:text-primary-200"
             >
               <i className="fa-solid fa-pen" />
             </button>
@@ -160,7 +160,7 @@ function TournamentCard({ tournament, startEditing }: { tournament: Tournament; 
         <button
           type="button"
           onClick={handlePublishToggle}
-          className="text-xs text-primary-500 hover:underline"
+          className="text-xs text-primary-200 hover:underline"
         >
           {tournament.published ? 'Despublicar' : 'Publicar'}
         </button>
@@ -242,7 +242,7 @@ function TournamentCard({ tournament, startEditing }: { tournament: Tournament; 
             type="button"
             onClick={handleSave}
             disabled={!dirty || saving}
-            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
@@ -292,7 +292,7 @@ export function Torneos() {
         <button
           type="button"
           onClick={handleAdd}
-          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400"
         >
           + Crear torneo
         </button>

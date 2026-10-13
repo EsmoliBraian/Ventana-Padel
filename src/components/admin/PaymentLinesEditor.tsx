@@ -52,7 +52,7 @@ export function PaymentLinesEditor({ lines, methods, onChange }: PaymentLinesEdi
       <button
         type="button"
         onClick={() => onChange([...lines, { method: methods[0]?.name ?? '', amount: '' }])}
-        className="text-xs font-medium text-mo-accent hover:underline"
+        className="text-xs font-medium text-mo-accent-text hover:underline"
       >
         + Agregar otro pago
       </button>

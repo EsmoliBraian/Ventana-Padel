@@ -72,7 +72,7 @@ export function DepositAlerts() {
                           href={buildWhatsAppLink(deposit.contactWhatsapp, `Hola ${deposit.contactName ?? ''}! Te escribo por la seña de tu reserva.`)}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-1 inline-block text-xs text-primary-500 hover:underline"
+                          className="mt-1 inline-block text-xs text-primary-200 hover:underline"
                         >
                           Escribirle por WhatsApp
                         </a>

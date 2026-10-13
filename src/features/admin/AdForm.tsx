@@ -137,7 +137,7 @@ export function AdForm({ ad, onDone }: AdFormProps) {
                   onClick={() => handleFormat(f.id)}
                   aria-pressed={format === f.id}
                   className={`rounded-lg border px-3 py-2 text-left text-sm ${
-                    format === f.id ? 'border-primary-500 bg-primary-500/10 text-primary-500' : 'border-gray-700 text-gray-300'
+                    format === f.id ? 'border-primary-300 bg-primary-500/10 text-primary-200' : 'border-gray-700 text-gray-300'
                   }`}
                 >
                   <span className="block font-medium">{f.label}</span>
@@ -190,7 +190,7 @@ export function AdForm({ ad, onDone }: AdFormProps) {
                   {uploading === 'mobile' ? ' Subiendo...' : ''}
                 </span>
                 {mobileImageUrl && (
-                  <button type="button" onClick={() => setMobileImageUrl('')} className="mt-1 text-xs text-primary-500 hover:underline">
+                  <button type="button" onClick={() => setMobileImageUrl('')} className="mt-1 text-xs text-primary-200 hover:underline">
                     Quitar imagen para celular
                   </button>
                 )}
@@ -332,7 +332,7 @@ export function AdForm({ ad, onDone }: AdFormProps) {
           type="button"
           onClick={handleSave}
           disabled={saving || uploading !== null}
-          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           {saving ? 'Guardando...' : ad ? 'Guardar cambios' : 'Crear anuncio'}
         </button>

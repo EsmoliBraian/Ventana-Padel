@@ -114,7 +114,7 @@ export function StockModal({ productId, onClose }: { productId: string; onClose:
                 }}
                 className={`rounded-lg border py-1.5 text-xs font-medium ${
                   kind === o.id
-                    ? 'border-primary-500 bg-primary-500/10 text-primary-500'
+                    ? 'border-primary-300 bg-primary-500/10 text-primary-200'
                     : 'border-gray-800 text-gray-400'
                 }`}
               >
@@ -148,7 +148,7 @@ export function StockModal({ productId, onClose }: { productId: string; onClose:
             type="button"
             onClick={handleSave}
             disabled={!validAmount || saving}
-            className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             {saving ? 'Guardando...' : 'Registrar'}
           </button>

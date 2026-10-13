@@ -53,7 +53,7 @@ function SectionHeading({
   return (
     <div className="mb-8 flex items-end justify-between gap-4">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">
           {eyebrow}
         </p>
         <h2 className="mt-1 text-2xl font-semibold text-gray-50 sm:text-3xl">{title}</h2>
@@ -61,7 +61,7 @@ function SectionHeading({
       {cta && (
         <Link
           to={cta.to}
-          className="hidden shrink-0 items-center gap-1 text-sm font-medium text-primary-500 hover:underline sm:flex"
+          className="hidden shrink-0 items-center gap-1 text-sm font-medium text-primary-200 hover:underline sm:flex"
         >
           {cta.label} <ArrowIcon />
         </Link>
@@ -111,7 +111,7 @@ export function LandingPage() {
         <CourtHeroBackground />
 
         <div className="relative mx-auto w-full max-w-6xl px-5 pb-16 pt-24">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary-500">
+          <p className="text-sm font-semibold uppercase tracking-widest text-primary-200">
             {venueName}
           </p>
           <h1 className="mt-3 max-w-2xl text-4xl font-bold leading-tight text-gray-50 sm:text-5xl">
@@ -124,7 +124,7 @@ export function LandingPage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to={path('/reservar')}
-              className="rounded-full bg-primary-500 px-6 py-3 text-sm font-semibold text-gray-950 shadow-glow-primary hover:bg-primary-400"
+              className="rounded-full bg-primary-500 px-6 py-3 text-sm font-semibold text-white shadow-glow-primary hover:bg-primary-400"
             >
               Reservar cancha
             </Link>
@@ -144,7 +144,7 @@ export function LandingPage() {
       <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
         <div className="grid gap-10 sm:grid-cols-[1.3fr_1fr] sm:gap-16">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">
               Sobre nosotros
             </p>
             <h2 className="mt-1 text-2xl font-semibold text-gray-50 sm:text-3xl">{venueName}</h2>
@@ -162,13 +162,13 @@ export function LandingPage() {
 
           <div className="grid grid-cols-2 gap-3 self-start sm:grid-cols-1">
             <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <p className="text-2xl font-bold text-primary-500">{courts.length}</p>
+              <p className="text-2xl font-bold text-primary-200">{courts.length}</p>
               <p className="mt-1 text-sm text-gray-400">
                 {courts.length === 1 ? 'Cancha disponible' : 'Canchas disponibles'}
               </p>
             </div>
             <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <p className="text-2xl font-bold text-primary-500">
+              <p className="text-2xl font-bold text-primary-200">
                 {openHour}:00 - {closeHour}:00
               </p>
               <p className="mt-1 text-sm text-gray-400">Horario de atención</p>
@@ -191,7 +191,7 @@ export function LandingPage() {
             </div>
             <Link
               to={path('/blog')}
-              className="mt-6 flex items-center gap-1 text-sm font-medium text-primary-500 hover:underline sm:hidden"
+              className="mt-6 flex items-center gap-1 text-sm font-medium text-primary-200 hover:underline sm:hidden"
             >
               Ver todos los posts <ArrowIcon />
             </Link>
@@ -215,7 +215,7 @@ export function LandingPage() {
           </div>
           <Link
             to={path('/torneos')}
-            className="mt-6 flex items-center gap-1 text-sm font-medium text-primary-500 hover:underline sm:hidden"
+            className="mt-6 flex items-center gap-1 text-sm font-medium text-primary-200 hover:underline sm:hidden"
           >
             Ver todos los torneos <ArrowIcon />
           </Link>
@@ -237,7 +237,7 @@ export function LandingPage() {
                   <Link
                     key={category.id}
                     to={path(`/ranking?cat=${category.id}`)}
-                    className="group flex flex-col rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-card transition-colors hover:border-primary-500/50"
+                    className="group flex flex-col rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-card transition-colors hover:border-primary-300/50"
                   >
                     <p className="text-base font-semibold text-gray-50">{category.name}</p>
 
@@ -254,7 +254,7 @@ export function LandingPage() {
                               </span>
                               <span className="truncate">{entry.playerName}</span>
                             </span>
-                            <span className="shrink-0 font-semibold text-primary-500">
+                            <span className="shrink-0 font-semibold text-primary-200">
                               {entry.totalPoints}
                             </span>
                           </div>
@@ -264,7 +264,7 @@ export function LandingPage() {
                       )}
                     </div>
 
-                    <span className="mt-5 flex items-center gap-1 text-sm font-medium text-primary-500">
+                    <span className="mt-5 flex items-center gap-1 text-sm font-medium text-primary-200">
                       Ver tabla completa <ArrowIcon />
                     </span>
                   </Link>
@@ -282,7 +282,7 @@ export function LandingPage() {
         <div className="rounded-2xl border border-gray-800 bg-gray-900 p-8 sm:p-12">
           <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">
                 Contacto
               </p>
               <h2 className="mt-1 text-2xl font-semibold text-gray-50 sm:text-3xl">

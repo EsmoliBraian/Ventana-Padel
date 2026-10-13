@@ -32,7 +32,7 @@ export function SponsorStrip({ placement = 'nos_acompanan' }: { placement?: stri
     <aside aria-label="Publicidad" className="border-t border-gray-800/60 bg-gray-950">
       <div className="mx-auto max-w-6xl px-5 py-8">
         <div className="mb-4 flex items-baseline gap-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">Nos acompañan</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">Nos acompañan</p>
           <span className="text-[10px] font-medium uppercase tracking-wider text-gray-600">Publicidad</span>
         </div>
         <div ref={setStrip} className="scrollbar-hide -mx-5 flex gap-3 overflow-x-auto px-5 sm:flex-wrap sm:overflow-visible">

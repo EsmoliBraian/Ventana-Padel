@@ -117,7 +117,7 @@ function TurnosFijosPanel() {
         <button
           type="button"
           onClick={() => setShowForm(true)}
-          className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400"
+          className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-400"
         >
           + Crear turno fijo
         </button>
@@ -170,7 +170,7 @@ function TurnosFijosPanel() {
         type="button"
         onClick={handleAdd}
         disabled={!canAdd || adding}
-        className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+        className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
       >
         Guardar turno fijo
       </button>
@@ -252,7 +252,7 @@ function DuracionTurnoPanel() {
         type="button"
         onClick={handleSave}
         disabled={!dirty || durationText === '' || saving}
-        className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+        className="mt-3 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
       >
         {saving ? 'Guardando...' : 'Guardar'}
       </button>
@@ -318,7 +318,7 @@ function CanchaRow({ court }: { court: Court }) {
             type="button"
             onClick={handleSave}
             disabled={!dirty || priceText === '' || saving}
-            className="rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             {saving ? '...' : 'Guardar'}
           </button>
@@ -381,7 +381,7 @@ function CanchasPanel() {
         <button
           type="button"
           onClick={() => setShowForm(true)}
-          className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400"
+          className="rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-400"
         >
           + Crear cancha
         </button>
@@ -419,7 +419,7 @@ function CanchasPanel() {
           type="button"
           onClick={handleAdd}
           disabled={!canAdd || adding}
-          className="w-full rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50 sm:w-auto"
+          className="w-full rounded-lg bg-primary-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50 sm:w-auto"
         >
           Guardar cancha
         </button>
@@ -556,7 +556,7 @@ export function Reservas() {
                       href={buildWhatsAppLink(deposit.contactWhatsapp, `Hola ${deposit.contactName ?? ''}!`)}
                       target="_blank"
                       rel="noreferrer"
-                      className="block text-xs text-primary-500 hover:underline"
+                      className="block text-xs text-primary-200 hover:underline"
                     >
                       WhatsApp {deposit.contactWhatsapp}
                     </a>

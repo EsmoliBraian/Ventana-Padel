@@ -90,7 +90,7 @@ function AdRow({ ad, onEdit }: { ad: OwnerAd; onEdit: () => void }) {
               {ad.active ? 'Pausar' : 'Activar'}
             </button>
           )}
-          <button type="button" onClick={onEdit} aria-label={`Editar ${ad.businessName}`} title="Editar" className="text-gray-400 hover:text-primary-500">
+          <button type="button" onClick={onEdit} aria-label={`Editar ${ad.businessName}`} title="Editar" className="text-gray-400 hover:text-primary-200">
             <i className="fa-solid fa-pen" />
           </button>
           <button
@@ -153,7 +153,7 @@ export function Publicidad() {
           <button
             type="button"
             onClick={() => setEditing('new')}
-            className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+            className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400"
           >
             + Crear anuncio
           </button>

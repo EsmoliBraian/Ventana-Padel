@@ -1,3 +1,4 @@
+import { themeColor } from '@/lib/theme'
 interface KpiCardProps {
   label: string
   value: string
@@ -6,7 +7,7 @@ interface KpiCardProps {
   accentColor?: string
 }
 
-export function KpiCard({ label, value, delta, icon, accentColor = '#B8FF3B' }: KpiCardProps) {
+export function KpiCard({ label, value, delta, icon, accentColor = themeColor('brand-light') }: KpiCardProps) {
   return (
     <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 shadow-card">
       <div className="flex items-center justify-between">
@@ -19,7 +20,7 @@ export function KpiCard({ label, value, delta, icon, accentColor = '#B8FF3B' }: 
         <span className="text-2xl font-bold leading-none text-gray-50 lg:text-[32px]">
           {value}
         </span>
-        {delta && <span className="text-xs font-medium text-primary-500">{delta}</span>}
+        {delta && <span className="text-xs font-medium text-primary-200">{delta}</span>}
       </div>
     </div>
   )

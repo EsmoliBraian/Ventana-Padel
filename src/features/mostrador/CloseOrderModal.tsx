@@ -168,7 +168,7 @@ export function CloseOrderModal({ sale, onClose, onClosed }: CloseOrderModalProp
                     <button
                       type="button"
                       onClick={() => setLines([{ method: lines[0]?.method ?? firstMethod, amount: String(sale.total) }])}
-                      className="text-mo-accent hover:underline"
+                      className="text-mo-accent-text hover:underline"
                     >
                       Un solo pago
                     </button>

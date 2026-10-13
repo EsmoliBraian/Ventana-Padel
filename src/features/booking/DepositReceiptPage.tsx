@@ -80,7 +80,7 @@ export function DepositReceiptPage() {
       <div className="mx-auto flex max-w-xl flex-col px-5 py-14 sm:py-20">
         <h1 className="mb-3 text-2xl font-semibold text-gray-50 sm:text-3xl">No encontramos esta reserva</h1>
         <p className="text-sm text-gray-400">El enlace no es válido o está incompleto.</p>
-        <Link to={reservePath} className="mt-6 rounded-lg bg-primary-500 py-3 text-center font-medium text-gray-950 hover:bg-primary-400">
+        <Link to={reservePath} className="mt-6 rounded-lg bg-primary-500 py-3 text-center font-medium text-white hover:bg-primary-400">
           Reservar un horario
         </Link>
       </div>
@@ -160,7 +160,7 @@ export function DepositReceiptPage() {
             Seña <span className="ml-2 text-lg font-semibold text-gray-50">{formatCurrency(receipt.amount)}</span>
           </p>
           {receipt.payUrl && (
-            <a href={receipt.payUrl} className="rounded-lg bg-primary-500 py-3 text-center font-medium text-gray-950 hover:bg-primary-400">
+            <a href={receipt.payUrl} className="rounded-lg bg-primary-500 py-3 text-center font-medium text-white hover:bg-primary-400">
               {receipt.lastAttemptStatus ? 'REINTENTAR EL PAGO' : 'PAGAR LA SEÑA'}
             </a>
           )}
@@ -178,7 +178,7 @@ export function DepositReceiptPage() {
             No se pagó la seña a tiempo, así que el horario volvió a quedar disponible. No se te cobró nada. Podés reservar de
             nuevo.
           </p>
-          <Link to={reservePath} className="rounded-lg bg-primary-500 py-3 text-center font-medium text-gray-950 hover:bg-primary-400">
+          <Link to={reservePath} className="rounded-lg bg-primary-500 py-3 text-center font-medium text-white hover:bg-primary-400">
             Elegir otro horario
           </Link>
         </>

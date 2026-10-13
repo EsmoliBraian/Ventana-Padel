@@ -59,7 +59,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="WhatsApp"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-800 text-gray-300 hover:border-primary-500 hover:text-primary-500"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-800 text-gray-300 hover:border-primary-300 hover:text-primary-200"
               >
                 <WhatsAppIcon />
               </a>
@@ -70,7 +70,7 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-800 text-gray-300 hover:border-primary-500 hover:text-primary-500"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-800 text-gray-300 hover:border-primary-300 hover:text-primary-200"
               >
                 <InstagramIcon />
               </a>

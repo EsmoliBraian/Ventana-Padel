@@ -58,7 +58,7 @@ function PlanBadge({ venue }: { venue: AdminVenue }) {
   }
   const plan = getPlanInfo(venue)
   if (plan.state === 'active') {
-    return <span className="whitespace-nowrap rounded-full bg-primary-500 px-2 py-0.5 text-xs font-medium text-gray-950">Activo</span>
+    return <span className="whitespace-nowrap rounded-full bg-primary-500 px-2 py-0.5 text-xs font-medium text-white">Activo</span>
   }
   if (plan.state === 'trial') {
     return (
@@ -224,7 +224,7 @@ export function SuperadminPage() {
                   <Link
                     to={venuePath(venue.slug)}
                     target="_blank"
-                    className="text-xs text-primary-500 hover:underline"
+                    className="text-xs text-primary-200 hover:underline"
                   >
                     /{venue.slug}
                   </Link>
@@ -247,7 +247,7 @@ export function SuperadminPage() {
                       href={buildWhatsAppLink(venue.ownerWhatsapp, `Hola ${venue.ownerName ?? ''}!`)}
                       target="_blank"
                       rel="noreferrer"
-                      className="block text-xs text-primary-500 hover:underline"
+                      className="block text-xs text-primary-200 hover:underline"
                     >
                       WhatsApp {venue.ownerWhatsapp}
                     </a>
@@ -265,7 +265,7 @@ export function SuperadminPage() {
                         <button
                           type="button"
                           onClick={() => setPending({ venue, action: 'activate' })}
-                          className="rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400"
+                          className="rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-400"
                         >
                           Activar
                         </button>

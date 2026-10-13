@@ -114,7 +114,7 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
               type="button"
               onClick={handleEdit}
               aria-label="Editar producto"
-              className="text-gray-400 hover:text-primary-500"
+              className="text-gray-400 hover:text-primary-200"
             >
               <i className="fa-solid fa-pen" />
             </button>
@@ -245,7 +245,7 @@ function ProductCard({ product, categories }: { product: Product; categories: Ca
             type="button"
             onClick={handleSave}
             disabled={!dirty || saving}
-            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
@@ -410,7 +410,7 @@ function NuevoProductoModal({
           type="button"
           onClick={handleCreate}
           disabled={!canCreate || creating}
-          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           {creating ? 'Creando...' : 'Crear producto'}
         </button>
@@ -464,7 +464,7 @@ export function Productos() {
           <button
             type="button"
             onClick={() => setShowNewProduct(true)}
-            className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+            className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400"
           >
             + Nuevo producto
           </button>
@@ -514,7 +514,7 @@ export function Productos() {
             onClick={() => setSelectedCategoryId(null)}
             className={`rounded-full px-3 py-1 text-xs font-medium ${
               selectedCategoryId === null
-                ? 'bg-primary-500 text-gray-950'
+                ? 'bg-primary-500 text-white'
                 : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
@@ -527,7 +527,7 @@ export function Productos() {
               onClick={() => setSelectedCategoryId((prev) => (prev === c.id ? null : c.id))}
               className={`rounded-full px-3 py-1 text-xs font-medium ${
                 selectedCategoryId === c.id
-                  ? 'bg-primary-500 text-gray-950'
+                  ? 'bg-primary-500 text-white'
                   : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
               }`}
             >

@@ -118,7 +118,7 @@ export function NuevaReservaModal({ onClose }: { onClose: () => void }) {
           type="button"
           onClick={handleSubmit}
           disabled={saving}
-          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           {saving ? 'Guardando...' : 'Guardar reserva'}
         </button>

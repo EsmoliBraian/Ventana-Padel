@@ -283,7 +283,7 @@ export function OrderPanel({ sale, turno, turnoOrders, pending, onPendingChange,
                       aria-label={`Comentario de ${productName(item.productId)}`}
                       aria-expanded={commentOpen.includes(item.key)}
                       title={item.comment || 'Agregar comentario'}
-                      className={`px-1 ${item.comment ? 'text-mo-accent' : 'text-mo-muted hover:text-mo-text'}`}
+                      className={`px-1 ${item.comment ? 'text-mo-accent-text' : 'text-mo-muted hover:text-mo-text'}`}
                     >
                       <i className={`${item.comment ? 'fa-solid' : 'fa-regular'} fa-comment`} />
                     </button>

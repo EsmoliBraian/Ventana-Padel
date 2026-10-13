@@ -41,7 +41,7 @@ export function TurnosList({ turnos, sales, paidDeposits, selectedId, onSelect, 
                 <p className="truncate text-sm font-semibold text-mo-text">
                   {turno.time} hs · {turno.courtName}
                   {turno.fixedSlotId && (
-                    <span className="ml-2 rounded-full bg-mo-accent/20 px-2 py-0.5 text-xs font-medium text-mo-accent">
+                    <span className="ml-2 rounded-full bg-mo-accent/20 px-2 py-0.5 text-xs font-medium text-mo-accent-text">
                       Turno fijo
                     </span>
                   )}

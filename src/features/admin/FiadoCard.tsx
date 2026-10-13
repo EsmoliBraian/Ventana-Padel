@@ -65,7 +65,7 @@ function CobrarModal({ sale, onClose }: { sale: Sale; onClose: () => void }) {
           type="button"
           onClick={handleConfirm}
           disabled={saving}
-          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           {saving ? 'Guardando...' : 'Confirmar cobro'}
         </button>
@@ -185,7 +185,7 @@ function EditarProductosModal({ sale, onClose }: { sale: Sale; onClose: () => vo
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="w-full rounded-lg bg-primary-500 py-2 font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           {saving ? 'Guardando...' : 'Guardar cambios'}
         </button>
@@ -236,7 +236,7 @@ export function FiadoCard() {
               <button
                 type="button"
                 onClick={() => setCobrarSale(sale)}
-                className="text-xs text-primary-500 hover:underline"
+                className="text-xs text-primary-200 hover:underline"
               >
                 Cobrar
               </button>

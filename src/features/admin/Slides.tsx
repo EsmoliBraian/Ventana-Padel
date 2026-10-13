@@ -106,7 +106,7 @@ function SlideCard({ slide, startEditing }: { slide: HeroSlide; startEditing: bo
               onClick={handlePublishToggle}
               aria-label={slide.published ? 'Despublicar' : 'Publicar'}
               title={slide.published ? 'Despublicar' : 'Publicar'}
-              className="text-gray-400 hover:text-primary-500"
+              className="text-gray-400 hover:text-primary-200"
             >
               <i className={`fa-solid ${slide.published ? 'fa-eye-slash' : 'fa-eye'}`} />
             </button>
@@ -115,7 +115,7 @@ function SlideCard({ slide, startEditing }: { slide: HeroSlide; startEditing: bo
               onClick={handleEdit}
               aria-label="Editar post"
               title="Editar"
-              className="text-gray-400 hover:text-primary-500"
+              className="text-gray-400 hover:text-primary-200"
             >
               <i className="fa-solid fa-pen" />
             </button>
@@ -157,7 +157,7 @@ function SlideCard({ slide, startEditing }: { slide: HeroSlide; startEditing: bo
         <button
           type="button"
           onClick={handlePublishToggle}
-          className="text-xs text-primary-500 hover:underline"
+          className="text-xs text-primary-200 hover:underline"
         >
           {slide.published ? 'Despublicar' : 'Publicar'}
         </button>
@@ -238,7 +238,7 @@ function SlideCard({ slide, startEditing }: { slide: HeroSlide; startEditing: bo
             type="button"
             onClick={handleSave}
             disabled={!dirty || saving}
-            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="rounded-lg bg-primary-500 px-4 py-1.5 text-xs font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
@@ -290,7 +290,7 @@ export function Slides() {
         <button
           type="button"
           onClick={handleAdd}
-          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+          className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-400"
         >
           + Crear post
         </button>

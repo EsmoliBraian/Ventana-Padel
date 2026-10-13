@@ -47,7 +47,7 @@ function CategoryRow({ category }: { category: RankingCategory }) {
           type="button"
           onClick={handleSave}
           disabled={!dirty || saving}
-          className="rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+          className="rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-400 disabled:opacity-50"
         >
           {saving ? '...' : 'Guardar'}
         </button>
@@ -118,7 +118,7 @@ export function RankingCategoriesModal({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={handleAdd}
             disabled={!newName.trim() || adding}
-            className="rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-50"
+            className="rounded-lg bg-primary-500 px-3 py-2 text-sm font-medium text-white hover:bg-primary-400 disabled:opacity-50"
           >
             + Crear
           </button>

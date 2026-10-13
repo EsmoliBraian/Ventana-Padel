@@ -28,7 +28,7 @@ export function TournamentCard({ tournament, whatsappPhone }: TournamentCardProp
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <p className="text-xs font-semibold text-primary-500">
+        <p className="text-xs font-semibold text-primary-200">
           {formatLongDate(fromDateKey(tournament.date))}
         </p>
         <p className="mt-1 text-base font-semibold text-gray-50">{tournament.name}</p>
@@ -40,7 +40,7 @@ export function TournamentCard({ tournament, whatsappPhone }: TournamentCardProp
         <button
           type="button"
           onClick={handleInscribirse}
-          className="mt-4 rounded-lg bg-primary-500 py-2 text-sm font-medium text-gray-950 hover:bg-primary-400"
+          className="mt-4 rounded-lg bg-primary-500 py-2 text-sm font-medium text-white hover:bg-primary-400"
         >
           Inscribirme
         </button>

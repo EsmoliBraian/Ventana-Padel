@@ -12,7 +12,7 @@ import type { Sport } from '@/types'
 type SlugStatus = 'idle' | 'checking' | 'available' | 'taken'
 
 const INPUT_CLASS =
-  'mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100 outline-none focus:border-primary-500'
+  'mt-1 w-full rounded-lg border border-gray-700 bg-gray-925 px-3 py-2 text-gray-100 outline-none focus:border-primary-300'
 
 const EMPTY_COURTS: Record<Sport, number> = { padel: 0, futbol5: 0, futbol7: 0, tenis: 0, otro: 0 }
 
@@ -169,7 +169,7 @@ export function AdminSignupPage() {
             Te mandamos un link a {email}. Abrilo y después iniciá sesión para terminar de crear
             tu complejo.
           </p>
-          <Link to="/admin/login" className="mt-4 inline-block text-sm text-primary-500 hover:underline">
+          <Link to="/admin/login" className="mt-4 inline-block text-sm text-primary-200 hover:underline">
             Ir a iniciar sesión
           </Link>
         </div>
@@ -184,7 +184,7 @@ export function AdminSignupPage() {
           onSubmit={handleCreateAccount}
           className="w-full max-w-sm rounded-xl border border-gray-800 bg-gray-900 p-6"
         >
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">
             Paso 1 de 2
           </p>
           <h1 className="mt-1 text-lg font-semibold text-gray-50">Probá gratis 30 días</h1>
@@ -243,14 +243,14 @@ export function AdminSignupPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-primary-500 py-2 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-60"
+            className="w-full rounded-lg bg-primary-500 py-2 font-medium text-white hover:bg-primary-400 disabled:opacity-60"
           >
             {submitting ? 'Creando cuenta...' : 'Continuar'}
           </button>
 
           <p className="mt-4 text-center text-sm text-gray-500">
             ¿Ya tenés cuenta?{' '}
-            <Link to="/admin/login" className="text-primary-500 hover:underline">
+            <Link to="/admin/login" className="text-primary-200 hover:underline">
               Iniciar sesión
             </Link>
           </p>
@@ -265,7 +265,7 @@ export function AdminSignupPage() {
         onSubmit={handleCreateVenue}
         className="w-full max-w-sm rounded-xl border border-gray-800 bg-gray-900 p-6"
       >
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary-500">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary-200">
           Paso 2 de 2
         </p>
         <h1 className="mt-1 text-lg font-semibold text-gray-50">Tu complejo</h1>
@@ -368,7 +368,7 @@ export function AdminSignupPage() {
         <button
           type="submit"
           disabled={submitting || slugStatus === 'taken' || slugStatus === 'checking'}
-          className="mt-2 w-full rounded-lg bg-primary-500 py-2 font-medium text-gray-950 hover:bg-primary-400 disabled:opacity-60"
+          className="mt-2 w-full rounded-lg bg-primary-500 py-2 font-medium text-white hover:bg-primary-400 disabled:opacity-60"
         >
           {submitting ? 'Creando tu complejo...' : 'Crear mi complejo'}
         </button>

@@ -64,9 +64,9 @@ export function PlacementDiagram({ format, selected, onSelect }: PlacementDiagra
                   title={allowed ? placement.label : `${placement.label} (no admite este formato)`}
                   className={`absolute flex items-center justify-center overflow-hidden rounded-sm border px-1 text-center text-[9px] font-semibold leading-tight ${
                     isSelected
-                      ? 'border-primary-500 bg-primary-500 text-gray-950'
+                      ? 'border-primary-300 bg-primary-500 text-white'
                       : allowed
-                        ? 'border-dashed border-primary-500/70 bg-primary-500/10 text-primary-500 hover:bg-primary-500/25'
+                        ? 'border-dashed border-primary-300/70 bg-primary-500/10 text-primary-200 hover:bg-primary-500/25'
                         : 'border-dashed border-gray-700 text-gray-700'
                   }`}
                   style={{

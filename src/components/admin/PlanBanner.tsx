@@ -44,7 +44,7 @@ export function PlanBanner() {
           href={contractLink}
           target="_blank"
           rel="noreferrer"
-          className="shrink-0 rounded-lg bg-primary-500 px-4 py-2 text-center text-sm font-medium text-gray-950 hover:bg-primary-400"
+          className="shrink-0 rounded-lg bg-primary-500 px-4 py-2 text-center text-sm font-medium text-white hover:bg-primary-400"
         >
           Contratar
         </a>
