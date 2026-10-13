@@ -18,6 +18,10 @@ export interface AdminVenue {
   // Cobro (migracion 024). Sin la migracion, o si nunca se activo, no vienen.
   paidSince?: string
   priceFrozenUntil?: string // YYYY-MM-DD, ultimo dia con el precio congelado
+  // Seña (migracion 029). Sin la migracion no vienen: mpStatus queda undefined.
+  // null: el complejo nunca conecto Mercado Pago.
+  mpStatus?: 'conectada' | 'reconectar' | 'desconectada' | null
+  depositEnabled?: boolean
 }
 
 interface AdminVenueRow {
@@ -35,6 +39,8 @@ interface AdminVenueRow {
   last_activity_at: string | null
   paid_since?: string | null
   price_frozen_until?: string | null
+  mp_status?: 'conectada' | 'reconectar' | 'desconectada' | null
+  deposit_enabled?: boolean
 }
 
 function fromRow(row: AdminVenueRow): AdminVenue {
@@ -53,6 +59,8 @@ function fromRow(row: AdminVenueRow): AdminVenue {
     lastActivityAt: row.last_activity_at ?? undefined,
     paidSince: row.paid_since ?? undefined,
     priceFrozenUntil: row.price_frozen_until ?? undefined,
+    mpStatus: row.mp_status,
+    depositEnabled: row.deposit_enabled,
   }
 }
 

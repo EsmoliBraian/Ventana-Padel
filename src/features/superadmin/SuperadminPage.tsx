@@ -103,6 +103,22 @@ function BillingCell({ venue }: { venue: AdminVenue }) {
   )
 }
 
+// Mercado Pago y seña de cada complejo. Sin la migracion 029 no hay dato.
+function DepositCell({ venue }: { venue: AdminVenue }) {
+  if (venue.isDemo || venue.mpStatus === undefined) return <span className="text-gray-500">—</span>
+  const connected = venue.mpStatus === 'conectada'
+  return (
+    <>
+      <span className={`block whitespace-nowrap ${connected ? 'text-gray-200' : venue.mpStatus === 'reconectar' ? 'text-warning' : 'text-gray-500'}`}>
+        {connected ? 'Mercado Pago conectado' : venue.mpStatus === 'reconectar' ? 'Tiene que reconectar' : 'Sin Mercado Pago'}
+      </span>
+      <span className={`block whitespace-nowrap text-xs ${venue.depositEnabled && connected ? 'text-success' : 'text-gray-500'}`}>
+        {venue.depositEnabled ? (connected ? 'Seña activa' : 'Seña en pausa') : 'Seña sin activar'}
+      </span>
+    </>
+  )
+}
+
 function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-2 text-gray-400">
@@ -193,6 +209,7 @@ export function SuperadminPage() {
               <th className="px-4 py-3 font-semibold">Plan</th>
               <th className="px-4 py-3 font-semibold">Vencimiento</th>
               <th className="px-4 py-3 font-semibold">Pago</th>
+              <th className="px-4 py-3 font-semibold">Seña</th>
               <th className="px-4 py-3 font-semibold">Dueño</th>
               <th className="px-4 py-3 text-right font-semibold">Reservas</th>
               <th className="px-4 py-3 font-semibold">Última actividad</th>
@@ -219,6 +236,9 @@ export function SuperadminPage() {
                 <td className="px-4 py-3 text-gray-300">{expiryText(venue)}</td>
                 <td className="px-4 py-3 text-gray-300">
                   <BillingCell venue={venue} />
+                </td>
+                <td className="px-4 py-3 text-gray-300">
+                  <DepositCell venue={venue} />
                 </td>
                 <td className="px-4 py-3 text-gray-300">
                   {venue.ownerName ?? '—'}
@@ -275,7 +295,7 @@ export function SuperadminPage() {
             ))}
             {venues.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
                   {loading ? 'Cargando...' : 'Todavía no hay complejos.'}
                 </td>
               </tr>
