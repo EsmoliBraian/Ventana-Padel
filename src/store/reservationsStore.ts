@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabaseClient'
 import { useSettingsStore } from '@/store/settingsStore'
+import { useFixedSlotsStore } from '@/store/fixedSlotsStore'
 import type { Reservation, ReservationStatus } from '@/types'
 
 interface ReservationRow {
@@ -63,8 +64,12 @@ function fromBusySlot(row: BusySlotRow): Reservation {
   }
 }
 
-// Cada cuanto el sitio publico vuelve a preguntar los horarios ocupados.
+// Cada cuanto el sitio publico vuelve a preguntar los horarios ocupados, por
+// si el aviso en vivo no llega (sin conexion, cupo de conexiones lleno).
 const PUBLIC_REFRESH_MS = 30_000
+// Espera desde el ultimo aviso antes de consultar: una tanda de cambios
+// seguidos termina en una sola consulta.
+const LIVE_DEBOUNCE_MS = 300
 
 interface ReservationsState {
   reservations: Reservation[]
@@ -75,6 +80,46 @@ interface ReservationsState {
   addReservation: (reservation: Omit<Reservation, 'id'>) => Promise<string | null>
   updateStatus: (id: string, status: ReservationStatus) => Promise<void>
   deleteReservation: (id: string) => Promise<void>
+}
+
+// El sitio publico no puede leer la tabla, asi que no recibe sus cambios.
+// Escucha el canal del complejo, donde la base avisa "hubo un cambio" sin
+// ningun dato (migracion 028), y con cada aviso vuelve a pedir los horarios
+// ocupados. Si el canal no conecta, el visitante no ve ningun error: queda
+// la consulta periodica.
+function subscribePublic(venueId: string, get: () => ReservationsState): () => void {
+  const refresh = () => {
+    get().fetchReservations()
+    useFixedSlotsStore.getState().fetchFixedSlots('public')
+  }
+  let debounce: ReturnType<typeof setTimeout> | undefined
+  const onNotice = () => {
+    clearTimeout(debounce)
+    debounce = setTimeout(refresh, LIVE_DEBOUNCE_MS)
+  }
+  let joined = false
+  const channel = supabase
+    .channel(`venue:${venueId}`, { config: { private: true } })
+    .on('broadcast', { event: 'cambio' }, onNotice)
+    .subscribe((status) => {
+      if (status !== 'SUBSCRIBED') return
+      // Al reconectar pudo haberse perdido algun aviso: se consulta todo.
+      if (joined) refresh()
+      joined = true
+    })
+  const refreshWhenVisible = () => {
+    if (document.visibilityState === 'visible') refresh()
+  }
+  const timer = setInterval(refreshWhenVisible, PUBLIC_REFRESH_MS)
+  document.addEventListener('visibilitychange', refreshWhenVisible)
+  window.addEventListener('online', refresh)
+  return () => {
+    supabase.removeChannel(channel)
+    clearTimeout(debounce)
+    clearInterval(timer)
+    document.removeEventListener('visibilitychange', refreshWhenVisible)
+    window.removeEventListener('online', refresh)
+  }
 }
 
 export const useReservationsStore = create<ReservationsState>()((set, get) => ({
@@ -112,6 +157,7 @@ export const useReservationsStore = create<ReservationsState>()((set, get) => ({
   subscribeToChanges: () => {
     const venueId = useSettingsStore.getState().id
     if (!venueId) return () => {}
+    if (get().scope === 'public') return subscribePublic(venueId, get)
     const channel = supabase
       .channel(`reservations-changes-${venueId}`)
       .on(
@@ -122,20 +168,8 @@ export const useReservationsStore = create<ReservationsState>()((set, get) => ({
         },
       )
       .subscribe()
-    // El publico no recibe los cambios en vivo de una tabla que no puede
-    // leer: vuelve a preguntar cada tanto y al volver a la pestaña.
-    let timer: ReturnType<typeof setInterval> | undefined
-    const refreshWhenVisible = () => {
-      if (document.visibilityState === 'visible') get().fetchReservations()
-    }
-    if (get().scope === 'public') {
-      timer = setInterval(refreshWhenVisible, PUBLIC_REFRESH_MS)
-      document.addEventListener('visibilitychange', refreshWhenVisible)
-    }
     return () => {
       supabase.removeChannel(channel)
-      if (timer) clearInterval(timer)
-      document.removeEventListener('visibilitychange', refreshWhenVisible)
     }
   },
   addReservation: async (reservation) => {

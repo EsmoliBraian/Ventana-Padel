@@ -91,6 +91,18 @@ export function BookingFlowPage() {
     })
   }, [timeSlots, selectedDate])
 
+  // Si el horario elegido se ocupa mientras el jugador esta por confirmar,
+  // se lo lleva de vuelta a la grilla, ya marcado, en vez de dejarlo seguir
+  // hasta el error. No aplica mientras se esta guardando su propia reserva.
+  const pickedTime = step === 'summary' && !submitting ? selectedSlot?.time : undefined
+  const pickedTaken = pickedTime !== undefined && slots.some((s) => s.time === pickedTime && !s.available && !s.past)
+  useEffect(() => {
+    if (!pickedTaken) return
+    setError('Ese horario se acaba de ocupar. Elegí otro.')
+    setSelectedSlot(null)
+    setStep('slot')
+  }, [pickedTaken])
+
   const total = selectedSlot ? selectedSlot.court.price : 0
   const depositAmount = depositActive ? depositAmountFor(settings, total) : 0
 
