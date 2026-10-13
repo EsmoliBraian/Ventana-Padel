@@ -11,6 +11,21 @@
      Tailwind los expone como mo-* (ver tailwind.config.js). Un modo claro
      se agrega redefiniendo estas variables, por ejemplo bajo
      :root[data-theme='light'], sin tocar los componentes. */
+  /* Color de la marca: el violeta de la landing. Es la UNICA definicion: de
+     aca lo toman Tailwind (primary-*, ver tailwind.config.js), el Mostrador
+     (mo-accent) y los graficos (src/lib/theme.ts). Van como componentes RGB.
+       --brand           relleno de botones y de lo seleccionado; texto blanco
+       --brand-hover     el mismo relleno al pasar el cursor
+       --brand-edge      bordes y foco
+       --brand-light     texto, enlaces e iconos sobre el fondo oscuro */
+  :root {
+    --brand: 72 69 237;
+    --brand-hover: 59 56 221;
+    --brand-edge: 130 128 245;
+    --brand-light: 176 172 232;
+    --brand-contrast: 255 255 255;
+  }
+
   :root {
     --mo-bg: 18 18 18;
     --mo-surface: 34 35 37;
@@ -19,10 +34,11 @@
     --mo-border: 56 58 64;
     --mo-text: 239 239 239;
     --mo-text-muted: 148 151 158;
-    --mo-accent: 184 255 59;
-    --mo-accent-contrast: 18 18 18;
+    --mo-accent: var(--brand);
+    --mo-accent-contrast: var(--brand-contrast);
+    --mo-accent-text: var(--brand-light);
     --mo-open: 255 102 102;
-    --mo-closed: 94 242 178;
+    --mo-closed: 111 207 151;
     --mo-pending: 255 200 87;
     --mo-danger: 255 180 180;
   }

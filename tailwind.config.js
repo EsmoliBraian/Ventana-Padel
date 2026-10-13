@@ -4,18 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Color principal: el violeta de la marca. Los valores estan en
+        // src/index.css (variables --brand-*); aca solo se les pone nombre.
+        //   500 relleno (texto blanco) · 400 relleno al pasar el cursor
+        //   300 bordes y foco · 200 texto, enlaces e iconos sobre fondo oscuro
         primary: {
-          DEFAULT: '#B8FF3B',
-          50:  '#F7FFE8',
-          100: '#ECFFC2',
-          200: '#DFFF94',
-          300: '#CFFF66',
-          400: '#C4FF4D',
-          500: '#B8FF3B',
-          600: '#9BE01F',
-          700: '#7CB815',
-          800: '#5E8C10',
-          900: '#48690C',
+          DEFAULT: 'rgb(var(--brand) / <alpha-value>)',
+          200: 'rgb(var(--brand-light) / <alpha-value>)',
+          300: 'rgb(var(--brand-edge) / <alpha-value>)',
+          400: 'rgb(var(--brand-hover) / <alpha-value>)',
+          500: 'rgb(var(--brand) / <alpha-value>)',
         },
         brand: {
           DEFAULT: '#3735A9',
@@ -55,12 +53,14 @@ export default {
           muted: 'rgb(var(--mo-text-muted) / <alpha-value>)',
           accent: 'rgb(var(--mo-accent) / <alpha-value>)',
           'accent-contrast': 'rgb(var(--mo-accent-contrast) / <alpha-value>)',
+          'accent-text': 'rgb(var(--mo-accent-text) / <alpha-value>)',
           open: 'rgb(var(--mo-open) / <alpha-value>)',
           closed: 'rgb(var(--mo-closed) / <alpha-value>)',
           pending: 'rgb(var(--mo-pending) / <alpha-value>)',
           danger: 'rgb(var(--mo-danger) / <alpha-value>)',
         },
-        success: { DEFAULT: '#5EF2B2', bg: '#123A2B', border: '#1BB978', icon: '#22E6B8' },
+        // Estados: señales sobrias, siempre acompañadas de texto o icono.
+        success: { DEFAULT: '#6FCF97', bg: '#12301F', border: '#2E8B57', icon: '#4CC38A' },
         warning: { DEFAULT: '#FFD783', bg: '#3A2B10', border: '#F6B73C', icon: '#FFC857' },
         danger:  { DEFAULT: '#FFB4B4', bg: '#3A1717', border: '#E05252', icon: '#FF6666' },
         info:    { DEFAULT: '#A9D7FF', bg: '#132D44', border: '#4CA8FF', icon: '#59B2FF' },
@@ -72,8 +72,8 @@ export default {
         lg: '0.75rem',
       },
       boxShadow: {
-        'glow-primary': '0 0 20px rgba(34, 230, 184, 0.25)',
-        'glow-sm':      '0 0 10px rgba(34, 230, 184, 0.15)',
+        'glow-primary': '0 0 20px rgb(var(--brand) / 0.35)',
+        'glow-sm':      '0 0 10px rgb(var(--brand) / 0.22)',
         card: '0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.2)',
       },
     },
