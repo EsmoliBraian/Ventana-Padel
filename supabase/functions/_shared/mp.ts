@@ -85,24 +85,6 @@ export interface PreferenceInput {
 // Cobro de la seña en la cuenta del complejo. Sin comision de la plataforma.
 // Solo medios que acreditan en el momento, y vence junto con el horario.
 export async function createPreference(accessToken: string, input: PreferenceInput): Promise<{ id: string; payUrl: string }> {
-  // MP_PREFERENCE_MODE=minima arma el cobro sin las restricciones (vencimiento,
-  // medios excluidos, una cuota, modo binario). Es solo para diagnosticar con
-  // cuentas de prueba si alguna de ellas hace fallar el pago. Sin la variable,
-  // van todas.
-  const minimal = Deno.env.get('MP_PREFERENCE_MODE') === 'minima'
-  const restrictions = minimal
-    ? {}
-    : {
-        binary_mode: true,
-        expires: true,
-        expiration_date_from: new Date().toISOString(),
-        expiration_date_to: input.expiresAt,
-        payment_methods: {
-          // Efectivo (Rapipago, Pago Facil) y cajero acreditan despues.
-          excluded_payment_types: [{ id: 'ticket' }, { id: 'atm' }],
-          installments: 1,
-        },
-      }
   const res = await mpFetch('/checkout/preferences', accessToken, {
     method: 'POST',
     headers: { 'X-Idempotency-Key': input.depositId },
@@ -112,7 +94,15 @@ export async function createPreference(accessToken: string, input: PreferenceInp
       back_urls: { success: input.returnUrl, failure: input.returnUrl, pending: input.returnUrl },
       auto_return: 'approved',
       metadata: { deposit_id: input.depositId },
-      ...restrictions,
+      binary_mode: true,
+      expires: true,
+      expiration_date_from: new Date().toISOString(),
+      expiration_date_to: input.expiresAt,
+      payment_methods: {
+        // Efectivo (Rapipago, Pago Facil) y cajero acreditan despues.
+        excluded_payment_types: [{ id: 'ticket' }, { id: 'atm' }],
+        installments: 1,
+      },
     }),
   })
   if (!res.ok) throw new MpError(res.status, 'checkout/preferences')
